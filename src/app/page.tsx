@@ -11,7 +11,7 @@ export default function HomePage() {
     if (!user) {
       setTimeout(() => {
         redirect("/login");
-      }, 1000);
+      }, 500);
     }
   }, []);
 

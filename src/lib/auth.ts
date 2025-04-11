@@ -3,8 +3,8 @@ export const setToken = (token: string) => {
 };
 
 export const getToken = () => {
-  if (typeof window !== 'undefined') {
-    const token = localStorage.getItem('ezygo_access_token');
+  const token = localStorage.getItem('ezygo_access_token');
+  if (token) {
     return token;
   }
   return null;

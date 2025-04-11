@@ -23,12 +23,13 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
   >("username");
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const loginMethodProps = {
     username: {
       label: "username",
       type: "text",
-      placeholder: "JohnDoe",
+      placeholder: "john-doe",
     },
     email: {
       label: "email",
@@ -38,19 +39,25 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
     phone: {
       label: "phone",
       type: "tel",
-      placeholder: "+91 9234567890",
+      placeholder: "919234567890",
     },
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
     try {
       const response = await axios.post("/login", formData);
       setToken(response.data.access_token);
       router.push("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        setError(error.response.data.message);
+      } else {
+        setError("An unexpected error occurred");
+      }
       console.error("Login failed:", error);
     } finally {
       setIsLoading(false);
@@ -248,6 +255,16 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
                   {isLoading ? "logging in..." : "login"}
                 </Button>
               </motion.div>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-center text-sm text-destructive border rounded-lg bg-red-400/15 border-red-400 p-2 lowercase"
+                >
+                  ezygo says... <br />
+                  {error}
+                </motion.div>
+              )}
             </div>
           </div>
         </form>
