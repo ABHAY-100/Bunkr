@@ -1,16 +1,17 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { getDailyAttendanceDetails } from "@/lib/data"
+import { AttendanceData } from "@/app/api/attendance/attendance"
 import { CheckCircle, XCircle, Clock, CalendarDays } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
 interface DailyAttendanceProps {
-  courseId?: string
+  courseId: string;
+  attendanceData: AttendanceData;
 }
 
-export function DailyAttendance({ courseId = "all" }: DailyAttendanceProps) {
-  const dailyDetails = getDailyAttendanceDetails(courseId)
+export function DailyAttendance({ courseId, attendanceData }: DailyAttendanceProps) {
+  const dailyDetails = processDailyAttendance(attendanceData, courseId);
 
   return (
     <div className="grid gap-4">
@@ -82,4 +83,49 @@ export function DailyAttendance({ courseId = "all" }: DailyAttendanceProps) {
       </Card>
     </div>
   )
+}
+
+function processDailyAttendance(data: AttendanceData, courseId: string) {
+  const dailyData = [];
+
+  for (const dateKey of Object.keys(data.studentAttendanceData || {})) {
+    const dateData = data.attendanceDatesArray[dateKey];
+    if (!dateData) continue;
+
+    const sessions = Object.entries(data.studentAttendanceData[dateKey])
+      .map(([sessionId, attendance]) => {
+        if (courseId !== "all" && attendance.course?.toString() !== courseId) {
+          return null;
+        }
+
+        const session = data.sessions[sessionId];
+        const course = attendance.course ? data.courses[attendance.course] : null;
+
+        if (!session || !course) return null;
+
+        let status = "no-class";
+        if (attendance.attendance === 1) status = "present";
+        else if (attendance.attendance === 0) status = "absent";
+        else if (attendance.attendance === 2) status = "duty-leave";
+
+        return {
+          session: session.name,
+          courseName: course.name,
+          course: course,
+          status
+        };
+      })
+      .filter(Boolean);
+
+    if (sessions.length > 0) {
+      dailyData.push({
+        dateKey,
+        date: dateData.date,
+        day: dateData.day,
+        sessions
+      });
+    }
+  }
+
+  return dailyData.sort((a, b) => b.dateKey.localeCompare(a.dateKey));
 }

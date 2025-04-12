@@ -3,7 +3,7 @@ import "./globals.css";
 import ReactQueryProvider from "@/providers/react-query";
 
 export const metadata: Metadata = {
-  title: "bunkr",
+  title: "Bunkr",
   description: "A simple, student-only alternative to Ezygo",
 };
 

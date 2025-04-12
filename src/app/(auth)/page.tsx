@@ -4,7 +4,7 @@ import { LoginForm } from "@/components/login-form";
 import { useEffect, useState } from "react";
 import { Loading } from "@/components/loading";
 import { redirect } from "next/navigation";
-import { getToken } from "@/lib/auth";
+import { getToken } from "@/utils/auth";
 
 export default function LoginPage() {
   const [loading, setLoading] = useState(true);
@@ -17,7 +17,7 @@ export default function LoginPage() {
       } else {
         setTimeout(() => {
           setLoading(false);
-        }, 500);
+        }, 1000);
       }
     };
     fetchToken();

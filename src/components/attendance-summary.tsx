@@ -1,15 +1,16 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { getAttendanceSummary } from "@/lib/data"
+import { AttendanceData } from "@/app/api/attendance/attendance"
 import { CheckCircle, XCircle, Calendar } from "lucide-react"
 
 interface AttendanceSummaryProps {
-  courseId?: string
+  courseId: string;
+  attendanceData: AttendanceData;
 }
 
-export function AttendanceSummary({ courseId = "all" }: AttendanceSummaryProps) {
-  const summary = getAttendanceSummary(courseId)
+export function AttendanceSummary({ courseId, attendanceData }: AttendanceSummaryProps) {
+  const summary = calculateSummary(attendanceData, courseId);
 
   return (
     <>
@@ -55,4 +56,27 @@ export function AttendanceSummary({ courseId = "all" }: AttendanceSummaryProps) 
       </Card>
     </>
   )
+}
+
+function calculateSummary(data: AttendanceData, courseId: string) {
+  let present = 0, absent = 0, total = 0;
+
+  Object.values(data.studentAttendanceData || {}).forEach(sessions => {
+    Object.entries(sessions).forEach(([sessionId, attendance]) => {
+      if (courseId === "all" || attendance.course?.toString() === courseId) {
+        if (attendance.attendance !== null) {
+          total++;
+          if (attendance.attendance === 1) present++;
+          else absent++;
+        }
+      }
+    });
+  });
+
+  return {
+    present,
+    absent,
+    total,
+    percentage: total ? Math.round((present / total) * 100) : 0
+  };
 }

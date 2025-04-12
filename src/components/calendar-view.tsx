@@ -1,15 +1,16 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { getCalendarData } from "@/lib/data"
+import { AttendanceData } from "@/app/api/attendance/attendance"
 import { CheckCircle, XCircle, Clock } from "lucide-react"
 
 interface CalendarViewProps {
-  courseId?: string
+  courseId: string;
+  attendanceData: AttendanceData;
 }
 
-export function CalendarView({ courseId = "all" }: CalendarViewProps) {
-  const calendarData = getCalendarData(courseId)
+export function CalendarView({ courseId, attendanceData }: CalendarViewProps) {
+  const calendarData = processCalendarData(attendanceData, courseId);
 
   // Group by month
   const months: Record<string, Array<{ key: string; date: string; day: string; status: string; classes: number }>> = {}
@@ -84,6 +85,38 @@ export function CalendarView({ courseId = "all" }: CalendarViewProps) {
       ))}
     </div>
   )
+}
+
+function processCalendarData(data: AttendanceData, courseId: string) {
+  const calendar: Record<string, { date: string; day: string; status: string; classes: number }> = {};
+
+  Object.entries(data.studentAttendanceData || {}).forEach(([date, sessions]) => {
+    const dateObj = data.attendanceDatesArray[date];
+    if (!dateObj) return;
+
+    let dayPresent = 0, dayAbsent = 0, dayDutyLeave = 0;
+    
+    Object.values(sessions).forEach(attendance => {
+      if (courseId === "all" || attendance.course?.toString() === courseId) {
+        if (attendance.attendance === 1) dayPresent++;
+        else if (attendance.attendance === 0) dayAbsent++;
+        else if (attendance.attendance === 2) dayDutyLeave++;
+      }
+    });
+
+    const totalClasses = dayPresent + dayAbsent + dayDutyLeave;
+    if (totalClasses > 0) {
+      calendar[date] = {
+        date: dateObj.date,
+        day: dateObj.day,
+        status: dayPresent > dayAbsent ? 'present' : 
+               dayDutyLeave > dayPresent && dayDutyLeave > dayAbsent ? 'duty-leave' : 'absent',
+        classes: totalClasses
+      };
+    }
+  });
+
+  return calendar;
 }
 
 function generateCalendarGrid(

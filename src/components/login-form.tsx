@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Eye, EyeOff, Mail, Phone, User } from "lucide-react";
 import axios from "@/lib/axios";
-import { setToken } from "@/lib/auth";
+import { setToken } from "@/utils/auth";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, HTMLMotionProps } from "framer-motion";
 
@@ -142,7 +142,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
               variants={logoVariants}
             >
               <h1 className="text-3xl font-semibold">
-                welcome to <span className="gradient-title">bunkr</span>
+                welcome to <span className="gradient-logo">Bunkr</span>
               </h1>
               <div className="text-center text-sm italic text-muted-foreground">
                 use your ezygo credentials!

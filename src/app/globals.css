@@ -86,17 +86,10 @@
   }
 }
 
-.gradient-title {
+.gradient-logo {
   font-weight: bold;
   font-weight: bold;
-  background: linear-gradient(
-    to right,
-    #6ccfed,
-    #5db6c3,
-    #e6e2d3,
-    #f9d7b5,
-    #fbcfd7
-  );
+  background: linear-gradient(to right, #6ca2ab, #b0cbca, #ccd9d6, #edbea2);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
