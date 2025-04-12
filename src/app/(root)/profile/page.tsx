@@ -2,6 +2,7 @@
 
 import { Navbar } from "@/components/navbar";
 import { useProfile } from "@/app/api/users/myprofile";
+import { useEffect } from "react";
 import { useUser } from "@/app/api/users/user";
 import { ProfileForm } from "@/app/(root)/profile/profile-form";
 import { InstitutionSelector } from "./institution-selector";
@@ -17,10 +18,28 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getProfileImage } from "@/lib/utils";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { getToken } from "@/utils/auth";
+import { redirect } from "next/navigation";
+import { useState } from "react";
+import { Loading } from "@/components/loading";
 
 export default function ProfilePage() {
   const { data: profile, isLoading: profileLoading } = useProfile();
   const { data: user, isLoading: userLoading } = useUser();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = getToken();
+    if (!token) {
+      redirect("/");
+      
+    }
+    setLoading(false);
+  }, []);
+
+  if (loading) {
+    return <Loading />;
+  }
 
   const isLoading = profileLoading || userLoading;
   const profileImageSrc = getProfileImage(profile?.gender ?? null);

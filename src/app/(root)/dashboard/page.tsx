@@ -38,7 +38,7 @@ export default function AttendanceDashboard() {
     const fetchUser = async () => {
       const token = await getToken();
       if (!token) {
-        redirect("/login");
+        redirect("/");
       } else {
         setLoading(false);
       }

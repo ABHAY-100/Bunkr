@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Bell, CircleUser, LogOut, Building2 } from "lucide-react";
+import { Bell, CircleUser, LogOut, Building2, Shapes } from "lucide-react";
 import { removeToken } from "@/utils/auth";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/app/api/users/user";
@@ -272,6 +272,10 @@ export const Navbar = () => {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigateTo("/dashboard")}>
+                <Shapes className="mr-2 h-4 w-4" />
+                <span>Dashboard</span>
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigateTo("/profile")}>
                 <CircleUser className="mr-2 h-4 w-4" />
                 <span>Profile</span>
