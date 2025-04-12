@@ -3,7 +3,7 @@ import "./globals.css";
 import ReactQueryProvider from "@/providers/react-query";
 
 export const metadata: Metadata = {
-  title: "Bunkr",
+  title: "bunkr",
   description: "A simple, student-only alternative to Ezygo",
 };
 
@@ -20,7 +20,7 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className={`antialiased`}>
+      <body className={`antialiased lowercase`}>
         <ReactQueryProvider>{children}</ReactQueryProvider>
       </body>
     </html>

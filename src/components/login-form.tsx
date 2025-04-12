@@ -7,12 +7,17 @@ import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { Eye, EyeOff, Mail, Phone, User } from "lucide-react";
 import axios from "@/lib/axios";
+import { AxiosError } from "axios";
 import { setToken } from "@/utils/auth";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, HTMLMotionProps } from "framer-motion";
 
 interface LoginFormProps extends HTMLMotionProps<"div"> {
   className?: string;
+}
+
+interface ErrorResponse {
+  message: string;
 }
 
 export function LoginForm({ className, ...props }: LoginFormProps) {
@@ -52,9 +57,10 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
       const response = await axios.post("/login", formData);
       setToken(response.data.access_token);
       router.push("/dashboard");
-    } catch (error: any) {
-      if (error.response?.data?.message) {
-        setError(error.response.data.message);
+    } catch (error) {
+      const err = error as AxiosError<ErrorResponse>;
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
       } else {
         setError("An unexpected error occurred");
       }
@@ -64,7 +70,6 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
     }
   };
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -120,7 +125,6 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
     },
   };
 
-  // Placeholder animation variants
   const placeholderVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.3 } },
@@ -142,7 +146,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
               variants={logoVariants}
             >
               <h1 className="text-3xl font-semibold">
-                welcome to <span className="gradient-logo">Bunkr</span>
+                welcome to <span className="gradient-logo">bunkr</span>
               </h1>
               <div className="text-center text-sm italic text-muted-foreground">
                 use your ezygo credentials!
@@ -275,7 +279,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
           transition={{ delay: 0.7, duration: 0.5 }}
         >
           {
-            "\"ezygo handles the login — we don't see your info, and honestly, we don't want to.\" ~ admin"
+            "\"ezygo handles the login — we don't see your info, and honestly, we don't want to\" ~ admin"
           }
         </motion.div>
       </motion.div>

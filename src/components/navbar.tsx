@@ -10,13 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Bell,
-  CircleUser,
-  HomeIcon as House,
-  LogOut,
-  Building2,
-} from "lucide-react";
+import { Bell, CircleUser, LogOut, Building2 } from "lucide-react";
 import { removeToken } from "@/utils/auth";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/app/api/users/user";
@@ -121,12 +115,14 @@ export const Navbar = () => {
   return (
     <header className="sticky top-0 z-10 flex h-17 items-center justify-between gap-4 border-b bg-background px-4 md:px-6 text-white">
       <div className="flex items-center gap-2">
-        <h1 className="text-2xl md:text-3xl font-semibold gradient-title">Bunkr</h1>
+        <h1 className="text-2xl md:text-3xl font-semibold gradient-logo">
+          bunkr
+        </h1>
       </div>
 
-      <div className="flex items-center justify-between gap-2 md:gap-6">
+      <div className="flex items-center justify-between gap-2 md:gap-6 lowercase">
         {!institutionsLoading && institutions && institutions.length > 0 && (
-          <div className="flex">
+          <div className="flex max-[400px]:hidden">
             <Select
               value={selectedInstitution}
               onValueChange={handleInstitutionChange}
@@ -141,9 +137,11 @@ export const Navbar = () => {
                         <Building2 className="mr-2 h-4 w-4" />
                         <span className="truncate">
                           {truncateText(
-                            institutions.find(
-                              (i) => i.id.toString() === selectedInstitution
-                            )?.institution.name || "",
+                            (
+                              institutions.find(
+                                (i) => i.id.toString() === selectedInstitution
+                              )?.institution.name || ""
+                            ).toLowerCase(),
                             window.innerWidth < 768 ? 10 : 16
                           )}
                         </span>
@@ -157,7 +155,7 @@ export const Navbar = () => {
                     <div className="flex items-center">
                       <Building2 className="mr-2 h-4 w-4 flex-shrink-0" />
                       <span className="truncate">{inst.institution.name}</span>
-                      <span className="ml-2 text-xs text-muted-foreground capitalize hidden md:inline">
+                      <span className="ml-2 text-xs text-muted-foreground hidden md:inline">
                         ({inst.institution_role.name})
                       </span>
                     </div>
@@ -274,10 +272,6 @@ export const Navbar = () => {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigateTo("/")}>
-                <House className="mr-2 h-4 w-4" />
-                <span>Home</span>
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigateTo("/profile")}>
                 <CircleUser className="mr-2 h-4 w-4" />
                 <span>Profile</span>

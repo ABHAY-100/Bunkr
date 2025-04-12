@@ -80,9 +80,13 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    scroll-behavior: smooth;
   }
   body {
     @apply bg-background text-foreground;
+  }
+  html {
+    overflow-y: auto;
   }
 }
 

@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { Building2, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function InstitutionSelector() {
   const { data: institutions, isLoading } = useInstitutions();
@@ -95,71 +96,90 @@ export function InstitutionSelector() {
   }
 
   return (
-    <Card>
-      <CardHeader className="mt-3">
-        <CardTitle>Institutions</CardTitle>
-        <CardDescription className="hidden md:block">
-          Select your default institution
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="">
-        <RadioGroup
-          value={selectedInstitution}
-          onValueChange={setSelectedInstitution}
-          className="space-y-1"
-        >
-          {institutions.map((institution) => (
-            <div
-              key={institution.id}
-              className={`flex items-center space-x-2 rounded-md border p-2 md:p-3 ${
-                selectedInstitution === institution.id.toString()
-                  ? "border-primary bg-primary/5"
-                  : "border-input"
-              }`}
-            >
-              <label
-                htmlFor={`institution-${institution.id}`}
-                className="flex flex-1 items-center justify-between cursor-pointer"
-              >
-                <div className="flex items-center space-x-2 md:space-x-3">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium line-clamp-1">
-                      {institution.institution.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground hidden md:block">
-                      Role:{" "}
-                      <span className="capitalize">
-                        {institution.institution_role.name}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-              </label>
-              <RadioGroupItem
-                value={institution.id.toString()}
-                id={`institution-${institution.id}`}
-              />
-            </div>
-          ))}
-        </RadioGroup>
-
-        <div className="mt-4 flex justify-end">
-          <Button
-            onClick={handleSaveInstitution}
-            disabled={
-              updateDefaultInstitutionUser.isPending ||
-              selectedInstitution === defaultInstitutionUser?.toString()
-            }
-            className="w-full md:w-auto"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Card>
+        <CardHeader className="mt-3">
+          <CardTitle>Institutions</CardTitle>
+          <CardDescription className="hidden md:block">
+            Select your default institution
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="">
+          <RadioGroup
+            value={selectedInstitution}
+            onValueChange={setSelectedInstitution}
+            className="space-y-1"
           >
-            {updateDefaultInstitutionUser.isPending && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            Save as Default
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+            <AnimatePresence>
+              {institutions.map((institution, index) => (
+                <motion.div
+                  key={institution.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ scale: 1.02 }}
+                  className={`flex items-center space-x-2 rounded-md border p-2 md:p-3 ${
+                    selectedInstitution === institution.id.toString()
+                      ? "border-primary bg-primary/5"
+                      : "border-input"
+                  }`}
+                >
+                  <label
+                    htmlFor={`institution-${institution.id}`}
+                    className="flex flex-1 items-center justify-between cursor-pointer"
+                  >
+                    <div className="flex items-center space-x-2 md:space-x-3">
+                      <Building2 className="h-4 w-4 text-muted-foreground" />
+                      <div className="flex flex-col gap-0.5">
+                        <p className="text-sm font-medium line-clamp-1">
+                          {institution.institution.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground hidden md:block">
+                          Role:{" "}
+                          <span className="">
+                            {institution.institution_role.name}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  </label>
+                  <RadioGroupItem
+                    value={institution.id.toString()}
+                    id={`institution-${institution.id}`}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </RadioGroup>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="mt-4 flex justify-end"
+          >
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button
+                onClick={handleSaveInstitution}
+                disabled={
+                  updateDefaultInstitutionUser.isPending ||
+                  selectedInstitution === defaultInstitutionUser?.toString()
+                }
+                className="w-full md:w-auto"
+              >
+                {updateDefaultInstitutionUser.isPending && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Save as Default
+              </Button>
+            </motion.div>
+          </motion.div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
