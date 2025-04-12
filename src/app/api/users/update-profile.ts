@@ -1,29 +1,31 @@
 "use client";
 
-import { getToken } from "@/utils/auth";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axiosInstance from "@/lib/axios";
 
-export async function updateProfile(id: number, data: any) {
-  const token = getToken();
+interface ProfileData {
+  name?: string;
+  bio?: string;
+  avatar?: string;
+  email?: string;
+}
 
-  if (!token) {
-    throw new Error("Not authenticated");
-  }
+interface UpdateProfileData {
+  id: number;
+  data: ProfileData;
+}
 
-  const response = await fetch(
-    `https://production.api.ezygo.app/api/v1/Xcr45_salt/userprofiles/${id}`,
-    {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(data),
-    }
-  );
+export function useUpdateProfile() {
+  const queryClient = useQueryClient();
 
-  if (!response.ok) {
-    throw new Error("Failed to update profile");
-  }
-
-  return response.json();
+  return useMutation({
+    mutationFn: async ({ id, data }: UpdateProfileData) => {
+      const res = await axiosInstance.put(`/userprofiles/${id}`, data);
+      if (!res) throw new Error("Failed to update profile");
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profile"] });
+    },
+  });
 }

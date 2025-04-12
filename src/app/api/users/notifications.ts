@@ -1,7 +1,7 @@
 "use client";
 
-import { getToken } from "@/utils/auth";
 import { useQuery } from "@tanstack/react-query";
+import axiosInstance from "@/lib/axios";
 
 export interface Notification {
   id: string;
@@ -14,33 +14,13 @@ export interface Notification {
   updated_at: string;
 }
 
-export async function fetchNotifications() {
-  const token = getToken();
-
-  if (!token) {
-    throw new Error("Not authenticated");
-  }
-
-  const response = await fetch(
-    "https://production.api.ezygo.app/api/v1/Xcr45_salt/user/notifications",
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch notifications");
-  }
-
-  return response.json() as Promise<Notification[]>;
-}
-
 export function useNotifications() {
-  return useQuery({
+  return useQuery<Notification[]>({
     queryKey: ["notifications"],
-    queryFn: fetchNotifications,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    queryFn: async () => {
+      const res = await axiosInstance.get("/user/notifications");
+      if (!res) throw new Error("Failed to fetch notifications");
+      return res.data;
+    },
   });
 }

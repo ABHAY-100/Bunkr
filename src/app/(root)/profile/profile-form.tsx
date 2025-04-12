@@ -21,8 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateProfile } from "@/app/api/users/update-profile";
+import { useUpdateProfile } from "@/app/api/users/update-profile";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Profile } from "@/app/api/users/myprofile";
@@ -45,7 +44,7 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export function ProfileForm({ profile }: { profile: Profile }) {
   const [isEditing, setIsEditing] = useState(false);
-  const queryClient = useQueryClient();
+  const updateProfileMutation = useUpdateProfile();
 
   // Define the same animation variants used in the profile page
   const contentVariants = {
@@ -82,26 +81,24 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     },
   });
 
-  const mutation = useMutation({
-    mutationFn: (values: ProfileFormValues) =>
-      updateProfile(profile.id, values),
-    onSuccess: () => {
-      toast("Profile updated", {
-        description: "Your profile has been updated successfully.",
-      });
-      queryClient.invalidateQueries({ queryKey: ["profile"] });
-      setIsEditing(false);
-    },
-    onError: (error) => {
-      toast.error("Error", {
-        description: "Failed to update profile. Please try again.",
-      });
-      console.error("Error updating profile:", error);
-    },
-  });
-
   function onSubmit(data: ProfileFormValues) {
-    mutation.mutate(data);
+    updateProfileMutation.mutate(
+      { id: profile.id, data },
+      {
+        onSuccess: () => {
+          toast("Profile updated", {
+            description: "Your profile has been updated successfully.",
+          });
+          setIsEditing(false);
+        },
+        onError: (error) => {
+          toast.error("Error", {
+            description: "Failed to update profile. Please try again.",
+          });
+          console.error("Error updating profile:", error);
+        },
+      }
+    );
   }
 
   return (
@@ -229,7 +226,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                     type="button"
                     variant="outline"
                     onClick={() => setIsEditing(false)}
-                    disabled={mutation.isPending}
+                    disabled={updateProfileMutation.isPending}
                   >
                     Cancel
                   </Button>
@@ -243,8 +240,8 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.2, delay: 0.1 }}
                 >
-                  <Button type="submit" disabled={mutation.isPending}>
-                    {mutation.isPending && (
+                  <Button type="submit" disabled={updateProfileMutation.isPending}>
+                    {updateProfileMutation.isPending && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
                     Save Changes

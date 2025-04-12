@@ -1,7 +1,7 @@
 "use client";
 
-import { getToken } from "@/utils/auth";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axiosInstance from "@/lib/axios";
 
 export interface Institution {
   id: number;
@@ -26,119 +26,38 @@ export interface Institution {
   };
 }
 
-export async function fetchInstitutions() {
-  const token = getToken();
-
-  if (!token) {
-    throw new Error("Not authenticated");
-  }
-
-  const response = await fetch(
-    "https://production.api.ezygo.app/api/v1/Xcr45_salt/institutionusers/myinstitutions",
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch institutions");
-  }
-
-  return response.json() as Promise<Institution[]>;
-}
-
-export async function fetchDefaultInstitute() {
-  const token = getToken();
-
-  if (!token) {
-    throw new Error("Not authenticated");
-  }
-
-  const response = await fetch(
-    "https://production.api.ezygo.app/api/v1/Xcr45_salt/user/setting/default_institute",
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch default institute");
-  }
-
-  return response.json() as Promise<number>;
-}
-
-export async function fetchDefaultInstitutionUser() {
-  const token = getToken();
-
-  if (!token) {
-    throw new Error("Not authenticated");
-  }
-
-  const response = await fetch(
-    "https://production.api.ezygo.app/api/v1/Xcr45_salt/user/setting/default_institutionUser",
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch default institution user");
-  }
-
-  return response.json() as Promise<number>;
-}
-
-export async function updateDefaultInstitutionUser(institutionUserId: number) {
-  const token = getToken();
-
-  if (!token) {
-    throw new Error("Not authenticated");
-  }
-
-  const response = await fetch(
-    "https://production.api.ezygo.app/api/v1/Xcr45_salt/user/setting/default_institutionUser",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ default_institutionUser: institutionUserId }),
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error("Failed to update default institution user");
-  }
-
-  return response.json();
-}
-
 export function useInstitutions() {
-  return useQuery({
+  return useQuery<Institution[]>({
     queryKey: ["institutions"],
-    queryFn: fetchInstitutions,
+    queryFn: async () => {
+      const res = await axiosInstance.get("/institutionusers/myinstitutions");
+      if (!res) throw new Error("Failed to fetch institutions");
+      return res.data;
+    },
   });
 }
 
 export function useDefaultInstitute() {
-  return useQuery({
+  return useQuery<number>({
     queryKey: ["defaultInstitute"],
-    queryFn: fetchDefaultInstitute,
+    queryFn: async () => {
+      const res = await axiosInstance.get("/user/setting/default_institute");
+      if (!res) throw new Error("Failed to fetch default institute");
+      return res.data;
+    },
   });
 }
 
 export function useDefaultInstitutionUser() {
-  return useQuery({
+  return useQuery<number>({
     queryKey: ["defaultInstitutionUser"],
-    queryFn: fetchDefaultInstitutionUser,
+    queryFn: async () => {
+      const res = await axiosInstance.get(
+        "/user/setting/default_institutionUser"
+      );
+      if (!res) throw new Error("Failed to fetch default institution user");
+      return res.data;
+    },
   });
 }
 
@@ -146,7 +65,16 @@ export function useUpdateDefaultInstitutionUser() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: updateDefaultInstitutionUser,
+    mutationFn: async (institutionUserId: number) => {
+      const res = await axiosInstance.post(
+        "/user/setting/default_institutionUser",
+        {
+          default_institutionUser: institutionUserId,
+        }
+      );
+      if (!res) throw new Error("Failed to update default institution user");
+      return res.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["defaultInstitutionUser"] });
       queryClient.invalidateQueries({ queryKey: ["user"] });
