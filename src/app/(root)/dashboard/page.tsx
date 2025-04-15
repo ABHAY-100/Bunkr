@@ -33,13 +33,10 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 
 export default function Dashboard() {
-  // Fetch user profile data
   const { data: profile } = useProfile();
-  // Fetch settings data
   const { data: semesterData, isLoading: isLoadingSemester } =
     useFetchSemester();
   const { data: academicYearData, isLoading: isLoadingAcademicYear } =
@@ -47,14 +44,13 @@ export default function Dashboard() {
   const setSemesterMutation = useSetSemester();
   const setAcademicYearMutation = useSetAcademicYear();
 
-  // State for selected values - initialize with null to indicate "not loaded yet" state
   const [selectedSemester, setSelectedSemester] = useState<
     "even" | "odd" | null
   >(null);
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Update state when data is loaded - always use the server's value without logging
   useEffect(() => {
     if (semesterData) {
       setSelectedSemester(semesterData);
@@ -67,22 +63,32 @@ export default function Dashboard() {
     }
   }, [academicYearData]);
 
-  // Handle setting changes with clean, direct mutation calls
+  const {
+    data: attendanceData,
+    isLoading: isLoadingAttendance,
+    refetch: refetchAttendance,
+  } = useAttendanceReport();
+
+  const {
+    data: coursesData,
+    isLoading: isLoadingCourses,
+    refetch: refetchCourses,
+  } = useFetchCourses();
+
+  const { data: courseDetails, isLoading: isLoadingCourseDetails } =
+    useCourseDetails(selectedCourse || "");
+
   const handleSemesterChange = (value: "even" | "odd") => {
-    console.log("Changing semester to:", value);
     setSelectedSemester(value);
     setSemesterMutation.mutate(
       { default_semester: value },
       {
         onSuccess: () => {
-          console.log("Semester successfully changed to:", value);
-          // Force refetch courses and attendance data with new semester setting
           refetchCourses();
           refetchAttendance();
         },
         onError: (error) => {
           console.error("Error changing semester:", error);
-          // Revert UI state on error
           if (semesterData) {
             setSelectedSemester(semesterData);
           }
@@ -91,53 +97,17 @@ export default function Dashboard() {
     );
   };
 
-  // Add a refresh handler function to clear data and refetch everything
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-
-    // Clear selected course to reset course details view
-    setSelectedCourse(null);
-
-    // Reset any cached data - if you have any query client methods to invalidate/clear cache
-    // For example with react-query: queryClient.invalidateQueries(['courses'])
-    //                              queryClient.invalidateQueries(['attendance'])
-
-    Promise.all([refetchCourses(), refetchAttendance()])
-      .then(() => {
-        console.log("Data refreshed successfully");
-      })
-      .catch((error) => {
-        console.error("Error refreshing data:", error);
-        // Even on error, we want to try to reset and refresh the UI state
-        if (semesterData) {
-          setSelectedSemester(semesterData);
-        }
-        if (academicYearData) {
-          setSelectedYear(academicYearData);
-        }
-      })
-      .finally(() => {
-        setIsRefreshing(false);
-      });
-  };
-
   const handleAcademicYearChange = (value: string) => {
-    console.log("Changing academic year to:", value);
     setSelectedYear(value);
     setAcademicYearMutation.mutate(
       { default_academic_year: value },
       {
         onSuccess: () => {
-          console.log("Academic year successfully changed to:", value);
-          // Force refetch courses and attendance data with new academic year setting
           refetchCourses();
           refetchAttendance();
         },
         onError: (error) => {
           console.error("Error changing academic year:", error);
-          // Revert UI state on error
           if (academicYearData) {
             setSelectedYear(academicYearData);
           }
@@ -146,15 +116,28 @@ export default function Dashboard() {
     );
   };
 
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    setSelectedCourse(null);
+
+    Promise.all([refetchCourses(), refetchAttendance()])
+      .catch((error) => {
+        console.error("Error refreshing data:", error);
+        if (semesterData) setSelectedSemester(semesterData);
+        if (academicYearData) setSelectedYear(academicYearData);
+      })
+      .finally(() => {
+        setIsRefreshing(false);
+      });
+  };
+
   const generateAcademicYears = () => {
     const currentYear = new Date().getFullYear();
     const startYear = 2023;
     const years = [];
 
-    // Generate years from 2023 to current year + 2
     for (let year = startYear; year <= currentYear + 2; year++) {
-      const endYear = year + 1;
-      const academicYear = `${year}-${endYear.toString().slice(-2)}`;
+      const academicYear = `${year}-${(year + 1).toString().slice(-2)}`;
       years.push(academicYear);
     }
 
@@ -163,40 +146,23 @@ export default function Dashboard() {
 
   const academicYears = generateAcademicYears();
 
-  // Fetch attendance report using the new API hook
-  const {
-    data: attendanceData,
-    isLoading: isLoadingAttendance,
-    refetch: refetchAttendance,
-  } = useAttendanceReport();
-
-  // Fetch courses using the new API hook
-  const {
-    data: coursesData,
-    isLoading: isLoadingCourses,
-    refetch: refetchCourses,
-  } = useFetchCourses();
-
-  // Fetch course details when a course is selected
-  const { data: courseDetails, isLoading: isLoadingCourseDetails } =
-    useCourseDetails(selectedCourse || "");
-
-  // Calculate overall attendance statistics
   const calculateOverallStats = () => {
-    if (!coursesData || !coursesData.courses)
+    if (!attendanceData?.studentAttendanceData)
       return { present: 0, absent: 0, total: 0, percentage: 0 };
 
     let totalPresent = 0;
     let totalAbsent = 0;
-    let totalClasses = 0;
 
-    Object.values(coursesData.courses).forEach((course: any) => {
-      // This is a placeholder calculation since we don't have the actual attendance data per course
-      // In a real implementation, you would use the actual data
-      totalPresent += 15; // Placeholder
-      totalAbsent += 2; // Placeholder
-      totalClasses += 17; // Placeholder
-    });
+    Object.values(attendanceData.studentAttendanceData).forEach(
+      (dateData: any) => {
+        Object.values(dateData).forEach((session: any) => {
+          if (session.attendance === 110) totalPresent++;
+          else if (session.attendance === 10) totalAbsent++;
+        });
+      }
+    );
+
+    const totalClasses = totalPresent + totalAbsent;
 
     return {
       present: totalPresent,
@@ -237,7 +203,7 @@ export default function Dashboard() {
                 }
                 disabled={isLoadingSemester || setSemesterMutation.isPending}
               >
-                <SelectTrigger className="w-fit h-6 px-2 text-sm rounded-full pl-3">
+                <SelectTrigger className="w-fit h-6 px-2 text-sm rounded-full pl-2.5">
                   {isLoadingSemester ? (
                     <span className="text-muted-foreground">Loading...</span>
                   ) : selectedSemester ? (
@@ -245,21 +211,10 @@ export default function Dashboard() {
                   ) : (
                     <span className="text-muted-foreground">semester</span>
                   )}
-                  {/* {console.log("selectedSemester", selectedSemester)} */}
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="even">
-                    even
-                    {setSemesterMutation.isPending &&
-                      selectedSemester === "even" &&
-                      " (saving...)"}
-                  </SelectItem>
-                  <SelectItem value="odd">
-                    odd
-                    {setSemesterMutation.isPending &&
-                      selectedSemester === "odd" &&
-                      " (saving...)"}
-                  </SelectItem>
+                  <SelectItem value="even">even</SelectItem>
+                  <SelectItem value="odd">odd</SelectItem>
                 </SelectContent>
               </Select>
               <span>semester reports for academic year</span>
@@ -283,9 +238,6 @@ export default function Dashboard() {
                   {academicYears.map((year) => (
                     <SelectItem key={year} value={year}>
                       {year}
-                      {setAcademicYearMutation.isPending &&
-                        selectedYear === year &&
-                        " (saving...)"}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -293,8 +245,10 @@ export default function Dashboard() {
 
               <button
                 onClick={handleRefresh}
-                disabled={isRefreshing || isLoadingCourses || isLoadingAttendance}
-                className="inline-flex h-6 items-center justify-center rounded-full bg-primary/10 px-2 text-sm text-primary hover:bg-primary/20 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                disabled={
+                  isRefreshing || isLoadingCourses || isLoadingAttendance
+                }
+                className="inline-flex h-6 ml-2 items-center justify-center rounded-full bg-primary/10 px-2 text-sm text-primary hover:bg-primary/20 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                 title="Refresh data"
               >
                 <RefreshCw
@@ -314,7 +268,7 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <Card>
+            <Card className="h-full">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Attendance
@@ -335,11 +289,11 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
           >
-            <Card>
+            <Card className="h-full">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Present</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="mt-2">
                 <div className="text-2xl font-bold text-green-500">
                   {stats.present}
                 </div>
@@ -355,11 +309,11 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
           >
-            <Card>
+            <Card className="h-full">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Absent</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="mt-2">
                 <div className="text-2xl font-bold text-red-500">
                   {stats.absent}
                 </div>
@@ -375,13 +329,13 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.3 }}
           >
-            <Card>
+            <Card className="h-full">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Courses
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="mt-2">
                 <div className="text-2xl font-bold">
                   {coursesData?.courses
                     ? Object.keys(coursesData.courses).length
@@ -509,7 +463,8 @@ export default function Dashboard() {
                     </CardContent>
                   </Card>
                 ))
-            ) : coursesData?.courses ? (
+            ) : coursesData?.courses &&
+              Object.keys(coursesData.courses).length > 0 ? (
               Object.entries(coursesData.courses).map(
                 ([courseId, course]: [string, any], index) => (
                   <motion.div

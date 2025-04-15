@@ -1,11 +1,18 @@
-"use client"
+"use client";
 
-import { useMemo } from "react"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
+import { useMemo } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 
 export function AttendanceChart() {
-  // This is placeholder data since we don't have the actual data structure
-  // In a real implementation, you would process the actual data
   const data = useMemo(
     () => [
       { name: "CST204", present: 18, absent: 2, total: 20 },
@@ -14,21 +21,24 @@ export function AttendanceChart() {
       { name: "HUT200", present: 12, absent: 2, total: 14 },
       { name: "MCN202", present: 10, absent: 1, total: 11 },
     ],
-    [],
-  )
+    []
+  );
 
   return (
     <div className="h-[300px] w-full">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+        <BarChart
+          data={data}
+          margin={{ top: 20, right: 30, left: 0, bottom: 5 }}
+        >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" />
           <YAxis />
           <Tooltip
             formatter={(value, name) => {
-              if (name === "present") return [`${value} classes`, "Present"]
-              if (name === "absent") return [`${value} classes`, "Absent"]
-              return [value, name]
+              if (name === "present") return [`${value} classes`, "Present"];
+              if (name === "absent") return [`${value} classes`, "Absent"];
+              return [value, name];
             }}
           />
           <Legend />
@@ -37,5 +47,5 @@ export function AttendanceChart() {
         </BarChart>
       </ResponsiveContainer>
     </div>
-  )
+  );
 }
