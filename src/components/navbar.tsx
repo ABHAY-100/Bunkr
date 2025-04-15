@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Bell, CircleUser, LogOut, Building2, Shapes } from "lucide-react";
+import { Bell, LogOut, Building2, Layers2, UserRound } from "lucide-react";
 import { removeToken } from "@/utils/auth";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/app/api/users/user";
@@ -64,7 +64,7 @@ export const Navbar = () => {
 
   const handleLogout = () => {
     removeToken();
-    router.push("/login");
+    router.push("/");
   };
 
   const navigateTo = (path: string) => {
@@ -96,7 +96,7 @@ export const Navbar = () => {
   };
 
   const parseNotificationData = (data: string) => {
-    const deviceMatch = data.match(/Date:(.+?), Time:(.+?) $$UTC$$, (.+)/);
+    const deviceMatch = data.match(/Date:(.+?), Time:(.+?) \$\$UTC\$\$, (.+)/);
     if (deviceMatch) {
       const [, date, time, device] = deviceMatch;
       return {
@@ -273,11 +273,11 @@ export const Navbar = () => {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => navigateTo("/dashboard")}>
-                <Shapes className="mr-2 h-4 w-4" />
+                <Layers2 className="mr-2 h-4 w-4" />
                 <span>Dashboard</span>
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigateTo("/profile")}>
-                <CircleUser className="mr-2 h-4 w-4" />
+                <UserRound className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />

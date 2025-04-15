@@ -84,6 +84,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    @apply !min-w-full;
   }
   html {
     overflow-y: auto;
