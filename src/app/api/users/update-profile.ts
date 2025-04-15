@@ -3,11 +3,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
 
-interface ProfileData {
-  name?: string;
-  bio?: string;
-  avatar?: string;
-  email?: string;
+export interface ProfileData {
+  first_name?: string;
+  last_name?: string;
+  gender?: string | null;
+  birth_date?: string | null;
 }
 
 interface UpdateProfileData {

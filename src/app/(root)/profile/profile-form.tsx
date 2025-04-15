@@ -21,11 +21,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { useUpdateProfile } from "@/app/api/users/update-profile";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Profile } from "@/app/api/users/myprofile";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUpdateProfile, ProfileData } from "@/app/api/users/update-profile";
 
 const profileFormSchema = z.object({
   first_name: z.string().min(2, {
@@ -46,29 +46,27 @@ export function ProfileForm({ profile }: { profile: Profile }) {
   const [isEditing, setIsEditing] = useState(false);
   const updateProfileMutation = useUpdateProfile();
 
-  // Define the same animation variants used in the profile page
   const contentVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
-      transition: { 
+      transition: {
         duration: 0.4,
-        ease: "easeInOut"
-      }
-    }
+        ease: "easeInOut",
+      },
+    },
   };
 
-  // Individual field animation variants with staggered effect
   const fieldVariants = {
     hidden: { opacity: 0 },
     visible: (custom: number) => ({
       opacity: 1,
-      transition: { 
+      transition: {
         delay: custom * 0.1,
-        duration: 0.3
-      }
-    })
+        duration: 0.3,
+      },
+    }),
   };
 
   const form = useForm<ProfileFormValues>({
@@ -81,9 +79,16 @@ export function ProfileForm({ profile }: { profile: Profile }) {
     },
   });
 
-  function onSubmit(data: ProfileFormValues) {
+  function onSubmit(formValues: ProfileFormValues) {
+    const profileData: ProfileData = {
+      first_name: formValues.first_name,
+      last_name: formValues.last_name,
+      gender: formValues.gender,
+      birth_date: formValues.birth_date,
+    };
+
     updateProfileMutation.mutate(
-      { id: profile.id, data },
+      { id: profile.id, data: profileData },
       {
         onSuccess: () => {
           toast("Profile updated", {
@@ -103,11 +108,11 @@ export function ProfileForm({ profile }: { profile: Profile }) {
 
   return (
     <Form {...form}>
-      <motion.form 
+      <motion.form
         initial="hidden"
         animate="visible"
         variants={contentVariants}
-        onSubmit={form.handleSubmit(onSubmit)} 
+        onSubmit={form.handleSubmit(onSubmit)}
         className="space-y-5"
       >
         <div className="grid grid-cols-1 min-[1300px]:grid-cols-2 gap-5">
@@ -131,7 +136,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
               )}
             />
           </motion.div>
-          
+
           <motion.div custom={1} variants={fieldVariants}>
             <FormField
               control={form.control}
@@ -196,6 +201,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                       {...field}
                       value={field.value || ""}
                       disabled={!isEditing}
+                      className="filter brightness-0 invert"
                     />
                   </FormControl>
                   <FormMessage />
@@ -205,9 +211,9 @@ export function ProfileForm({ profile }: { profile: Profile }) {
           </motion.div>
         </div>
 
-        <motion.div 
+        <motion.div
           className="flex justify-end gap-4"
-          custom={4} 
+          custom={4}
           variants={fieldVariants}
         >
           <AnimatePresence mode="wait">
@@ -240,7 +246,10 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.2, delay: 0.1 }}
                 >
-                  <Button type="submit" disabled={updateProfileMutation.isPending}>
+                  <Button
+                    type="submit"
+                    disabled={updateProfileMutation.isPending}
+                  >
                     {updateProfileMutation.isPending && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}

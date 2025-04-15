@@ -46,7 +46,6 @@ export function InstitutionSelector() {
 
     updateDefaultInstitutionUser.mutate(Number.parseInt(selectedInstitution), {
       onSuccess: () => {
-        // Invalidate both queries to ensure sync
         queryClient.invalidateQueries({ queryKey: ["defaultInstitutionUser"] });
         queryClient.invalidateQueries({ queryKey: ["institutions"] });
         toast("Institution updated", {
@@ -54,7 +53,6 @@ export function InstitutionSelector() {
         });
       },
       onError: () => {
-        // Reset on error
         setSelectedInstitution(defaultInstitutionUser?.toString() || "");
         toast.error("Error", {
           description: "Failed to update institution. Please try again.",

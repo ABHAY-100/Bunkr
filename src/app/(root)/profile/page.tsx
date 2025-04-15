@@ -32,7 +32,6 @@ export default function ProfilePage() {
     const token = getToken();
     if (!token) {
       redirect("/");
-      
     }
     setLoading(false);
   }, []);
@@ -44,7 +43,6 @@ export default function ProfilePage() {
   const isLoading = profileLoading || userLoading;
   const profileImageSrc = getProfileImage(profile?.gender ?? null);
 
-  // Animation variants for tab content
   const tabContentVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -57,7 +55,6 @@ export default function ProfilePage() {
     },
   };
 
-  // Individual field animation variants with staggered effect
   const fieldVariants = {
     hidden: { opacity: 0 },
     visible: (custom: number) => ({
@@ -107,7 +104,7 @@ export default function ProfilePage() {
                   <div className="h-[120px] md:h-[140px] w-full bg-white/4 absolute top-0 left-0 right-0 z-[0] rounded-t-xl" />
                 )}
                 {/* cover image */}
-                <div className="relative w-24 h-24 mb-3 flex items-start">
+                <div className="relative w-24 h-24 mb-3 flex items-start mt-0.5">
                   {isLoading ? (
                     <Skeleton className="w-full h-full rounded-full z-10" />
                   ) : (
