@@ -9,16 +9,22 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useProfile } from "@/app/api/users/myprofile";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { CheckCircle2, ChevronRight, XCircle, RefreshCw } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+} from "@/components/ui/select";
+import { RefreshCw } from "lucide-react";
 import { AttendanceCalendar } from "@/components/attendance-calendar";
 import { CourseCard } from "@/components/course-card";
 import { AttendanceChart } from "@/components/attendance-chart";
 import { Navbar } from "@/components/navbar";
 import { Loading } from "@/components/loading";
+import { useProfile } from "@/app/api/users/myprofile";
 import { useAttendanceReport } from "@/app/api/courses/attendance";
 import { useFetchCourses } from "@/app/api/courses/courses";
 import { useCourseDetails } from "@/app/api/courses/attendance";
@@ -28,12 +34,6 @@ import {
   useSetSemester,
   useSetAcademicYear,
 } from "@/app/api/users/settings";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-} from "@/components/ui/select";
 
 export default function Dashboard() {
   const { data: profile } = useProfile();
@@ -49,6 +49,7 @@ export default function Dashboard() {
   >(null);
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
+
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
@@ -148,28 +149,44 @@ export default function Dashboard() {
 
   const calculateOverallStats = () => {
     if (!attendanceData?.studentAttendanceData)
-      return { present: 0, absent: 0, total: 0, percentage: 0 };
+      return {
+        present: 0,
+        absent: 0,
+        total: 0,
+        percentage: 0,
+        dutyLeave: 0,
+        otherLeave: 0,
+      };
 
     let totalPresent = 0;
     let totalAbsent = 0;
+    let dutyLeave = 0;
+    let otherLeave = 0;
 
     Object.values(attendanceData.studentAttendanceData).forEach(
       (dateData: any) => {
         Object.values(dateData).forEach((session: any) => {
           if (session.attendance === 110) totalPresent++;
-          else if (session.attendance === 10) totalAbsent++;
+          else if (session.attendance === 111) totalAbsent++;
+          else if (session.attendance === 225) dutyLeave++;
+          else if (session.attendance === 112) otherLeave++;
         });
       }
     );
 
-    const totalClasses = totalPresent + totalAbsent;
+    const effectivePresent = totalPresent + dutyLeave;
+    const totalClasses = effectivePresent + totalAbsent + otherLeave;
 
     return {
-      present: totalPresent,
+      present: effectivePresent,
       absent: totalAbsent,
       total: totalClasses,
+      dutyLeave: dutyLeave,
+      otherLeave: otherLeave,
       percentage:
-        totalClasses > 0 ? Math.round((totalPresent / totalClasses) * 100) : 0,
+        totalClasses > 0
+          ? Math.round((effectivePresent / totalClasses) * 100)
+          : 0,
     };
   };
 
@@ -180,6 +197,7 @@ export default function Dashboard() {
       <Navbar />
 
       <main className="flex-1 container mx-auto p-4 md:p-6">
+        {/* selector statements */}
         <div className="mb-6 py-2 flex flex-col gap-4">
           <div className="flex flex-col gap-1">
             <h1 className="text-2xl font-bold mb-2 italic">
@@ -188,7 +206,7 @@ export default function Dashboard() {
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center mb-4 justify-between">
               <p className="text-muted-foreground italic">
                 {
-                  "Stay on top of your classes, track your attendance, and manage your day like a pro."
+                  "Stay on top of your classes, track your attendance, and manage your day like a pro!"
                 }
               </p>
             </div>
@@ -262,13 +280,15 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-6">
+        {/* info cards */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 mb-6">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
+            className="col-span-2"
           >
-            <Card className="h-full">
+            <Card className="h-full max-h-[180px]">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Attendance
@@ -289,12 +309,12 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
           >
-            <Card className="h-full">
+            <Card className="h-full max-h-[180px]">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Present</CardTitle>
               </CardHeader>
-              <CardContent className="mt-2">
-                <div className="text-2xl font-bold text-green-500">
+              <CardContent className="mt-3">
+                <div className="text-2xl font-bold text-green-500 mt-0.5">
                   {stats.present}
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
@@ -309,12 +329,12 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
           >
-            <Card className="h-full">
+            <Card className="h-full max-h-[180px]">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Absent</CardTitle>
               </CardHeader>
-              <CardContent className="mt-2">
-                <div className="text-2xl font-bold text-red-500">
+              <CardContent className="mt-3">
+                <div className="text-2xl font-bold text-red-500  mt-0.5">
                   {stats.absent}
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
@@ -327,16 +347,60 @@ export default function Dashboard() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+          >
+            <Card className="h-full max-h-[180px]">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Duty Leaves
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="mt-3">
+                <div className="text-2xl font-bold text-yellow-500  mt-0.5">
+                  {stats.dutyLeave}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Excused absences
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: 0.2 }}
+          >
+            <Card className="h-full max-h-[180px]">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Special Leave
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="mt-3">
+                <div className="text-2xl font-bold text-teal-400  mt-0.5">
+                  {stats.otherLeave}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Non-standard off
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.3 }}
           >
-            <Card className="h-full">
+            <Card className="h-full max-h-[180px]">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Courses
                 </CardTitle>
               </CardHeader>
-              <CardContent className="mt-2">
-                <div className="text-2xl font-bold">
+              <CardContent className="mt-3">
+                <div className="text-2xl font-bold mt-0.5">
                   {coursesData?.courses
                     ? Object.keys(coursesData.courses).length
                     : 0}
@@ -349,6 +413,7 @@ export default function Dashboard() {
           </motion.div>
         </div>
 
+        {/* attendance overview graph*/}
         <div className="grid gap-6 md:grid-cols-2 mb-6">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -359,11 +424,17 @@ export default function Dashboard() {
               <CardHeader>
                 <CardTitle>Attendance Overview</CardTitle>
                 <CardDescription>
-                  Your attendance across all courses
+                  {"See where you've been keeping up"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <AttendanceChart />
+                {isLoadingAttendance ? (
+                  <div className="flex items-center justify-center h-full">
+                    <Loading />
+                  </div>
+                ) : (
+                  <AttendanceChart attendanceData={attendanceData} />
+                )}
               </CardContent>
             </Card>
           </motion.div>
@@ -375,60 +446,142 @@ export default function Dashboard() {
           >
             <Card className="col-span-1">
               <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>
-                  Your recent attendance records
-                </CardDescription>
+                <CardTitle>Instructor Details</CardTitle>
+                <CardDescription>Get to know your instructors</CardDescription>
               </CardHeader>
               <CardContent>
-                <ScrollArea className="h-[300px]">
-                  {isLoadingAttendance ? (
-                    <div className="flex items-center justify-center h-full">
-                      <Loading text="Loading attendance data..." />
-                    </div>
-                  ) : attendanceData?.attendanceDatesArray ? (
-                    Object.entries(attendanceData.attendanceDatesArray)
-                      .sort((a, b) => Number(b[0]) - Number(a[0]))
-                      .slice(0, 10)
-                      .map(([dateKey, dateInfo]: [string, any]) => {
-                        const hasAttendance =
-                          attendanceData.studentAttendanceData[dateKey];
-                        const anyPresent =
-                          hasAttendance &&
-                          Object.values(hasAttendance).some(
-                            (session: any) => session.attendance === 110
-                          );
+                {isLoadingCourses ? (
+                  <div className="flex items-center justify-center h-[200px]">
+                    <Loading />
+                  </div>
+                ) : coursesData?.courses &&
+                  Object.keys(coursesData.courses).length > 0 ? (
+                  <div className="rounded-md border">
+                    <ScrollArea className="h-[300px]">
+                      <table className="w-full caption-bottom text-sm">
+                        <thead className="relative">
+                          <tr className="border-b bg-muted/50">
+                            <th className="h-10 px-4 text-left font-medium text-muted-foreground rounded-tl-sm">
+                              Course
+                            </th>
+                            <th className="h-10 px-4 text-left font-medium text-muted-foreground">
+                              Instructor
+                            </th>
+                            <th className="h-10 px-4 text-left font-medium text-muted-foreground hidden md:table-cell rounded-tr-sm">
+                              Status
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                          {Object.entries(coursesData.courses).map(
+                            ([courseId, course]: [string, any]) => {
+                              const instructors =
+                                course.institution_users.filter(
+                                  (user: any) => user.pivot.courserole_id === 1
+                                );
 
-                        return (
-                          <div
-                            key={dateKey}
-                            className="flex items-center py-3 border-b"
-                          >
-                            <div className="mr-4">
-                              {anyPresent ? (
-                                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                              return instructors.length > 0 ? (
+                                instructors.map(
+                                  (instructor: any, index: number) => (
+                                    <tr
+                                      key={`${courseId}-${instructor.id}`}
+                                      className="group transition-colors"
+                                      data-course-id={courseId}
+                                      onMouseEnter={() => {
+                                        document
+                                          .querySelectorAll(
+                                            `tr[data-course-id="${courseId}"]`
+                                          )
+                                          .forEach((row) => {
+                                            row.classList.add("bg-muted/50");
+                                          });
+                                      }}
+                                      onMouseLeave={() => {
+                                        document
+                                          .querySelectorAll(
+                                            `tr[data-course-id="${courseId}"]`
+                                          )
+                                          .forEach((row) => {
+                                            row.classList.remove("bg-muted/50");
+                                          });
+                                      }}
+                                    >
+                                      {index === 0 ? (
+                                        <td
+                                          className="p-4 align-top"
+                                          rowSpan={instructors.length}
+                                        >
+                                          <div className="font-medium">
+                                            {course.code}
+                                          </div>
+                                          <div className="text-sm text-muted-foreground">
+                                            {course.name}
+                                          </div>
+                                          {instructors.length > 1 && (
+                                            <div className="mt-2">
+                                              <span className="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold bg-blue-50/10 text-white/60 border-white/5">
+                                                {instructors.length} instructors
+                                              </span>
+                                            </div>
+                                          )}
+                                        </td>
+                                      ) : null}
+                                      <td className="p-4">
+                                        <div className="font-medium">
+                                          {instructor.first_name}{" "}
+                                          {instructor.last_name}
+                                        </div>
+                                      </td>
+                                      <td className="p-4 hidden md:table-cell">
+                                        <div className="flex items-center">
+                                          <span className="flex h-2 w-2 rounded-full bg-green-500 mr-2 ring-1 ring-green-500 ring-offset-1"></span>
+                                          <span className="text-sm font-medium text-green-600 dark:text-green-500">
+                                            Active
+                                          </span>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  )
+                                )
                               ) : (
-                                <XCircle className="h-5 w-5 text-red-500" />
-                              )}
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-medium">{dateInfo.date}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {dateInfo.day}
-                              </p>
-                            </div>
-                            <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                          </div>
-                        );
-                      })
-                  ) : (
-                    <div className="flex items-center justify-center h-full">
-                      <p className="text-muted-foreground">
-                        No attendance data available
-                      </p>
-                    </div>
-                  )}
-                </ScrollArea>
+                                <tr
+                                  key={courseId}
+                                  className="hover:bg-muted/50 transition-colors"
+                                >
+                                  <td className="p-4">
+                                    <div className="font-medium">
+                                      {course.code}
+                                    </div>
+                                    <div className="text-sm text-muted-foreground">
+                                      {course.name}
+                                    </div>
+                                  </td>
+                                  <td className="p-4 text-muted-foreground italic">
+                                    No instructor assigned
+                                  </td>
+                                  <td className="p-4 hidden md:table-cell">
+                                    <div className="flex items-center">
+                                      <span className="flex h-2 w-2 rounded-full bg-yellow-500 mr-2 ring-1 ring-yellow-500 ring-offset-1"></span>
+                                      <span className="text-sm font-medium text-yellow-600 dark:text-yellow-500">
+                                        Pending
+                                      </span>
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            }
+                          )}
+                        </tbody>
+                      </table>
+                    </ScrollArea>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">
+                      No faculty information available
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </motion.div>

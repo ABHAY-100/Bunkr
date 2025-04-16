@@ -34,12 +34,12 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
     username: {
       label: "username",
       type: "text",
-      placeholder: "john-doe",
+      placeholder: "therealdoe",
     },
     email: {
       label: "email",
       type: "email",
-      placeholder: "john@example.com",
+      placeholder: "johndoe@gmail.com",
     },
     phone: {
       label: "phone",

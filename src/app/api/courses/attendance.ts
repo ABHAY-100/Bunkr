@@ -211,8 +211,9 @@ export const useAllCourseAttendance = (courseIds: string[]) => {
 
 export const formatCourseCode = (code: string): string => {
   if (code.includes("-")) {
-    return code.split("-")[0].trim();
+    const subcode = code.split("-")[0].trim();
+    return subcode.replace(/[\s\u00A0]/g, "");
   }
 
-  return code;
+  return code.replace(/[\s\u00A0]/g, "");
 };
