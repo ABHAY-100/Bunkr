@@ -25,7 +25,7 @@ import { AttendanceChart } from "@/components/attendance-chart";
 import { Navbar } from "@/components/navbar";
 import { Loading } from "@/components/loading";
 import { useProfile } from "@/app/api/users/myprofile";
-import { useAttendanceReport } from "@/app/api/courses/attendance";
+import { useAttendanceReport, SessionInfo } from "@/app/api/courses/attendance";
 import { useFetchCourses } from "@/app/api/courses/courses";
 import { useCourseDetails } from "@/app/api/courses/attendance";
 import {
@@ -591,10 +591,18 @@ export default function Dashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Attendance Calendar</CardTitle>
-              <CardDescription>View your attendance by date</CardDescription>
+              <CardDescription>
+                Your attendance history at a glance
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <AttendanceCalendar attendanceData={attendanceData} />
+              {isLoadingAttendance ? (
+                <div className="flex items-center justify-center h-[200px]">
+                  <Loading />
+                </div>
+              ) : (
+                <AttendanceCalendar attendanceData={attendanceData} />
+              )}
             </CardContent>
           </Card>
         </div>
