@@ -81,6 +81,7 @@
   * {
     @apply border-border outline-ring/50;
     scroll-behavior: smooth;
+    user-select: none;
   }
   body {
     @apply bg-background text-foreground;
@@ -99,4 +100,22 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
   color: transparent;
+}
+
+input[type="date"] {
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  appearance: none;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+input[type="date"]::-moz-calendar-picker-indicator {
+  display: none;
+}
+
+input[type="date"]::-ms-expand {
+  display: none;
 }

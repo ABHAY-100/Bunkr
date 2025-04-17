@@ -122,11 +122,11 @@ export function ProfileForm({ profile }: { profile: Profile }) {
               name="first_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>First name</FormLabel>
+                  <FormLabel className="text-sm">First name</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Enter your first name"
-                      className="lowercase"
+                      className="lowercase text-sm"
                       {...field}
                       disabled={!isEditing}
                     />
@@ -143,11 +143,11 @@ export function ProfileForm({ profile }: { profile: Profile }) {
               name="last_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Last name</FormLabel>
+                  <FormLabel className="text-sm">Last name</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Enter your last name"
-                      className="lowercase"
+                      className="lowercase text-sm"
                       {...field}
                       disabled={!isEditing}
                     />
@@ -166,7 +166,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
               name="gender"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Gender</FormLabel>
+                  <FormLabel className="text-sm">Gender</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -194,14 +194,14 @@ export function ProfileForm({ profile }: { profile: Profile }) {
               name="birth_date"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Date of Birth</FormLabel>
+                  <FormLabel className="text-sm">Date of Birth</FormLabel>
                   <FormControl>
                     <Input
                       type="date"
                       {...field}
                       value={field.value || ""}
                       disabled={!isEditing}
-                      className="filter brightness-0 invert"
+                      className="filter brightness-0 invert text-sm"
                     />
                   </FormControl>
                   <FormMessage />

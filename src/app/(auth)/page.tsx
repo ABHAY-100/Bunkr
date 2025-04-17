@@ -17,7 +17,7 @@ export default function LoginPage() {
       } else {
         setTimeout(() => {
           setLoading(false);
-        }, 1000);
+        }, 1500);
       }
     };
     fetchToken();

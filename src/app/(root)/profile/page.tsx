@@ -87,14 +87,14 @@ export default function ProfilePage() {
           }}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8"
+          className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-3 gap-4 md:gap-8"
         >
           <motion.div
             variants={{
               hidden: { opacity: 0, y: 50 },
               show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
             }}
-            className="md:col-span-1 space-y-4 md:space-y-6"
+            className="md:col-span-2 sm:col-span-1 lg:col-span-1 space-y-4 md:space-y-6"
           >
             <Card className="relative">
               <CardContent className="flex flex-col items-center md:items-start pt-12">
@@ -149,7 +149,7 @@ export default function ProfilePage() {
             className="md:col-span-2"
           >
             <Tabs defaultValue="personal" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
+              <TabsList className="grid w-full grid-cols-2 max-md:mt-4">
                 <TabsTrigger value="personal">personal</TabsTrigger>
                 <TabsTrigger value="account">account</TabsTrigger>
               </TabsList>
@@ -217,7 +217,7 @@ export default function ProfilePage() {
                               animate="visible"
                             >
                               <h3 className="text-sm font-normal">Username</h3>
-                              <div className="p-2 pl-3 bg-secondary/50 rounded-md lowercase">
+                              <div className="p-2 pl-3 bg-secondary/50 rounded-md lowercase font-sm">
                                 {user?.username}
                               </div>
                             </motion.div>
@@ -229,7 +229,7 @@ export default function ProfilePage() {
                               animate="visible"
                             >
                               <h3 className="text-sm font-medium">Email</h3>
-                              <div className="p-2 pl-3 bg-secondary/50 rounded-md lowercase">
+                              <div className="p-2 pl-3 bg-secondary/50 rounded-md lowercase font-sm">
                                 {user?.email}
                               </div>
                             </motion.div>
@@ -241,7 +241,7 @@ export default function ProfilePage() {
                               animate="visible"
                             >
                               <h3 className="text-sm font-medium">Mobile</h3>
-                              <div className="p-2 pl-3 bg-secondary/50 rounded-md">
+                              <div className="p-2 pl-3 bg-secondary/50 rounded-md font-sm">
                                 +{user?.mobile}
                               </div>
                             </motion.div>
@@ -255,7 +255,7 @@ export default function ProfilePage() {
                               <h3 className="text-sm font-medium">
                                 Account Created
                               </h3>
-                              <div className="p-2 pl-3 bg-secondary/50 rounded-md">
+                              <div className="p-2 pl-3 bg-secondary/50 rounded-md font-sm">
                                 {user?.created_at
                                   ? new Date(
                                       user.created_at

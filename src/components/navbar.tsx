@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 
 export const Navbar = () => {
   const router = useRouter();
@@ -115,14 +116,17 @@ export const Navbar = () => {
   return (
     <header className="sticky top-0 z-10 flex h-17 items-center justify-between gap-4 border-b bg-background px-4 md:px-6 text-white">
       <div className="flex items-center gap-2">
-        <h1 className="text-2xl md:text-3xl font-semibold gradient-logo">
+        <Link
+          href="/"
+          className="text-3xl md:text-3xl font-semibold gradient-logo"
+        >
           bunkr
-        </h1>
+        </Link>
       </div>
 
       <div className="flex items-center justify-between gap-2 md:gap-6 lowercase">
         {!institutionsLoading && institutions && institutions.length > 0 && (
-          <div className="flex max-[400px]:hidden">
+          <div className="flex max-md:hidden">
             <Select
               value={selectedInstitution}
               onValueChange={handleInstitutionChange}
@@ -183,7 +187,7 @@ export const Navbar = () => {
                 )}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-80" align="end">
+            <DropdownMenuContent className="w-76 mx-2 z-50" align="end">
               <DropdownMenuLabel className="flex justify-between items-center">
                 <span>Notifications</span>
                 {unreadNotifications.length > 0 && (
@@ -260,7 +264,7 @@ export const Navbar = () => {
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="min-w-56" align="end">
+            <DropdownMenuContent className="min-w-56 z-50" align="end">
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium lowercase">

@@ -194,8 +194,8 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
                   <Input
                     id="login"
                     type={loginMethodProps[loginMethod].type}
-                    className=""
                     value={formData.username}
+                    className="max-md:text-sm"
                     onChange={(e) =>
                       setFormData({ ...formData, username: e.target.value })
                     }
@@ -225,6 +225,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
                     type={showPassword ? "text" : "password"}
                     required
                     value={formData.password}
+                    className="max-md:text-sm"
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }

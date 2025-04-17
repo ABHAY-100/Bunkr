@@ -25,7 +25,7 @@ import { AttendanceChart } from "@/components/attendance-chart";
 import { Navbar } from "@/components/navbar";
 import { Loading } from "@/components/loading";
 import { useProfile } from "@/app/api/users/myprofile";
-import { useAttendanceReport, SessionInfo } from "@/app/api/courses/attendance";
+import { useAttendanceReport } from "@/app/api/courses/attendance";
 import { useFetchCourses } from "@/app/api/courses/courses";
 import { useCourseDetails } from "@/app/api/courses/attendance";
 import {
@@ -34,6 +34,8 @@ import {
   useSetSemester,
   useSetAcademicYear,
 } from "@/app/api/users/settings";
+import { redirect } from "next/navigation";
+import { getToken } from "@/utils/auth";
 
 export default function Dashboard() {
   const { data: profile } = useProfile();
@@ -43,14 +45,39 @@ export default function Dashboard() {
     useFetchAcademicYear();
   const setSemesterMutation = useSetSemester();
   const setAcademicYearMutation = useSetAcademicYear();
+  const [loading, setLoading] = useState(true);
 
   const [selectedSemester, setSelectedSemester] = useState<
     "even" | "odd" | null
   >(null);
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
-  const [selectedCourse, setSelectedCourse] = useState<string | null>(null);
 
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const token = await getToken();
+      if (!token) {
+        redirect("/");
+      } else {
+        setTimeout(() => {
+          setLoading(false);
+        }, 1500);
+      }
+    };
+    fetchToken();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const token = await getToken();
+      if (!token) {
+        redirect("/");
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (semesterData) {
@@ -77,7 +104,7 @@ export default function Dashboard() {
   } = useFetchCourses();
 
   const { data: courseDetails, isLoading: isLoadingCourseDetails } =
-    useCourseDetails(selectedCourse || "");
+    useCourseDetails("");
 
   const handleSemesterChange = (value: "even" | "odd") => {
     setSelectedSemester(value);
@@ -119,7 +146,6 @@ export default function Dashboard() {
 
   const handleRefresh = () => {
     setIsRefreshing(true);
-    setSelectedCourse(null);
 
     Promise.all([refetchCourses(), refetchAttendance()])
       .catch((error) => {
@@ -192,6 +218,10 @@ export default function Dashboard() {
 
   const stats = calculateOverallStats();
 
+  if (loading) {
+    return <Loading />;
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Navbar />
@@ -212,7 +242,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex gap-4 items-center">
-            <p className="text-muted-foreground italic flex flex-wrap items-center gap-2">
+            <p className="text-muted-foreground flex flex-wrap items-center gap-2 max-sm:text-md">
               <span>You&apos;re checking out the</span>
               <Select
                 value={selectedSemester || undefined}
@@ -281,12 +311,12 @@ export default function Dashboard() {
         </div>
 
         {/* info cards */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 mb-6">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 mb-6 max-sm:gap-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="col-span-2"
+            className="col-span-2 w-full "
           >
             <Card className="h-full max-h-[180px]">
               <CardHeader className="pb-2">
@@ -308,6 +338,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
+            className="col-span-1 w-full "
           >
             <Card className="h-full max-h-[180px]">
               <CardHeader className="pb-2">
@@ -328,6 +359,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
+            className="col-span-1 w-full "
           >
             <Card className="h-full max-h-[180px]">
               <CardHeader className="pb-2">
@@ -347,6 +379,7 @@ export default function Dashboard() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            className="col-span-1 w-full "
             transition={{ duration: 0.3, delay: 0.2 }}
           >
             <Card className="h-full max-h-[180px]">
@@ -370,6 +403,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
+            className="col-span-1 w-full "
           >
             <Card className="h-full max-h-[180px]">
               <CardHeader className="pb-2">
@@ -392,6 +426,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.3 }}
+            className="col-span-1 w-full "
           >
             <Card className="h-full max-h-[180px]">
               <CardHeader className="pb-2">
@@ -628,18 +663,9 @@ export default function Dashboard() {
               Object.keys(coursesData.courses).length > 0 ? (
               Object.entries(coursesData.courses).map(
                 ([courseId, course]: [string, any], index) => (
-                  <motion.div
-                    key={courseId}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                  >
-                    <CourseCard
-                      course={course}
-                      onClick={() => setSelectedCourse(courseId)}
-                      isSelected={selectedCourse === courseId}
-                    />
-                  </motion.div>
+                  <div key={courseId}>
+                    <CourseCard course={course} />
+                  </div>
                 )
               )
             ) : (
@@ -651,100 +677,6 @@ export default function Dashboard() {
             )}
           </div>
         </div>
-
-        {selectedCourse && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="mb-6"
-          >
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  {coursesData?.courses[selectedCourse]?.name ||
-                    "Course Details"}
-                </CardTitle>
-                <CardDescription>
-                  {coursesData?.courses[selectedCourse]?.code || ""}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {isLoadingCourseDetails ? (
-                  <div className="space-y-4">
-                    <Skeleton className="h-8 w-full" />
-                    <Skeleton className="h-8 w-full" />
-                    <Skeleton className="h-8 w-full" />
-                  </div>
-                ) : courseDetails ? (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div className="bg-secondary/30 p-4 rounded-lg">
-                        <p className="text-sm font-medium">Present</p>
-                        <p className="text-2xl font-bold text-green-500">
-                          {courseDetails.present}
-                        </p>
-                      </div>
-                      <div className="bg-secondary/30 p-4 rounded-lg">
-                        <p className="text-sm font-medium">Absent</p>
-                        <p className="text-2xl font-bold text-red-500">
-                          {courseDetails.absent}
-                        </p>
-                      </div>
-                      <div className="bg-secondary/30 p-4 rounded-lg">
-                        <p className="text-sm font-medium">Total</p>
-                        <p className="text-2xl font-bold">
-                          {courseDetails.totel}
-                        </p>
-                      </div>
-                      <div className="bg-secondary/30 p-4 rounded-lg">
-                        <p className="text-sm font-medium">Percentage</p>
-                        <p className="text-2xl font-bold">
-                          {courseDetails.persantage}%
-                        </p>
-                      </div>
-                    </div>
-
-                    <Progress
-                      value={courseDetails.persantage}
-                      className="h-2"
-                    />
-
-                    <div className="pt-4">
-                      <h4 className="text-sm font-medium mb-2">
-                        Course Information
-                      </h4>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="text-sm text-muted-foreground">
-                            Course Code
-                          </p>
-                          <p className="font-medium">
-                            {courseDetails.course?.code}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-muted-foreground">
-                            Course ID
-                          </p>
-                          <p className="font-medium">
-                            {courseDetails.course?.id}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <p className="text-muted-foreground">
-                      No details available for this course
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
       </main>
     </div>
   );
