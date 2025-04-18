@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ReactQueryProvider from "@/providers/react-query";
+import { Analytics } from "@vercel/analytics/react"
 
 export const metadata: Metadata = {
   title: "bunkr",
@@ -22,6 +23,7 @@ export default function RootLayout({
       </head>
       <body className={`antialiased lowercase`}>
         <ReactQueryProvider>{children}</ReactQueryProvider>
+        <Analytics />
       </body>
     </html>
   );
