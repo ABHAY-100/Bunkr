@@ -14,7 +14,8 @@ export const useFetchSemester = () => {
     queryKey: ["semester"],
     queryFn: async () => {
       const res = await axios.get("/user/setting/default_semester");
-      return res.data?.default_semester || "even";
+      console.log("api resp: ", res.data);
+      return res.data;
     },
   });
 };
@@ -24,7 +25,8 @@ export const useFetchAcademicYear = () => {
     queryKey: ["academic-year"],
     queryFn: async () => {
       const res = await axios.get("/user/setting/default_academic_year");
-      return res.data?.default_academic_year || "2024-25";
+      console.log("api resp: ", res.data);
+      return res.data;
     },
   });
 };
@@ -42,7 +44,7 @@ export const useSetSemester = () => {
     },
     onSuccess: (data, variables) => {
       queryClient.setQueryData(["semester"], variables.default_semester);
-      
+
       queryClient.invalidateQueries({ queryKey: ["courses"] });
       queryClient.invalidateQueries({ queryKey: ["attendance"] });
     },
