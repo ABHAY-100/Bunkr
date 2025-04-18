@@ -94,8 +94,16 @@
 
 .gradient-logo {
   font-weight: bold;
-  font-weight: bold;
   background: linear-gradient(to right, #6ca2ab, #b0cbca, #ccd9d6, #edbea2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.gradient-name {
+  font-weight: bold;
+  background: linear-gradient(to right, #ced9d6, #badcdb);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -118,4 +126,14 @@ input[type="date"]::-moz-calendar-picker-indicator {
 
 input[type="date"]::-ms-expand {
   display: none;
+}
+
+.responsive-element {
+  display: block;
+}
+
+@media (768px < width < 1023.98px) {
+  .responsive-element {
+    display: none !important;
+  }
 }

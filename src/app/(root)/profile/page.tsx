@@ -1,11 +1,10 @@
 "use client";
 
-import { Navbar } from "@/components/navbar";
 import { useProfile } from "@/app/api/users/myprofile";
 import { useEffect } from "react";
 import { useUser } from "@/app/api/users/user";
-import { ProfileForm } from "@/app/(root)/profile/profile-form";
-import { InstitutionSelector } from "./institution-selector";
+import { ProfileForm } from "@/components/profile-form";
+import { InstitutionSelector } from "@/components/institution-selector";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
@@ -29,11 +28,17 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = getToken();
-    if (!token) {
-      redirect("/");
-    }
-    setLoading(false);
+    const fetchToken = async () => {
+      const token = await getToken();
+      if (!token) {
+        redirect("/");
+      } else {
+        setTimeout(() => {
+          setLoading(false);
+        }, 1000);
+      }
+    };
+    fetchToken();
   }, []);
 
   if (loading) {
@@ -68,7 +73,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
+      {/* <Navbar /> */}
       <motion.main
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

@@ -24,15 +24,15 @@ export function cn(...inputs: ClassValue[]) {
 const getRandomInt = (max: number) => Math.floor(Math.random() * max) + 1;
 
 const getOrSetImageIndex = (gender: string | null) => {
-  const storageKey = `profile-image-${gender ?? "default"}`;
-  const stored = localStorage.getItem(storageKey);
+  const storageKey = `bunkr_profile_image-${gender ?? "default"}`;
+  const stored = sessionStorage.getItem(storageKey);
 
   if (stored !== null) {
     return parseInt(stored);
   }
 
   const newIndex = getRandomInt(6) - 1;
-  localStorage.setItem(storageKey, newIndex.toString());
+  sessionStorage.setItem(storageKey, newIndex.toString());
   return newIndex;
 };
 

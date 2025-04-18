@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Calendar as CalendarIcon,
-  BookOpen,
-  Clock,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -21,29 +19,72 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function AttendanceCalendar({ attendanceData }) {
+// TypeScript interfaces for better type safety
+interface Course {
+  name: string;
+  id: string;
+}
+
+interface Session {
+  name: string;
+  id: string;
+}
+
+interface SessionData {
+  course: number;
+  attendance: number;
+}
+
+interface AttendanceEvent {
+  title: string;
+  date: Date;
+  sessionName: string;
+  sessionKey: string;
+  type: string;
+  status: string;
+  statusColor: string;
+  courseId: string;
+}
+
+interface AttendanceData {
+  studentAttendanceData?: Record<string, Record<string, SessionData>>;
+  courses?: Record<string, Course>;
+  sessions?: Record<string, Session>;
+}
+
+interface AttendanceCalendarProps {
+  attendanceData: AttendanceData;
+}
+
+export function AttendanceCalendar({
+  attendanceData,
+}: AttendanceCalendarProps) {
   // Use separate year and month state
-  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [events, setEvents] = useState([]);
+  const [currentYear, setCurrentYear] = useState<number>(
+    new Date().getFullYear()
+  );
+  const [currentMonth, setCurrentMonth] = useState<number>(
+    new Date().getMonth()
+  );
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [events, setEvents] = useState<AttendanceEvent[]>([]);
 
   // Create a Date object from the current year and month for calculations
-  const currentDate = new Date(currentYear, currentMonth, 1);
+  // const currentDate = useMemo(() => new Date(currentYear, currentMonth, 1), [currentYear, currentMonth]);
 
   // Parse the attendance data and create events when the data changes
   useEffect(() => {
     if (!attendanceData?.studentAttendanceData) return;
 
-    const newEvents = [];
+    const newEvents: AttendanceEvent[] = [];
 
     // Convert the attendance data to events format
     Object.entries(attendanceData.studentAttendanceData).forEach(
       ([dateStr, sessions]) => {
         // Parse the date string in the format YYYYMMDD
-        const year = parseInt(dateStr.substring(0, 4));
-        const month = parseInt(dateStr.substring(4, 6)) - 1; // Adjust month (0-based)
-        const day = parseInt(dateStr.substring(6, 8));
+        const year = parseInt(dateStr.substring(0, 4), 10);
+        const month = parseInt(dateStr.substring(4, 6), 10) - 1; // Adjust month (0-based)
+        const day = parseInt(dateStr.substring(6, 8), 10);
 
         Object.entries(sessions).forEach(([sessionKey, sessionData]) => {
           // If there's no course, skip this entry
@@ -65,22 +106,27 @@ export function AttendanceCalendar({ attendanceData }) {
           let attendanceLabel = "Present";
           let statusColor = "blue";
 
-          if (sessionData.attendance === 110) {
-            attendanceStatus = "normal";
-            attendanceLabel = "Present";
-            statusColor = "blue";
-          } else if (sessionData.attendance === 111) {
-            attendanceStatus = "important";
-            attendanceLabel = "Absent";
-            statusColor = "red";
-          } else if (sessionData.attendance === 225) {
-            attendanceStatus = "normal";
-            attendanceLabel = "Duty Leave";
-            statusColor = "yellow";
-          } else if (sessionData.attendance === 112) {
-            attendanceStatus = "important";
-            attendanceLabel = "Other Leave";
-            statusColor = "teal";
+          switch (sessionData.attendance) {
+            case 110:
+              attendanceStatus = "normal";
+              attendanceLabel = "Present";
+              statusColor = "blue";
+              break;
+            case 111:
+              attendanceStatus = "important";
+              attendanceLabel = "Absent";
+              statusColor = "red";
+              break;
+            case 225:
+              attendanceStatus = "normal";
+              attendanceLabel = "Duty Leave";
+              statusColor = "yellow";
+              break;
+            case 112:
+              attendanceStatus = "important";
+              attendanceLabel = "Other Leave";
+              statusColor = "teal";
+              break;
           }
 
           const date = new Date(year, month, day);
@@ -103,21 +149,23 @@ export function AttendanceCalendar({ attendanceData }) {
   }, [attendanceData]);
 
   const handlePreviousMonth = () => {
-    if (currentMonth === 0) {
-      setCurrentMonth(11);
-      setCurrentYear(currentYear - 1);
-    } else {
-      setCurrentMonth(currentMonth - 1);
-    }
+    setCurrentMonth((prevMonth) => {
+      if (prevMonth === 0) {
+        setCurrentYear((prevYear) => prevYear - 1);
+        return 11;
+      }
+      return prevMonth - 1;
+    });
   };
 
   const handleNextMonth = () => {
-    if (currentMonth === 11) {
-      setCurrentMonth(0);
-      setCurrentYear(currentYear + 1);
-    } else {
-      setCurrentMonth(currentMonth + 1);
-    }
+    setCurrentMonth((prevMonth) => {
+      if (prevMonth === 11) {
+        setCurrentYear((prevYear) => prevYear + 1);
+        return 0;
+      }
+      return prevMonth + 1;
+    });
   };
 
   const goToToday = () => {
@@ -144,21 +192,23 @@ export function AttendanceCalendar({ attendanceData }) {
   ];
 
   // Generate array of years from 2023 to current year + 5
-  const currentYearNum = new Date().getFullYear();
-  const yearOptions = Array.from(
-    { length: currentYearNum + 5 - 2023 + 1 },
-    (_, i) => 2023 + i
-  );
+  const yearOptions = useMemo(() => {
+    const currentYearNum = new Date().getFullYear();
+    return Array.from(
+      { length: currentYearNum + 5 - 2023 + 1 },
+      (_, i) => 2023 + i
+    );
+  }, []);
 
-  const getDaysInMonth = (year, month) => {
+  const getDaysInMonth = (year: number, month: number): number => {
     return new Date(year, month + 1, 0).getDate();
   };
 
-  const getFirstDayOfMonth = (year, month) => {
+  const getFirstDayOfMonth = (year: number, month: number): number => {
     return new Date(year, month, 1).getDay();
   };
 
-  const isSameDay = (date1, date2) => {
+  const isSameDay = (date1: Date, date2: Date): boolean => {
     return (
       date1.getFullYear() === date2.getFullYear() &&
       date1.getMonth() === date2.getMonth() &&
@@ -166,18 +216,18 @@ export function AttendanceCalendar({ attendanceData }) {
     );
   };
 
-  const isToday = (date) => {
+  const isToday = (date: Date): boolean => {
     const today = new Date();
     return isSameDay(date, today);
   };
 
-  const getDateEvents = (date) => {
+  const getDateEvents = (date: Date): AttendanceEvent[] => {
     return events.filter((event) => isSameDay(event.date, date));
   };
 
-  const formatSessionName = (sessionName) => {
+  const formatSessionName = (sessionName: string): string => {
     // Convert Roman numerals to ordinal numbers
-    const romanToOrdinal = {
+    const romanToOrdinal: Record<string, string> = {
       I: "1st hour",
       II: "2nd hour",
       III: "3rd hour",
@@ -196,7 +246,7 @@ export function AttendanceCalendar({ attendanceData }) {
     return sessionName;
   };
 
-  const getEventStatus = (date) => {
+  const getEventStatus = (date: Date): string | null => {
     const dateEvents = getDateEvents(date);
     if (dateEvents.length === 0) return null;
 
@@ -218,7 +268,10 @@ export function AttendanceCalendar({ attendanceData }) {
     return "normal";
   };
 
-  const selectedDateEvents = getDateEvents(selectedDate);
+  const selectedDateEvents = useMemo(
+    () => getDateEvents(selectedDate),
+    [selectedDate, events]
+  );
 
   // Generate calendar grid cells
   const generateCalendarCells = () => {
@@ -286,6 +339,12 @@ export function AttendanceCalendar({ attendanceData }) {
     return [...leadingEmptyCells, ...dayCells];
   };
 
+  // Optimize calendar cells generation with useMemo
+  const calendarCells = useMemo(
+    () => generateCalendarCells(),
+    [currentYear, currentMonth, selectedDate, events]
+  );
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <Card className="overflow-hidden border border-border/40 shadow-md backdrop-blur-sm">
@@ -294,7 +353,7 @@ export function AttendanceCalendar({ attendanceData }) {
             {/* Month selector dropdown */}
             <Select
               value={currentMonth.toString()}
-              onValueChange={(value) => setCurrentMonth(parseInt(value))}
+              onValueChange={(value) => setCurrentMonth(parseInt(value, 10))}
             >
               <SelectTrigger className="w-[130px] h-9 bg-background/60 border-border/60 text-sm capitalize">
                 <SelectValue>
@@ -317,7 +376,7 @@ export function AttendanceCalendar({ attendanceData }) {
             {/* Year selector dropdown */}
             <Select
               value={currentYear.toString()}
-              onValueChange={(value) => setCurrentYear(parseInt(value))}
+              onValueChange={(value) => setCurrentYear(parseInt(value, 10))}
             >
               <SelectTrigger className="w-[90px] h-9 bg-background/60 border-border/60 text-sm">
                 <SelectValue>{currentYear}</SelectValue>
@@ -372,9 +431,7 @@ export function AttendanceCalendar({ attendanceData }) {
           </div>
 
           {/* Calendar grid */}
-          <div className="grid grid-cols-7 gap-1 pb-2">
-            {generateCalendarCells()}
-          </div>
+          <div className="grid grid-cols-7 gap-1 pb-2">{calendarCells}</div>
 
           <div className="flex flex-wrap gap-4 mt-6 text-muted-foreground text-xs justify-center border-t border-border/40 pt-4">
             <div className="flex items-center gap-2">
@@ -394,7 +451,7 @@ export function AttendanceCalendar({ attendanceData }) {
               <span>present</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="h-3 w-3 rounded-full ring-2 ring-primary" />
+              <div className="h-3 w-3 rounded-full outline-2 outline-primary" />
               <span>today</span>
             </div>
           </div>
@@ -430,7 +487,7 @@ export function AttendanceCalendar({ attendanceData }) {
                   <div className="space-y-3 p-4">
                     {selectedDateEvents.map((event, index) => {
                       // Determine the color scheme based on the status
-                      const colors = {
+                      const colors: Record<string, string> = {
                         Present:
                           "bg-blue-500/10 border-blue-500/30 text-blue-400",
                         Absent: "bg-red-500/10 border-red-500/30 text-red-400",
@@ -445,7 +502,7 @@ export function AttendanceCalendar({ attendanceData }) {
 
                       return (
                         <motion.div
-                          key={`event-${index}`}
+                          key={`event-${event.sessionKey}-${index}`}
                           initial={{ opacity: 0, y: 5 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{

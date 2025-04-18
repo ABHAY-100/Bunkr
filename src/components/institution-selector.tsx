@@ -35,7 +35,6 @@ export function InstitutionSelector() {
   }, [defaultInstitutionUser, selectedInstitution]);
 
   useEffect(() => {
-    // Reset selected institution when default changes
     if (defaultInstitutionUser) {
       setSelectedInstitution(defaultInstitutionUser.toString());
     }

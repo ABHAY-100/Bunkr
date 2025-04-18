@@ -22,7 +22,6 @@ import { RefreshCw } from "lucide-react";
 import { AttendanceCalendar } from "@/components/attendance-calendar";
 import { CourseCard } from "@/components/course-card";
 import { AttendanceChart } from "@/components/attendance-chart";
-import { Navbar } from "@/components/navbar";
 import { Loading } from "@/components/loading";
 import { useProfile } from "@/app/api/users/myprofile";
 import { useAttendanceReport } from "@/app/api/courses/attendance";
@@ -62,7 +61,7 @@ export default function Dashboard() {
       } else {
         setTimeout(() => {
           setLoading(false);
-        }, 1500);
+        }, 1000);
       }
     };
     fetchToken();
@@ -173,46 +172,94 @@ export default function Dashboard() {
 
   const academicYears = generateAcademicYears();
 
-  const calculateOverallStats = () => {
-    if (!attendanceData?.studentAttendanceData)
-      return {
-        present: 0,
-        absent: 0,
-        total: 0,
-        percentage: 0,
-        dutyLeave: 0,
-        otherLeave: 0,
-      };
+  // Define attendance status codes as constants for better readability
+  const ATTENDANCE_STATUS = {
+    PRESENT: 110,
+    ABSENT: 111,
+    DUTY_LEAVE: 225,
+    OTHER_LEAVE: 112,
+  } as const;
 
+  // Define return type for calculateOverallStats
+  interface AttendanceStats {
+    present: number;
+    absent: number;
+    total: number;
+    percentage: number;
+    dutyLeave: number;
+    otherLeave: number;
+  }
+
+  // Define session type for type safety
+  interface AttendanceSession {
+    attendance: number;
+    [key: string]: any;
+  }
+
+  // Define date data type
+  interface DateData {
+    [sessionId: string]: AttendanceSession;
+  }
+
+  // Define student attendance data type
+  interface StudentAttendanceData {
+    [date: string]: DateData;
+  }
+
+  const calculateOverallStats = (): AttendanceStats => {
+    // Default return object
+    const defaultStats: AttendanceStats = {
+      present: 0,
+      absent: 0,
+      total: 0,
+      percentage: 0,
+      dutyLeave: 0,
+      otherLeave: 0,
+    };
+
+    // Return default stats if no data available
+    if (!attendanceData?.studentAttendanceData) {
+      return defaultStats;
+    }
+
+    const studentData =
+      attendanceData.studentAttendanceData as StudentAttendanceData;
+
+    // Initialize counters
     let totalPresent = 0;
     let totalAbsent = 0;
     let dutyLeave = 0;
     let otherLeave = 0;
 
-    Object.values(attendanceData.studentAttendanceData).forEach(
-      (dateData: any) => {
-        Object.values(dateData).forEach((session: any) => {
-          if (session.attendance === 110) totalPresent++;
-          else if (session.attendance === 111) totalAbsent++;
-          else if (session.attendance === 225) dutyLeave++;
-          else if (session.attendance === 112) otherLeave++;
-        });
-      }
-    );
+    // Count attendance statuses
+    Object.values(studentData).forEach((dateData) => {
+      Object.values(dateData).forEach((session) => {
+        const { attendance } = session;
 
+        if (attendance === ATTENDANCE_STATUS.PRESENT) totalPresent++;
+        else if (attendance === ATTENDANCE_STATUS.ABSENT) totalAbsent++;
+        else if (attendance === ATTENDANCE_STATUS.DUTY_LEAVE) dutyLeave++;
+        else if (attendance === ATTENDANCE_STATUS.OTHER_LEAVE) otherLeave++;
+      });
+    });
+
+    // Calculate effective attendance (present + duty leave)
     const effectivePresent = totalPresent + dutyLeave;
     const totalClasses = effectivePresent + totalAbsent + otherLeave;
+
+    // Calculate attendance percentage with rounding
+    const percentage =
+      totalClasses > 0
+        ? Math.round((effectivePresent / totalClasses) * 100)
+        : 0;
 
     return {
       present: effectivePresent,
       absent: totalAbsent,
       total: totalClasses,
-      dutyLeave: dutyLeave,
-      otherLeave: otherLeave,
-      percentage:
-        totalClasses > 0
-          ? Math.round((effectivePresent / totalClasses) * 100)
-          : 0,
+      percentage,
+      dutyLeave,
+      otherLeave,
     };
   };
 
@@ -224,14 +271,17 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <Navbar />
+      {/* <Navbar /> */}
 
       <main className="flex-1 container mx-auto p-4 md:p-6">
         {/* selector statements */}
         <div className="mb-6 py-2 flex flex-col gap-4">
           <div className="flex flex-col gap-1">
             <h1 className="text-2xl font-bold mb-2 italic">
-              welcome back, {profile?.first_name} {profile?.last_name}
+              welcome back,{" "}
+              <span className="gradient-name">
+                {profile?.first_name} {profile?.last_name}
+              </span>
             </h1>
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center mb-4 justify-between">
               <p className="text-muted-foreground italic">
@@ -251,18 +301,18 @@ export default function Dashboard() {
                 }
                 disabled={isLoadingSemester || setSemesterMutation.isPending}
               >
-                <SelectTrigger className="w-fit h-6 px-2 text-sm rounded-full pl-2.5">
+                <SelectTrigger className="w-fit h-6 px-2 text-[14px] font-medium rounded-xl pl-3 uppercase">
                   {isLoadingSemester ? (
-                    <span className="text-muted-foreground">Loading...</span>
+                    <span className="text-muted-foreground">...</span>
                   ) : selectedSemester ? (
                     <span>{selectedSemester}</span>
                   ) : (
                     <span className="text-muted-foreground">semester</span>
                   )}
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="even">even</SelectItem>
-                  <SelectItem value="odd">odd</SelectItem>
+                <SelectContent className="capitalize">
+                  <SelectItem value="even">EVEN</SelectItem>
+                  <SelectItem value="odd">ODD</SelectItem>
                 </SelectContent>
               </Select>
               <span>semester reports for academic year</span>
@@ -273,9 +323,9 @@ export default function Dashboard() {
                   isLoadingAcademicYear || setAcademicYearMutation.isPending
                 }
               >
-                <SelectTrigger className="w-fit h-6 px-2 text-sm rounded-full pl-3">
+                <SelectTrigger className="w-fit h-6 px-2 text-[14px] font-medium rounded-xl pl-3">
                   {isLoadingAcademicYear ? (
-                    <span className="text-muted-foreground">Loading...</span>
+                    <span className="text-muted-foreground">...</span>
                   ) : selectedYear ? (
                     <span>{selectedYear}</span>
                   ) : (
@@ -296,29 +346,28 @@ export default function Dashboard() {
                 disabled={
                   isRefreshing || isLoadingCourses || isLoadingAttendance
                 }
-                className="inline-flex h-6 ml-2 items-center justify-center rounded-full bg-primary/10 px-2 text-sm text-primary hover:bg-primary/20 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                className="inline-flex h-8 ml-2 items-center justify-center rounded-full bg-primary/10 px-2 text-sm text-primary hover:bg-primary/20 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                 title="Refresh data"
               >
                 <RefreshCw
-                  className={`h-3.5 w-3.5 mr-1 ${
-                    isRefreshing ? "animate-spin" : ""
-                  }`}
+                  className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
                 />
-                <span>Refresh</span>
+                {/* <span>refresh</span> */}
               </button>
             </p>
           </div>
         </div>
 
         {/* info cards */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7 mb-6 max-sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4 mb-6">
+          {/* Total Attendance - Takes 2 columns on larger screens */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
-            className="col-span-2 w-full "
+            className="sm:col-span-2 xl:col-span-2"
           >
-            <Card className="h-full max-h-[180px]">
+            <Card className="h-full">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Attendance
@@ -334,13 +383,14 @@ export default function Dashboard() {
             </Card>
           </motion.div>
 
+          {/* Present */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
-            className="col-span-1 w-full "
+            className="col-span-1"
           >
-            <Card className="h-full max-h-[180px]">
+            <Card className="h-full">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Present</CardTitle>
               </CardHeader>
@@ -355,18 +405,19 @@ export default function Dashboard() {
             </Card>
           </motion.div>
 
+          {/* Absent */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            className="col-span-1 w-full "
+            className="col-span-1"
           >
-            <Card className="h-full max-h-[180px]">
+            <Card className="h-full">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Absent</CardTitle>
               </CardHeader>
               <CardContent className="mt-3">
-                <div className="text-2xl font-bold text-red-500  mt-0.5">
+                <div className="text-2xl font-bold text-red-500 mt-0.5">
                   {stats.absent}
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
@@ -376,20 +427,21 @@ export default function Dashboard() {
             </Card>
           </motion.div>
 
+          {/* Duty Leaves */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="col-span-1 w-full "
             transition={{ duration: 0.3, delay: 0.2 }}
+            className="col-span-1"
           >
-            <Card className="h-full max-h-[180px]">
+            <Card className="h-full">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">
                   Duty Leaves
                 </CardTitle>
               </CardHeader>
               <CardContent className="mt-3">
-                <div className="text-2xl font-bold text-yellow-500  mt-0.5">
+                <div className="text-2xl font-bold text-yellow-500 mt-0.5">
                   {stats.dutyLeave}
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
@@ -399,20 +451,21 @@ export default function Dashboard() {
             </Card>
           </motion.div>
 
+          {/* Special Leave */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            className="col-span-1 w-full "
+            className="col-span-1"
           >
-            <Card className="h-full max-h-[180px]">
+            <Card className="h-full">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">
                   Special Leave
                 </CardTitle>
               </CardHeader>
               <CardContent className="mt-3">
-                <div className="text-2xl font-bold text-teal-400  mt-0.5">
+                <div className="text-2xl font-bold text-teal-400 mt-0.5">
                   {stats.otherLeave}
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
@@ -422,13 +475,14 @@ export default function Dashboard() {
             </Card>
           </motion.div>
 
+          {/* Total Courses */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.3 }}
-            className="col-span-1 w-full "
+            className="col-span-1"
           >
-            <Card className="h-full max-h-[180px]">
+            <Card className="h-full">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Courses
@@ -642,8 +696,15 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        <div className="mb-6">
-          <h2 className="text-xl font-bold mb-4">Your Courses</h2>
+        <div className="mb-6 mt-8">
+          <div className="mb-5">
+            <h2 className="text-xl font-bold mb-1 italic">
+              My Courses <span className="ml-1">📚</span>
+            </h2>
+            <p className="italic text-muted-foreground">
+              {"A quick look at everything you're taking this semester."}
+            </p>
+          </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {isLoadingCourses ? (
               Array(6)
@@ -662,7 +723,7 @@ export default function Dashboard() {
             ) : coursesData?.courses &&
               Object.keys(coursesData.courses).length > 0 ? (
               Object.entries(coursesData.courses).map(
-                ([courseId, course]: [string, any], index) => (
+                ([courseId, course]: [string, any]) => (
                   <div key={courseId}>
                     <CourseCard course={course} />
                   </div>
