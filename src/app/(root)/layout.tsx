@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
 
 export default function RootLayout({
   children,
@@ -11,6 +12,9 @@ export default function RootLayout({
         <Navbar />
       </div>
       <div className="mt-20">{children}</div>
+      <div className="">
+        <Footer />
+      </div>
     </>
   );
 }
