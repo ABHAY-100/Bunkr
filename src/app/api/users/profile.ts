@@ -1,19 +1,22 @@
-"use client";
-
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
-
-export interface ProfileData {
-  first_name?: string;
-  last_name?: string;
-  gender?: string | null;
-  birth_date?: string | null;
-}
+import { UserProfile } from "@/types";
 
 interface UpdateProfileData {
   id: number;
-  data: ProfileData;
+  data: UserProfile;
 }
+
+export const useProfile = () => {
+  return useQuery<UserProfile>({
+    queryKey: ["profile"],
+    queryFn: async () => {
+      const res = await axiosInstance.get("/myprofile");
+      if (!res) throw new Error("Failed to fetch user profile data");
+      return res.data;
+    },
+  });
+};
 
 export function useUpdateProfile() {
   const queryClient = useQueryClient();

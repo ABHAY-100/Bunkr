@@ -23,9 +23,9 @@ import {
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
-import { Profile } from "@/app/api/users/myprofile";
 import { motion, AnimatePresence } from "framer-motion";
-import { useUpdateProfile, ProfileData } from "@/app/api/users/update-profile";
+import { useUpdateProfile } from "@/app/api/users/profile";
+import { UserProfile } from "@/types";
 
 const profileFormSchema = z.object({
   first_name: z.string().min(2, {
@@ -42,7 +42,7 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-export function ProfileForm({ profile }: { profile: Profile }) {
+export function ProfileForm({ profile }: { profile: UserProfile }) {
   const [isEditing, setIsEditing] = useState(false);
   const updateProfileMutation = useUpdateProfile();
 
@@ -80,7 +80,8 @@ export function ProfileForm({ profile }: { profile: Profile }) {
   });
 
   function onSubmit(formValues: ProfileFormValues) {
-    const profileData: ProfileData = {
+    const profileData: UserProfile = {
+      id: profile.id,
       first_name: formValues.first_name,
       last_name: formValues.last_name,
       gender: formValues.gender,

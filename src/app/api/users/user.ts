@@ -1,19 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
-
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  mobile: string;
-  settings: {
-    default_institute: string;
-    default_academic_year: string;
-    default_institutionUser: number;
-    default_semester: string;
-  };
-  created_at: string;
-}
+import { User } from "@/types";
 
 export const useUser = () => {
   return useQuery<User>({

@@ -1,18 +1,6 @@
-"use client";
-
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
-
-export interface Notification {
-  id: string;
-  type: string;
-  notifiable_type: string;
-  notifiable_id: number;
-  data: string;
-  read_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
+import { Notification } from "@/types";
 
 export function useNotifications() {
   return useQuery<Notification[]>({

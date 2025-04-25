@@ -23,10 +23,9 @@ import { AttendanceCalendar } from "@/components/attendance-calendar";
 import { CourseCard } from "@/components/course-card";
 import { AttendanceChart } from "@/components/attendance-chart";
 import { Loading } from "@/components/loading";
-import { useProfile } from "@/app/api/users/myprofile";
+import { useProfile } from "@/app/api/users/profile";
 import { useAttendanceReport } from "@/app/api/courses/attendance";
 import { useFetchCourses } from "@/app/api/courses/courses";
-import { useCourseDetails } from "@/app/api/courses/attendance";
 import {
   useFetchSemester,
   useFetchAcademicYear,
@@ -44,7 +43,7 @@ export default function Dashboard() {
     useFetchAcademicYear();
   const setSemesterMutation = useSetSemester();
   const setAcademicYearMutation = useSetAcademicYear();
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
   const [selectedSemester, setSelectedSemester] = useState<
     "even" | "odd" | null
@@ -53,19 +52,19 @@ export default function Dashboard() {
 
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  useEffect(() => {
-    const fetchToken = async () => {
-      const token = await getToken();
-      if (!token) {
-        redirect("/");
-      } else {
-        setTimeout(() => {
-          setLoading(false);
-        }, 1000);
-      }
-    };
-    fetchToken();
-  }, []);
+  // useEffect(() => {
+  //   const fetchToken = async () => {
+  //     const token = await getToken();
+  //     if (!token) {
+  //       redirect("/");
+  //     } else {
+  //       setTimeout(() => {
+  //         setLoading(false);
+  //       }, 1000);
+  //     }
+  //   };
+  //   fetchToken();
+  // }, []);
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -102,8 +101,8 @@ export default function Dashboard() {
     refetch: refetchCourses,
   } = useFetchCourses();
 
-  const { data: courseDetails, isLoading: isLoadingCourseDetails } =
-    useCourseDetails("");
+  // const { data: courseDetails, isLoading: isLoadingCourseDetails } =
+  //   useCourseDetails("");
 
   const handleSemesterChange = (value: "even" | "odd") => {
     setSelectedSemester(value);
@@ -265,14 +264,12 @@ export default function Dashboard() {
 
   const stats = calculateOverallStats();
 
-  if (loading) {
-    return <Loading />;
-  }
+  // if (loading) {
+  //   return <Loading />;
+  // }
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      {/* <Navbar /> */}
-
       <main className="flex-1 container mx-auto p-4 md:p-6">
         {/* selector statements */}
         <div className="mb-6 py-2 flex flex-col gap-4">

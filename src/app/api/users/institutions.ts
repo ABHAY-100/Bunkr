@@ -1,30 +1,6 @@
-"use client";
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
-
-export interface Institution {
-  id: number;
-  first_name: string;
-  last_name: string;
-  institution_id: number;
-  institutionrole_id: number;
-  institution_approved: number;
-  user_data_completed: number;
-  enroll_status: string;
-  institution: {
-    id: number;
-    name: string;
-    name_2: string | null;
-    type: string;
-    approved: number;
-    approval_status: string;
-  };
-  institution_role: {
-    id: number;
-    name: string;
-  };
-}
+import { Institution } from "@/types";
 
 export function useInstitutions() {
   return useQuery<Institution[]>({

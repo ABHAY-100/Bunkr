@@ -1,31 +1,31 @@
-"use client";
+// "use client";
 
 import { LoginForm } from "@/components/login-form";
-import { useEffect, useState } from "react";
-import { Loading } from "@/components/loading";
-import { redirect } from "next/navigation";
-import { getToken } from "@/utils/auth";
+// import { useEffect, useState } from "react";
+// import { Loading } from "@/components/loading";
+// import { redirect } from "next/navigation";
+// import { getToken } from "@/utils/auth";
 
 export default function LoginPage() {
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchToken = async () => {
-      const token = await getToken();
-      if (token) {
-        redirect("/dashboard");
-      } else {
-        setTimeout(() => {
-          setLoading(false);
-        }, 1500);
-      }
-    };
-    fetchToken();
-  }, []);
+  // useEffect(() => {
+  //   const fetchToken = async () => {
+  //     const token = await getToken();
+  //     if (token) {
+  //       redirect("/dashboard");
+  //     } else {
+  //       setTimeout(() => {
+  //         setLoading(false);
+  //       }, 1500);
+  //     }
+  //   };
+  //   fetchToken();
+  // }, []);
 
-  if (loading) {
-    return <Loading />;
-  }
+  // if (loading) {
+  //   return <Loading />;
+  // }
 
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">

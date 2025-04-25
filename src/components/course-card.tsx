@@ -10,7 +10,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import { Course } from "@/app/api/courses/courses";
+import { Course } from "@/types";
 import { useCourseDetails } from "@/app/api/courses/attendance";
 import { AlertCircle } from "lucide-react";
 

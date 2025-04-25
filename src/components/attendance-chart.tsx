@@ -11,10 +11,8 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import {
-  AttendanceReport,
-  formatCourseCode,
-} from "@/app/api/courses/attendance";
+import { formatCourseCode } from "@/utils/formatter";
+import { AttendanceReport } from "@/types";
 
 interface AttendanceChartProps {
   attendanceData?: AttendanceReport;

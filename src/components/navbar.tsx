@@ -14,8 +14,8 @@ import { Bell, LogOut, Building2, Layers2, UserRound } from "lucide-react";
 import { removeToken } from "@/utils/auth";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/app/api/users/user";
-import { useProfile } from "@/app/api/users/myprofile";
-import { useNotifications } from "@/app/api/users/notifications";
+import { useProfile } from "@/app/api/users/profile";
+import { useNotifications } from "@/app/api/users/notification";
 import {
   useInstitutions,
   useDefaultInstitutionUser,
