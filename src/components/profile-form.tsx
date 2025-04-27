@@ -222,8 +222,6 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
               <>
                 <motion.div
                   key="cancel-button"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -240,8 +238,6 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
                 </motion.div>
                 <motion.div
                   key="save-button"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -261,8 +257,6 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
             ) : (
               <motion.div
                 key="edit-button"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}

@@ -43,7 +43,6 @@ export default function Dashboard() {
     useFetchAcademicYear();
   const setSemesterMutation = useSetSemester();
   const setAcademicYearMutation = useSetAcademicYear();
-  // const [loading, setLoading] = useState(true);
 
   const [selectedSemester, setSelectedSemester] = useState<
     "even" | "odd" | null
@@ -51,20 +50,6 @@ export default function Dashboard() {
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
 
   const [isRefreshing, setIsRefreshing] = useState(false);
-
-  // useEffect(() => {
-  //   const fetchToken = async () => {
-  //     const token = await getToken();
-  //     if (!token) {
-  //       redirect("/");
-  //     } else {
-  //       setTimeout(() => {
-  //         setLoading(false);
-  //       }, 1000);
-  //     }
-  //   };
-  //   fetchToken();
-  // }, []);
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -100,9 +85,6 @@ export default function Dashboard() {
     isLoading: isLoadingCourses,
     refetch: refetchCourses,
   } = useFetchCourses();
-
-  // const { data: courseDetails, isLoading: isLoadingCourseDetails } =
-  //   useCourseDetails("");
 
   const handleSemesterChange = (value: "even" | "odd") => {
     setSelectedSemester(value);
@@ -158,10 +140,10 @@ export default function Dashboard() {
 
   const generateAcademicYears = () => {
     const currentYear = new Date().getFullYear();
-    const startYear = 2023;
-    const years = [];
+    const startYear = 2018;
+    const years: string[] = [];
 
-    for (let year = startYear; year <= currentYear + 2; year++) {
+    for (let year = startYear; year <= currentYear; year++) {
       const academicYear = `${year}-${(year + 1).toString().slice(-2)}`;
       years.push(academicYear);
     }
@@ -274,9 +256,9 @@ export default function Dashboard() {
         {/* selector statements */}
         <div className="mb-6 py-2 flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-bold mb-2 italic">
+            <h1 className="text-2xl font-bold mb-2 italic w-full">
               welcome back,{" "}
-              <span className="gradient-name">
+              <span className="gradient-name w-full pr-2">
                 {profile?.first_name} {profile?.last_name}
               </span>
             </h1>
@@ -687,6 +669,7 @@ export default function Dashboard() {
                   <Loading />
                 </div>
               ) : (
+                // @ts-ignore
                 <AttendanceCalendar attendanceData={attendanceData} />
               )}
             </CardContent>

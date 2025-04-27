@@ -159,7 +159,7 @@ export function InstitutionSelector() {
             transition={{ delay: 0.3 }}
             className="mt-4 flex justify-end"
           >
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <motion.div>
               <Button
                 onClick={handleSaveInstitution}
                 disabled={

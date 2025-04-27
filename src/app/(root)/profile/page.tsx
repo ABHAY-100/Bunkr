@@ -1,7 +1,6 @@
 "use client";
 
 import { useProfile } from "@/app/api/users/profile";
-// import { useEffect } from "react";
 import { useUser } from "@/app/api/users/user";
 import { ProfileForm } from "@/components/profile-form";
 import { InstitutionSelector } from "@/components/institution-selector";
@@ -17,33 +16,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getProfileImage } from "@/lib/utils";
 import Image from "next/image";
 import { motion } from "framer-motion";
-// import { getToken } from "@/utils/auth";
-// import { redirect } from "next/navigation";
-// import { useState } from "react";
-// import { Loading } from "@/components/loading";
 
 export default function ProfilePage() {
   const { data: profile, isLoading: profileLoading } = useProfile();
   const { data: user, isLoading: userLoading } = useUser();
-  // const [loading, setLoading] = useState(true);
-
-  // useEffect(() => {
-  //   const fetchToken = async () => {
-  //     const token = await getToken();
-  //     if (!token) {
-  //       redirect("/");
-  //     } else {
-  //       setTimeout(() => {
-  //         setLoading(false);
-  //       }, 1000);
-  //     }
-  //   };
-  //   fetchToken();
-  // }, []);
-
-  // if (loading) {
-  //   return <Loading />;
-  // }
 
   const isLoading = profileLoading || userLoading;
   const profileImageSrc = getProfileImage(profile?.gender ?? null);
@@ -72,8 +48,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* <Navbar /> */}
+    <div className="min-h-[90vh] bg-background">
       <motion.main
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -103,12 +78,13 @@ export default function ProfilePage() {
           >
             <Card className="relative">
               <CardContent className="flex flex-col items-center md:items-start pt-12">
+                {/* cover image */}
                 {isLoading ? (
                   <Skeleton className="h-[120px] md:h-[140px] w-full absolute top-0 left-0 right-0 z-[0] rounded-t-xl" />
                 ) : (
                   <div className="h-[120px] md:h-[140px] w-full bg-white/4 absolute top-0 left-0 right-0 z-[0] rounded-t-xl" />
                 )}
-                {/* cover image */}
+                {/* profile image */}
                 <div className="relative w-24 h-24 mb-3 flex items-start mt-0.5">
                   {isLoading ? (
                     <Skeleton className="w-full h-full rounded-full z-10" />

@@ -38,6 +38,8 @@ import {
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export const Navbar = () => {
   const router = useRouter();
@@ -52,6 +54,8 @@ export const Navbar = () => {
   const queryClient = useQueryClient();
 
   const [selectedInstitution, setSelectedInstitution] = useState<string>("");
+
+  const pathname = usePathname();
 
   const profileImageSrc = getProfileImage(profile?.gender ?? null);
   const unreadNotifications =
@@ -125,50 +129,63 @@ export const Navbar = () => {
       </div>
 
       <div className="flex items-center justify-between gap-2 md:gap-6 lowercase">
-        {!institutionsLoading && institutions && institutions.length > 0 && (
-          <div className="flex max-md:hidden">
-            <Select
-              value={selectedInstitution}
-              onValueChange={handleInstitutionChange}
-            >
-              <SelectTrigger className="w-[140px] md:w-[220px]">
-                <SelectValue>
-                  {selectedInstitution &&
-                    institutions?.find(
-                      (i) => i.id.toString() === selectedInstitution
-                    ) && (
+        <div className="gap-4 flex items-center">
+          {pathname !== "/dashboard" && (
+            <Link href="/dashboard" className="max-md:hidden text-white/85">
+              <Button variant={"outline"}>
+                <ArrowLeft className="h-4 w-4" />
+                back
+              </Button>
+            </Link>
+          )}
+
+          {!institutionsLoading && institutions && institutions.length > 0 && (
+            <div className="flex max-md:hidden">
+              <Select
+                value={selectedInstitution}
+                onValueChange={handleInstitutionChange}
+              >
+                <SelectTrigger className="w-[140px] md:w-[220px]">
+                  <SelectValue>
+                    {selectedInstitution &&
+                      institutions?.find(
+                        (i) => i.id.toString() === selectedInstitution
+                      ) && (
+                        <div className="flex items-center">
+                          <Building2 className="mr-2 h-4 w-4" />
+                          <span className="truncate">
+                            {truncateText(
+                              (
+                                institutions.find(
+                                  (i) => i.id.toString() === selectedInstitution
+                                )?.institution.name || ""
+                              ).toLowerCase(),
+                              window.innerWidth < 768 ? 10 : 16
+                            )}
+                          </span>
+                        </div>
+                      )}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {institutions.map((inst) => (
+                    <SelectItem key={inst.id} value={inst.id.toString()}>
                       <div className="flex items-center">
-                        <Building2 className="mr-2 h-4 w-4" />
+                        <Building2 className="mr-2 h-4 w-4 flex-shrink-0" />
                         <span className="truncate">
-                          {truncateText(
-                            (
-                              institutions.find(
-                                (i) => i.id.toString() === selectedInstitution
-                              )?.institution.name || ""
-                            ).toLowerCase(),
-                            window.innerWidth < 768 ? 10 : 16
-                          )}
+                          {inst.institution.name}
+                        </span>
+                        <span className="ml-2 text-xs text-muted-foreground hidden md:inline">
+                          ({inst.institution_role.name})
                         </span>
                       </div>
-                    )}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {institutions.map((inst) => (
-                  <SelectItem key={inst.id} value={inst.id.toString()}>
-                    <div className="flex items-center">
-                      <Building2 className="mr-2 h-4 w-4 flex-shrink-0" />
-                      <span className="truncate">{inst.institution.name}</span>
-                      <span className="ml-2 text-xs text-muted-foreground hidden md:inline">
-                        ({inst.institution_role.name})
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
 
         <div className="flex items-center gap-4">
           <DropdownMenu>
