@@ -535,9 +535,6 @@ export default function Dashboard() {
                             <th className="h-10 px-4 text-left font-medium text-muted-foreground">
                               Instructor
                             </th>
-                            <th className="h-10 px-4 text-left font-medium text-muted-foreground hidden md:table-cell rounded-tr-sm">
-                              Status
-                            </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y">
@@ -600,14 +597,14 @@ export default function Dashboard() {
                                           {instructor.last_name}
                                         </div>
                                       </td>
-                                      <td className="p-4 hidden md:table-cell">
+                                      {/* <td className="p-4 hidden md:table-cell [1000px]:hidden">
                                         <div className="flex items-center">
                                           <span className="flex h-2 w-2 rounded-full bg-green-500 mr-2 ring-1 ring-green-500 ring-offset-1"></span>
                                           <span className="text-sm font-medium text-green-600 dark:text-green-500">
                                             Active
                                           </span>
                                         </div>
-                                      </td>
+                                      </td> */}
                                     </tr>
                                   )
                                 )

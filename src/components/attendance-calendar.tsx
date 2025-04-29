@@ -254,7 +254,7 @@ export function AttendanceCalendar({
   const selectedDateEvents = useMemo(
     () => getDateEvents(selectedDate),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selectedDate, events] 
+    [selectedDate, events]
   );
 
   const generateCalendarCells = () => {
@@ -320,14 +320,14 @@ export function AttendanceCalendar({
 
   const calendarCells = useMemo(
     () => generateCalendarCells(),
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentYear, currentMonth, selectedDate, events]
   );
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card className="overflow-hidden border border-border/40 shadow-md backdrop-blur-sm">
-        <CardHeader className="pb-2 flex flex-row items-center justify-between space-y-0 border-b border-border/40">
+        <CardHeader className="pb-2 flex flex-row items-center justify-between max-sm:justify-center space-y-0 border-b border-border/40">
           <div className="flex items-center gap-2">
             <Select
               value={currentMonth.toString()}
@@ -367,7 +367,7 @@ export function AttendanceCalendar({
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-2">
             <Button
               variant="ghost"
               size="icon"
@@ -477,12 +477,14 @@ export function AttendanceCalendar({
                       return (
                         <motion.div
                           key={`event-${event.sessionKey}-${index}`}
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{
-                            delay: index * 0.05,
-                            duration: 0.2,
-                          }}
+                          // initial={{ opacity: 0, y: 5 }}
+                          // animate={{ opacity: 1, y: 0 }}
+                          transition={
+                            {
+                              // delay: index * 0.05,
+                              // duration: 0.2,
+                            }
+                          }
                           className={`p-4 rounded-lg border ${colorClass} hover:bg-opacity-20 transition-all`}
                         >
                           <div className="flex justify-between items-start mb-2">

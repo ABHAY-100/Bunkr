@@ -25,7 +25,7 @@ export function CourseCard({ course }: CourseCardProps) {
 
   const attendancePercentage = courseDetails?.persantage ?? 0;
   const total = courseDetails?.totel || 0;
-  const hasAttendanceData = !isLoading && (total > 0 && attendancePercentage > 0);
+  const hasAttendanceData = !isLoading && total > 0 && attendancePercentage > 0;
 
   const yearParts = course.academic_year.split("-");
   const startYear = yearParts[0];
