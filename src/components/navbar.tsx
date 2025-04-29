@@ -120,12 +120,11 @@ export const Navbar = () => {
   return (
     <header className="sticky top-0 z-10 flex h-17 items-center justify-between gap-4 border-b bg-background px-4 md:px-6 text-white">
       <div className="flex items-center gap-2">
-        <Link
-          href="/"
+        <div
           className="text-3xl md:text-3xl font-semibold gradient-logo"
         >
           bunkr
-        </Link>
+        </div>
       </div>
 
       <div className="flex items-center justify-between gap-2 md:gap-6 lowercase">

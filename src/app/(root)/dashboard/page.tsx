@@ -22,7 +22,7 @@ import { RefreshCw } from "lucide-react";
 import { AttendanceCalendar } from "@/components/attendance-calendar";
 import { CourseCard } from "@/components/course-card";
 import { AttendanceChart } from "@/components/attendance-chart";
-import { Loading } from "@/components/loading";
+// import { Loading } from "@/components/loading";
 import { useProfile } from "@/app/api/users/profile";
 import { useAttendanceReport } from "@/app/api/courses/attendance";
 import { useFetchCourses } from "@/app/api/courses/courses";
@@ -34,6 +34,7 @@ import {
 } from "@/app/api/users/settings";
 import { redirect } from "next/navigation";
 import { getToken } from "@/utils/auth";
+import CompLoading from "@/components/comp-loading";
 
 export default function Dashboard() {
   const { data: profile } = useProfile();
@@ -57,7 +58,7 @@ export default function Dashboard() {
       if (!token) {
         redirect("/");
       }
-    }, 1000);
+    }, 2000);
 
     return () => clearInterval(interval);
   }, []);
@@ -246,10 +247,6 @@ export default function Dashboard() {
 
   const stats = calculateOverallStats();
 
-  // if (loading) {
-  //   return <Loading />;
-  // }
-
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <main className="flex-1 container mx-auto p-4 md:p-6">
@@ -286,7 +283,9 @@ export default function Dashboard() {
                   ) : selectedSemester ? (
                     <span>{selectedSemester}</span>
                   ) : (
-                    <span className="text-muted-foreground">semester</span>
+                    <span className="text-muted-foreground lowercase">
+                      semester
+                    </span>
                   )}
                 </SelectTrigger>
                 <SelectContent className="capitalize">
@@ -497,11 +496,17 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 {isLoadingAttendance ? (
-                  <div className="flex items-center justify-center h-full">
-                    <Loading />
+                  <div className="flex items-center justify-center h-[200px]">
+                    <CompLoading />
                   </div>
-                ) : (
+                ) : attendanceData ? (
                   <AttendanceChart attendanceData={attendanceData} />
+                ) : (
+                  <div className="flex items-center justify-center h-[200px]">
+                    <p className="text-muted-foreground">
+                      No attendance data available
+                    </p>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -520,7 +525,7 @@ export default function Dashboard() {
               <CardContent>
                 {isLoadingCourses ? (
                   <div className="flex items-center justify-center h-[200px]">
-                    <Loading />
+                    <CompLoading />
                   </div>
                 ) : coursesData?.courses &&
                   Object.keys(coursesData.courses).length > 0 ? (
@@ -641,7 +646,7 @@ export default function Dashboard() {
                     </ScrollArea>
                   </div>
                 ) : (
-                  <div className="text-center py-8">
+                  <div className="flex items-center justify-center h-[200px]">
                     <p className="text-muted-foreground">
                       No faculty information available
                     </p>
@@ -663,11 +668,17 @@ export default function Dashboard() {
             <CardContent>
               {isLoadingAttendance ? (
                 <div className="flex items-center justify-center h-[200px]">
-                  <Loading />
+                  <CompLoading />
                 </div>
-              ) : (
+              ) : attendanceData ? (
                 // @ts-ignore
                 <AttendanceCalendar attendanceData={attendanceData} />
+              ) : (
+                <div className="flex items-center justify-center h-[200px]">
+                  <p className="text-muted-foreground">
+                    No attendance data available
+                  </p>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -707,7 +718,7 @@ export default function Dashboard() {
                 )
               )
             ) : (
-              <div className="col-span-full text-center py-8">
+              <div className="col-span-full text-center py-8 bg-accent/50 rounded-xl border border-accent-foreground/12">
                 <p className="text-muted-foreground">
                   No courses found for this semester
                 </p>

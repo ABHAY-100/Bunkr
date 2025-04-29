@@ -11,6 +11,9 @@ import { AxiosError } from "axios";
 import { setToken } from "@/utils/auth";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, HTMLMotionProps } from "framer-motion";
+import { getToken } from "@/utils/auth";
+import { useEffect } from "react";
+import { Loading } from "./loading";
 
 interface LoginFormProps extends HTMLMotionProps<"div"> {
   className?: string;
@@ -29,6 +32,22 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLoadingPage, setIsLoadingPage] = useState(true);
+
+  useEffect(() => {
+    const token = getToken();
+    if (token) {
+      router.push("/dashboard");
+    }
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoadingPage(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const loginMethodProps = {
     username: {
@@ -129,6 +148,16 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.3 } },
   };
+
+  if (isLoadingPage) {
+    return (
+      <>
+        <div className="flex h-[90vh] w-full items-center justify-center">
+          <Loading />
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -264,9 +293,9 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-center text-sm text-destructive border rounded-lg bg-red-400/15 border-red-400 p-2 lowercase"
+                  className="text-center text-sm text-destructive border rounded-lg bg-red-400/15 border-red-400/75 p-2 lowercase"
                 >
-                  ezygo says... <br />
+                  {/* ezygo says... <br /> */}
                   {error}
                 </motion.div>
               )}
