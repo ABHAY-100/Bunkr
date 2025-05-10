@@ -6,11 +6,11 @@ export const setToken = (token: string, expiresInMinutes: number = 30) => {
     expiresAt,
   };
 
-  sessionStorage.setItem("ezygo_access_token", JSON.stringify(tokenData));
+  localStorage.setItem("ezygo_access_token", JSON.stringify(tokenData));
 };
 
 export const getToken = () => {
-  const tokenString = sessionStorage.getItem("ezygo_access_token");
+  const tokenString = localStorage.getItem("ezygo_access_token");
 
   if (!tokenString) return null;
 
@@ -18,17 +18,17 @@ export const getToken = () => {
     const tokenData = JSON.parse(tokenString);
 
     if (Date.now() > tokenData.expiresAt) {
-      sessionStorage.removeItem("ezygo_access_token");
+      localStorage.removeItem("ezygo_access_token");
       return null;
     }
 
     return tokenData.value;
   } catch {
-    sessionStorage.removeItem("ezygo_access_token");
+    localStorage.removeItem("ezygo_access_token");
     return null;
   }
 };
 
 export const removeToken = () => {
-  sessionStorage.removeItem("ezygo_access_token");
+  localStorage.removeItem("ezygo_access_token");
 };

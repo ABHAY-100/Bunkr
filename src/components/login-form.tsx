@@ -14,6 +14,7 @@ import { motion, AnimatePresence, HTMLMotionProps } from "framer-motion";
 import { getToken } from "@/utils/auth";
 import { useEffect } from "react";
 import { Loading } from "./loading";
+import { PasswordResetForm } from "./password-reset-form";
 
 interface LoginFormProps extends HTMLMotionProps<"div"> {
   className?: string;
@@ -26,10 +27,15 @@ interface ErrorResponse {
 export function LoginForm({ className, ...props }: LoginFormProps) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordReset, setShowPasswordReset] = useState(false);
   const [loginMethod, setLoginMethod] = useState<
     "username" | "email" | "phone"
   >("username");
-  const [formData, setFormData] = useState({ username: "", password: "" });
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+    stay_logged_in: true,
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoadingPage, setIsLoadingPage] = useState(true);
@@ -159,6 +165,15 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
     );
   }
 
+  if (showPasswordReset) {
+    return (
+      <PasswordResetForm
+        className={className}
+        onCancel={() => setShowPasswordReset(false)}
+      />
+    );
+  }
+
   return (
     <>
       <motion.div
@@ -247,7 +262,16 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
                 </div>
               </motion.div>
               <motion.div className="grid gap-2" variants={itemVariants}>
-                <Label htmlFor="password">password</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">password</Label>
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswordReset(true)}
+                    className="text-[13px] text-muted-foreground hover:text-primary duration-200"
+                  >
+                    forgot password?
+                  </button>
+                </div>
                 <div className="relative">
                   <Input
                     id="password"
@@ -276,8 +300,6 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
               </motion.div>
               <motion.div
                 variants={buttonVariants}
-                whileHover="hover"
-                whileTap="tap"
                 initial="hidden"
                 animate="visible"
               >
