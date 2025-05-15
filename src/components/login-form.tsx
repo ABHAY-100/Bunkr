@@ -15,6 +15,9 @@ import { getToken } from "@/utils/auth";
 import { useEffect } from "react";
 import { Loading } from "./loading";
 import { PasswordResetForm } from "./password-reset-form";
+import BunkrLogo from "@/assets/bunkr.svg";
+import Image from "next/image";
+import { Footer } from "@/components/footer";
 
 interface LoginFormProps extends HTMLMotionProps<"div"> {
   className?: string;
@@ -57,17 +60,17 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
 
   const loginMethodProps = {
     username: {
-      label: "username",
+      label: "Username",
       type: "text",
       placeholder: "therealdoe",
     },
     email: {
-      label: "email",
+      label: "Email",
       type: "email",
       placeholder: "johndoe@gmail.com",
     },
     phone: {
-      label: "phone",
+      label: "Phone",
       type: "tel",
       placeholder: "919234567890",
     },
@@ -113,6 +116,15 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
       y: 0,
       opacity: 1,
       transition: { duration: 0.4 },
+    },
+  };
+
+  const footerVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { duration: 0.8 },
     },
   };
 
@@ -186,17 +198,20 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
         <form onSubmit={handleSubmit}>
           <div className="flex flex-col gap-6">
             <motion.div
-              className="flex flex-col items-center gap-2"
+              className="flex flex-col items-center gap-2.5"
               variants={logoVariants}
             >
-              <h1 className="text-3xl font-semibold">
-                welcome to <span className="gradient-logo">bunkr</span>
-              </h1>
-              <div className="text-center text-sm italic text-muted-foreground">
-                use your ezygo credentials!
+              <div className="flex justify-center items-center flex-col gap-2.5">
+                <Image src={BunkrLogo} alt="Bunkr" className="w-[34px]" />
+                <h1 className="text-5xl font-semibold font-klick">Bunkr</h1>
               </div>
+              <p className="text-center text-sm font-medium max-w-[322px] text-white/60">
+                {
+                  "Drop your ezygo credentials — we're just the aesthetic upgrade you deserved"
+                }
+              </p>
             </motion.div>
-            <div className="flex flex-col gap-6 pt-2">
+            <div className="flex flex-col gap-5 pt-2 mt-1">
               <motion.div className="grid gap-2" variants={itemVariants}>
                 <div className="flex items-center justify-between">
                   <Label htmlFor="login">
@@ -209,7 +224,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
                       variant={
                         loginMethod === "username" ? "secondary" : "ghost"
                       }
-                      className="h-6 w-6"
+                      className="h-6 w-6 p-3"
                       onClick={() => setLoginMethod("username")}
                     >
                       <User className="h-4 w-4" />
@@ -218,7 +233,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
                       type="button"
                       size="icon"
                       variant={loginMethod === "email" ? "secondary" : "ghost"}
-                      className="h-6 w-6"
+                      className="h-6 w-6 p-3"
                       onClick={() => setLoginMethod("email")}
                     >
                       <Mail className="h-4 w-4" />
@@ -227,7 +242,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
                       type="button"
                       size="icon"
                       variant={loginMethod === "phone" ? "secondary" : "ghost"}
-                      className="h-6 w-6"
+                      className="h-6 w-6 p-3"
                       onClick={() => setLoginMethod("phone")}
                     >
                       <Phone className="h-4 w-4" />
@@ -239,7 +254,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
                     id="login"
                     type={loginMethodProps[loginMethod].type}
                     value={formData.username}
-                    className="max-md:text-sm"
+                    className="custom-input"
                     onChange={(e) =>
                       setFormData({ ...formData, username: e.target.value })
                     }
@@ -261,24 +276,25 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
                   </AnimatePresence>
                 </div>
               </motion.div>
-              <motion.div className="grid gap-2" variants={itemVariants}>
+              <motion.div className="grid gap-2.5" variants={itemVariants}>
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">password</Label>
+                  <Label htmlFor="password">Password</Label>
                   <button
                     type="button"
                     onClick={() => setShowPasswordReset(true)}
-                    className="text-[13px] text-muted-foreground hover:text-primary duration-200"
+                    className="text-[13px] text-muted-foreground hover:text-primary duration-100 font-medium"
                   >
-                    forgot password?
+                    Forgot password?
                   </button>
                 </div>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
+                    // placeholder="••••••••••••"
                     required
                     value={formData.password}
-                    className="max-md:text-sm"
+                    className="custom-input"
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
@@ -287,13 +303,13 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent mr-1.5"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
+                      <EyeOff className="h-6 w-6" />
                     ) : (
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-6 w-6" />
                     )}
                   </Button>
                 </div>
@@ -305,10 +321,10 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
               >
                 <Button
                   type="submit"
-                  className="w-full font-semibold"
+                  className="w-full font-semibold min-h-[46px] rounded-[12px] mt-4 font-sm"
                   disabled={isLoading}
                 >
-                  {isLoading ? "logging in..." : "login"}
+                  {isLoading ? "Logging in..." : "Login"}
                 </Button>
               </motion.div>
               {error && (
@@ -325,14 +341,11 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
           </div>
         </form>
         <motion.div
-          className="italic text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7, duration: 0.5 }}
+          variants={footerVariants}
+          initial="hidden"
+          animate="visible"
         >
-          {
-            "\"ezygo handles the login — we don't see your info, and honestly, we don't want to\" ~ admin"
-          }
+          <Footer />
         </motion.div>
       </motion.div>
     </>
