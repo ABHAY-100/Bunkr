@@ -77,7 +77,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
     phone: {
       label: "Phone",
       type: "tel",
-      placeholder: "+91 9234567890",
+      placeholder: "+919234567890",
     },
   };
 
@@ -90,7 +90,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
       const response = await axios.post("/login", formData);
 
       setToken(response.data.access_token);
-      router.push("/dashboard");
+      // router.push("/dashboard");
     } catch (error) {
       const err = error as AxiosError<ErrorResponse>;
 
@@ -124,18 +124,21 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
     visible: {
       y: 0,
       opacity: 1,
-      transition: { duration: 0.4 },
+      transition: { duration: 0.3 },
     },
   };
 
   const footerVariants = {
-    hidden: { y: 10, opacity: 0 },
+    hidden: { scale: 0.8, opacity: 0, y: -10 },
     visible: {
       y: 0,
+      scale: 1,
       opacity: 1,
       transition: {
-        duration: 0.6,
-        delay: 0.8,
+        type: "spring",
+        duration: 0.3,
+        damping: 12,
+        delay: 0.6,
       },
     },
   };
@@ -202,7 +205,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
   return (
     <>
       <motion.div
-        className={cn("flex flex-col gap-6", className)}
+        className={cn("flex flex-col gap-6 mt-10", className)}
         {...props}
         initial="hidden"
         animate="visible"
@@ -215,7 +218,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
               variants={logoVariants}
             >
               <div className="flex justify-center items-center flex-col gap-2.5">
-                <Image src={BunkrLogo} alt="Bunkr" className="w-[34px]" />
+                <Image src={BunkrLogo} alt="Bunkr" className="w-[36px]" />
                 <h1 className="text-5xl font-semibold font-klick">Bunkr</h1>
               </div>
               <p className="text-center text-sm font-medium max-w-[322px] text-white/60">
@@ -344,9 +347,9 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="text-center text-sm text-destructive border rounded-lg bg-red-400/15 border-red-400/75 p-2 lowercase"
+                  className="text-center text-sm text-destructive border rounded-lg bg-red-400/15 border-red-400/75 p-2"
                 >
-                  {/* ezygo says... <br /> */}
+                  {"Ezygo: "}
                   {error}
                 </motion.div>
               )}
