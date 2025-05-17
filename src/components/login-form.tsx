@@ -77,7 +77,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
     phone: {
       label: "Phone",
       type: "tel",
-      placeholder: "+919234567890",
+      placeholder: "919234567890",
     },
   };
 

@@ -32,7 +32,7 @@ const loginMethodProps = {
   phone: {
     label: "Phone",
     type: "tel",
-    placeholder: "+91 9234567890",
+    placeholder: "919234567890",
   },
 };
 
