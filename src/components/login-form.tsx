@@ -219,7 +219,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
             >
               <div className="flex justify-center items-center flex-col gap-2.5">
                 <Image src={BunkrLogo} alt="Bunkr" className="w-[36px]" />
-                <h1 className="text-5xl font-semibold font-klick">Bunkr</h1>
+                <h1 className="text-5xl font-semibold font-klick tracking-wide">Bunkr</h1>
               </div>
               <p className="text-center text-sm font-medium max-w-[322px] text-white/60">
                 {
