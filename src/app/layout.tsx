@@ -4,7 +4,6 @@ import ReactQueryProvider from "@/providers/react-query";
 import { Manrope, DM_Mono } from "next/font/google";
 import localFont from "next/font/local";
 import "./globals.css";
-import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "Bunkr",
@@ -57,7 +56,6 @@ export default function RootLayout({
       >
         <ReactQueryProvider>{children}</ReactQueryProvider>
         <Analytics />
-        {/* <Footer /> */}
       </body>
     </html>
   );

@@ -4,20 +4,23 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
 import { Eye, EyeOff, Mail, Phone, User } from "lucide-react";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+
 import axios from "@/lib/axios";
 import { AxiosError } from "axios";
-import { setToken } from "@/utils/auth";
-import { useRouter } from "next/navigation";
-import { motion, AnimatePresence, HTMLMotionProps } from "framer-motion";
-import { getToken } from "@/utils/auth";
-import { useEffect } from "react";
+import { setToken, getToken } from "@/utils/auth";
+
 import { Loading } from "./loading";
-import { PasswordResetForm } from "./password-reset-form";
-import BunkrLogo from "@/assets/bunkr.svg";
-import Image from "next/image";
 import { Footer } from "@/components/footer";
+import { PasswordResetForm } from "./password-reset-form";
+
+import { motion, AnimatePresence, HTMLMotionProps } from "framer-motion";
+
+import BunkrLogo from "../../public/favicon.svg";
 
 interface LoginFormProps extends HTMLMotionProps<"div"> {
   className?: string;
@@ -29,8 +32,11 @@ interface ErrorResponse {
 
 export function LoginForm({ className, ...props }: LoginFormProps) {
   const router = useRouter();
+
+  const [isLoading, setIsLoading] = useState(false); // for login button text change
+  const [isLoadingPage, setIsLoadingPage] = useState(true); // for actuall loading page
   const [showPassword, setShowPassword] = useState(false);
-  const [showPasswordReset, setShowPasswordReset] = useState(false);
+  const [showPasswordResetForm, setShowPasswordResetForm] = useState(false);
   const [loginMethod, setLoginMethod] = useState<
     "username" | "email" | "phone"
   >("username");
@@ -39,16 +45,15 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
     password: "",
     stay_logged_in: true,
   });
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isLoadingPage, setIsLoadingPage] = useState(true);
 
   useEffect(() => {
     const token = getToken();
+
     if (token) {
       router.push("/dashboard");
     }
-  }, []);
+  }, [router]); // redirect to dashboard if token exist
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -56,7 +61,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, []); // a 1s mandatory loading animation regardless of auth
 
   const loginMethodProps = {
     username: {
@@ -72,7 +77,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
     phone: {
       label: "Phone",
       type: "tel",
-      placeholder: "919234567890",
+      placeholder: "+91 9234567890",
     },
   };
 
@@ -83,21 +88,25 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
 
     try {
       const response = await axios.post("/login", formData);
+
       setToken(response.data.access_token);
       router.push("/dashboard");
     } catch (error) {
       const err = error as AxiosError<ErrorResponse>;
+
       if (err.response?.data?.message) {
         setError(err.response.data.message);
       } else {
         setError("An unexpected error occurred");
       }
+
       console.error("Login failed:", error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }; // handling ezygo auth
 
+  // framer motion variants: start
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -120,11 +129,14 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
   };
 
   const footerVariants = {
-    hidden: { y: 20, opacity: 0 },
+    hidden: { y: 10, opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
-      transition: { duration: 0.8 },
+      transition: {
+        duration: 0.6,
+        delay: 0.8,
+      },
     },
   };
 
@@ -166,6 +178,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { duration: 0.3 } },
   };
+  // framer motion variants: end
 
   if (isLoadingPage) {
     return (
@@ -175,16 +188,16 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
         </div>
       </>
     );
-  }
+  } // rendering loading page
 
-  if (showPasswordReset) {
+  if (showPasswordResetForm) {
     return (
       <PasswordResetForm
         className={className}
-        onCancel={() => setShowPasswordReset(false)}
+        onCancel={() => setShowPasswordResetForm(false)}
       />
     );
-  }
+  } // rendering reset form
 
   return (
     <>
@@ -281,7 +294,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
                   <Label htmlFor="password">Password</Label>
                   <button
                     type="button"
-                    onClick={() => setShowPasswordReset(true)}
+                    onClick={() => setShowPasswordResetForm(true)}
                     className="text-[13px] text-muted-foreground hover:text-primary duration-100 font-medium"
                   >
                     Forgot password?
