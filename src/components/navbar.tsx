@@ -90,9 +90,12 @@ export const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-10 flex h-17 items-center justify-between gap-4 border-b bg-background px-4 md:px-6 text-white mr-0.5">
+    <header className="sticky top-0 z-10 flex h-17 items-center justify-between gap-4 border-b-2 bg-background px-4 md:px-6 text-white mr-0.5 border-white/5">
       <div className="flex items-center gap-2">
-        <Link href="/" className="text-4xl md:text-4xl font-semibold gradient-logo font-klick tracking-wide">
+        <Link
+          href="/"
+          className="text-[2.50rem] font-semibold gradient-logo font-klick tracking-wide"
+        >
           Bunkr
         </Link>
       </div>
@@ -101,7 +104,11 @@ export const Navbar = () => {
         <div className="gap-3 flex items-center">
           {pathname !== "/dashboard" && (
             <div className="max-md:hidden text-white/85">
-              <Button variant={"outline"} className="custom-button cursor-pointer" onClick={() => navigateTo("/dashboard")}>
+              <Button
+                variant={"outline"}
+                className="custom-button cursor-pointer"
+                onClick={() => navigateTo("/dashboard")}
+              >
                 <ArrowLeft className="h-4 w-4" />
                 Back
               </Button>
@@ -163,14 +170,17 @@ export const Navbar = () => {
                     <Image
                       src={profileImageSrc || "/placeholder.svg"}
                       alt="Avatar"
-                      width={36}
-                      height={36}
+                      width={37}
+                      height={37}
                     />
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="min-w-56 z-50 mt-1 custom-dropdown" align="end">
+            <DropdownMenuContent
+              className="min-w-56 z-50 mt-1 custom-dropdown pr-1"
+              align="end"
+            >
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium lowercase">
@@ -182,16 +192,26 @@ export const Navbar = () => {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigateTo("/dashboard")} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => navigateTo("/dashboard")}
+                className="cursor-pointer"
+              >
                 <Layers2 className="mr-2 h-4 w-4" />
                 <span>Dashboard</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigateTo("/profile")} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={() => navigateTo("/profile")}
+                className="cursor-pointer"
+              >
                 <UserRound className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="cursor-pointer"
+                variant="destructive"
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>

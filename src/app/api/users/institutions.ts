@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axios";
 import { Institution } from "@/types";
+import { removeToken } from "@/utils/auth";
 
 export function useInstitutions() {
   return useQuery<Institution[]>({
@@ -15,6 +16,7 @@ export function useInstitutions() {
       );
 
       if (studentInstitutions.length === 0) {
+        removeToken();
         throw new Error("No student institutions found");
       }
 
