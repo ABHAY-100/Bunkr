@@ -1,4 +1,4 @@
-export const setToken = (token: string, expiresInDays: number = 30) => {
+export const setToken = (token: string, expiresInDays: number = 24) => {
   const expiresAt = Date.now() + expiresInDays * 24 * 60 * 60 * 1000;
 
   const tokenData = {
@@ -7,6 +7,7 @@ export const setToken = (token: string, expiresInDays: number = 30) => {
   };
 
   localStorage.setItem("ezygo_access_token", JSON.stringify(tokenData));
+  return;
 };
 
 export const getToken = () => {
@@ -31,4 +32,5 @@ export const getToken = () => {
 
 export const removeToken = () => {
   localStorage.removeItem("ezygo_access_token");
+  return;
 };

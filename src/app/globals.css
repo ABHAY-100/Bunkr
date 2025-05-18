@@ -120,4 +120,12 @@
   .custom-input {
     @apply bg-[#1F1F1F] border-[#2B2B2B] h-[44px] border-2 rounded-[12px] text-sm font-medium
   }
+
+  .custom-dropdown {
+    @apply bg-[#1F1F1F]/[0.4] border-[#2B2B2B]/[0.6] border-2 rounded-[12px] text-sm font-medium backdrop-blur-2xl
+  }
+
+  .custom-button {
+    @apply bg-[#1F1F1F]/[0.4] border-[#2B2B2B]/[0.6] border-2 rounded-[12px] text-sm font-medium backdrop-blur-2xl
+  }
 }

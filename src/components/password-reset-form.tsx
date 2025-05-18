@@ -1,17 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
+import { Eye, EyeOff, Mail, Phone, User } from "lucide-react";
+
 import axios from "@/lib/axios";
 import { setToken } from "@/utils/auth";
-import { useRouter } from "next/navigation";
+
 import { motion } from "framer-motion";
-// import { Eye, EyeOff } from "lucide-react";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Eye, EyeOff, Mail, Phone, User } from "lucide-react";
 
 interface PasswordResetFormProps {
   className?: string;

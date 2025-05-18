@@ -20,7 +20,7 @@ import { PasswordResetForm } from "./password-reset-form";
 
 import { motion, AnimatePresence, HTMLMotionProps } from "framer-motion";
 
-import BunkrLogo from "../../public/favicon.svg";
+import BunkrLogo from "@/assets/bunkr.svg";
 
 interface LoginFormProps extends HTMLMotionProps<"div"> {
   className?: string;
@@ -48,11 +48,15 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = getToken();
+    const interval = setInterval(() => {
+      const token = getToken();
 
-    if (token) {
-      router.push("/dashboard");
-    }
+      if (token) {
+        router.push("/dashboard");
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
   }, [router]); // redirect to dashboard if token exist
 
   useEffect(() => {
@@ -129,16 +133,16 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
   };
 
   const footerVariants = {
-    hidden: { scale: 0.8, opacity: 0, y: -10 },
+    hidden: { scale: 0.8, opacity: 0, y: -15 },
     visible: {
       y: 0,
       scale: 1,
       opacity: 1,
       transition: {
-        type: "spring",
+        // type: "spring",
         duration: 0.3,
-        damping: 12,
-        delay: 0.6,
+        // damping: 12,
+        delay: 0.65,
       },
     },
   };
@@ -184,186 +188,192 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
   // framer motion variants: end
 
   if (isLoadingPage) {
-    return (
-      <>
-        <div className="flex h-[90vh] w-full items-center justify-center">
-          <Loading />
-        </div>
-      </>
-    );
+    return <Loading />;
   } // rendering loading page
 
   if (showPasswordResetForm) {
     return (
-      <PasswordResetForm
-        className={className}
-        onCancel={() => setShowPasswordResetForm(false)}
-      />
+      <>
+        {!isLoadingPage && (
+          <PasswordResetForm
+            className={className}
+            onCancel={() => setShowPasswordResetForm(false)}
+          />
+        )}
+      </>
     );
   } // rendering reset form
 
   return (
     <>
-      <motion.div
-        className={cn("flex flex-col gap-6 mt-10", className)}
-        {...props}
-        initial="hidden"
-        animate="visible"
-        variants={containerVariants}
-      >
-        <form onSubmit={handleSubmit}>
-          <div className="flex flex-col gap-6">
-            <motion.div
-              className="flex flex-col items-center gap-2.5"
-              variants={logoVariants}
-            >
-              <div className="flex justify-center items-center flex-col gap-2.5">
-                <Image src={BunkrLogo} alt="Bunkr" className="w-[36px]" />
-                <h1 className="text-5xl font-semibold font-klick tracking-wide">Bunkr</h1>
-              </div>
-              <p className="text-center text-sm font-medium max-w-[322px] text-white/60">
-                {
-                  "Drop your ezygo credentials — we're just the aesthetic upgrade you deserved"
-                }
-              </p>
-            </motion.div>
-            <div className="flex flex-col gap-5 pt-2 mt-1">
-              <motion.div className="grid gap-2" variants={itemVariants}>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="login">
-                    {loginMethodProps[loginMethod].label}
-                  </Label>
-                  <div className="flex gap-1">
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant={
-                        loginMethod === "username" ? "secondary" : "ghost"
-                      }
-                      className="h-6 w-6 p-3"
-                      onClick={() => setLoginMethod("username")}
-                    >
-                      <User className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant={loginMethod === "email" ? "secondary" : "ghost"}
-                      className="h-6 w-6 p-3"
-                      onClick={() => setLoginMethod("email")}
-                    >
-                      <Mail className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant={loginMethod === "phone" ? "secondary" : "ghost"}
-                      className="h-6 w-6 p-3"
-                      onClick={() => setLoginMethod("phone")}
-                    >
-                      <Phone className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                <div className="relative">
-                  <Input
-                    id="login"
-                    type={loginMethodProps[loginMethod].type}
-                    value={formData.username}
-                    className="custom-input"
-                    onChange={(e) =>
-                      setFormData({ ...formData, username: e.target.value })
-                    }
-                    placeholder={loginMethodProps[loginMethod].placeholder}
-                    required
-                  />
-                  <AnimatePresence mode="wait">
-                    <motion.span
-                      key={loginMethod}
-                      className="pointer-events-none absolute left-3 top-2/4 -translate-y-2/4 text-sm text-muted-foreground"
-                      initial="hidden"
-                      animate="visible"
-                      exit="hidden"
-                      variants={placeholderVariants}
-                      style={{ opacity: formData.username ? 0 : 0.5 }}
-                    >
-                      {/* {loginMethodProps[loginMethod].placeholder} */}
-                    </motion.span>
-                  </AnimatePresence>
-                </div>
-              </motion.div>
-              <motion.div className="grid gap-2.5" variants={itemVariants}>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <button
-                    type="button"
-                    onClick={() => setShowPasswordResetForm(true)}
-                    className="text-[13px] text-muted-foreground hover:text-primary duration-100 font-medium"
-                  >
-                    Forgot password?
-                  </button>
-                </div>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    // placeholder="••••••••••••"
-                    required
-                    value={formData.password}
-                    className="custom-input"
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0 h-full px-3 hover:bg-transparent mr-1.5"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-6 w-6" />
-                    ) : (
-                      <Eye className="h-6 w-6" />
-                    )}
-                  </Button>
-                </div>
-              </motion.div>
-              <motion.div
-                variants={buttonVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <Button
-                  type="submit"
-                  className="w-full font-semibold min-h-[46px] rounded-[12px] mt-4 font-sm"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Logging in..." : "Login"}
-                </Button>
-              </motion.div>
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-center text-sm text-destructive border rounded-lg bg-red-400/15 border-red-400/75 p-2"
-                >
-                  {"Ezygo: "}
-                  {error}
-                </motion.div>
-              )}
-            </div>
-          </div>
-        </form>
+      {!isLoadingPage && (
         <motion.div
-          variants={footerVariants}
+          className={cn("flex flex-col gap-6 mt-10", className)}
+          {...props}
           initial="hidden"
           animate="visible"
+          variants={containerVariants}
         >
-          <Footer />
+          <form onSubmit={handleSubmit}>
+            <div className="flex flex-col gap-6">
+              <motion.div
+                className="flex flex-col items-center gap-2.5"
+                variants={logoVariants}
+              >
+                <div className="flex justify-center items-center flex-col gap-2.5">
+                  <Image src={BunkrLogo} alt="Bunkr" className="w-[36px]" />
+                  <h1 className="text-5xl font-semibold font-klick tracking-wide">
+                    Bunkr
+                  </h1>
+                </div>
+                <p className="text-center text-sm font-medium max-w-[322px] text-white/60">
+                  {
+                    "Drop your ezygo credentials — we're just the aesthetic upgrade you deserved"
+                  }
+                </p>
+              </motion.div>
+              <div className="flex flex-col gap-5 pt-2 mt-1">
+                <motion.div className="grid gap-2" variants={itemVariants}>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="login">
+                      {loginMethodProps[loginMethod].label}
+                    </Label>
+                    <div className="flex gap-1">
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant={
+                          loginMethod === "username" ? "secondary" : "ghost"
+                        }
+                        className="h-6 w-6 p-3"
+                        onClick={() => setLoginMethod("username")}
+                      >
+                        <User className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant={
+                          loginMethod === "email" ? "secondary" : "ghost"
+                        }
+                        className="h-6 w-6 p-3"
+                        onClick={() => setLoginMethod("email")}
+                      >
+                        <Mail className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant={
+                          loginMethod === "phone" ? "secondary" : "ghost"
+                        }
+                        className="h-6 w-6 p-3"
+                        onClick={() => setLoginMethod("phone")}
+                      >
+                        <Phone className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <Input
+                      id="login"
+                      type={loginMethodProps[loginMethod].type}
+                      value={formData.username}
+                      className="custom-input"
+                      onChange={(e) =>
+                        setFormData({ ...formData, username: e.target.value })
+                      }
+                      placeholder={loginMethodProps[loginMethod].placeholder}
+                      required
+                    />
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={loginMethod}
+                        className="pointer-events-none absolute left-3 top-2/4 -translate-y-2/4 text-sm text-muted-foreground"
+                        initial="hidden"
+                        animate="visible"
+                        exit="hidden"
+                        variants={placeholderVariants}
+                        style={{ opacity: formData.username ? 0 : 0.5 }}
+                      >
+                        {/* {loginMethodProps[loginMethod].placeholder} */}
+                      </motion.span>
+                    </AnimatePresence>
+                  </div>
+                </motion.div>
+                <motion.div className="grid gap-2.5" variants={itemVariants}>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="password">Password</Label>
+                    <button
+                      type="button"
+                      onClick={() => setShowPasswordResetForm(true)}
+                      className="text-[13px] text-muted-foreground hover:text-primary duration-100 font-medium"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      // placeholder="••••••••••••"
+                      required
+                      value={formData.password}
+                      className="custom-input"
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-0 top-0 h-full px-3 hover:bg-transparent mr-1.5"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-6 w-6" />
+                      ) : (
+                        <Eye className="h-6 w-6" />
+                      )}
+                    </Button>
+                  </div>
+                </motion.div>
+                <motion.div
+                  variants={buttonVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
+                  <Button
+                    type="submit"
+                    className="w-full font-semibold min-h-[46px] rounded-[12px] mt-4 font-sm"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Logging in..." : "Login"}
+                  </Button>
+                </motion.div>
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-center text-sm text-destructive border rounded-lg bg-red-400/15 border-red-400/75 p-2"
+                  >
+                    {"Ezygo: "}
+                    {error}
+                  </motion.div>
+                )}
+              </div>
+            </div>
+          </form>
+          <motion.div
+            variants={footerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <Footer />
+          </motion.div>
         </motion.div>
-      </motion.div>
+      )}
     </>
   );
 }

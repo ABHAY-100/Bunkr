@@ -28,7 +28,9 @@ export default function RootLayout({
   return (
     <>
       {loading ? (
-        <Loading />
+        <div className="h-screen">
+          <Loading />
+        </div>
       ) : (
         <>
           <div className="fixed w-full top-0 left-0 right-0 z-10">

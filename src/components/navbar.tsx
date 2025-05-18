@@ -10,12 +10,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Bell, LogOut, Building2, Layers2, UserRound } from "lucide-react";
 import { removeToken } from "@/utils/auth";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/app/api/users/user";
 import { useProfile } from "@/app/api/users/profile";
-import { useNotifications } from "@/app/api/users/notification";
 import {
   useInstitutions,
   useDefaultInstitutionUser,
@@ -23,10 +21,6 @@ import {
 } from "@/app/api/users/institutions";
 import Image from "next/image";
 import { getProfileImage } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Skeleton } from "@/components/ui/skeleton";
-import { formatDistanceToNow } from "date-fns";
 import { useState, useEffect } from "react";
 import {
   Select,
@@ -38,15 +32,13 @@ import {
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Building2, Layers2, LogOut, UserRound } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 export const Navbar = () => {
   const router = useRouter();
   const { data: user } = useUser();
   const { data: profile } = useProfile();
-  const { data: notifications, isLoading: notificationsLoading } =
-    useNotifications();
   const { data: institutions, isLoading: institutionsLoading } =
     useInstitutions();
   const { data: defaultInstitutionUser } = useDefaultInstitutionUser();
@@ -58,8 +50,6 @@ export const Navbar = () => {
   const pathname = usePathname();
 
   const profileImageSrc = getProfileImage(profile?.gender ?? null);
-  const unreadNotifications =
-    notifications?.filter((n) => n.read_at === null) || [];
 
   useEffect(() => {
     if (defaultInstitutionUser) {
@@ -95,47 +85,27 @@ export const Navbar = () => {
     });
   };
 
-  const formatNotificationDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return formatDistanceToNow(date, { addSuffix: true });
-  };
-
-  const parseNotificationData = (data: string) => {
-    const deviceMatch = data.match(/Date:(.+?), Time:(.+?) \$\$UTC\$\$, (.+)/);
-    if (deviceMatch) {
-      const [, date, time, device] = deviceMatch;
-      return {
-        date,
-        time,
-        device: device.split("/").slice(0, 2).join(" • "),
-      };
-    }
-    return { date: "", time: "", device: "Unknown device" };
-  };
-
   const truncateText = (text: string, limit: number) => {
     return text.length > limit ? text.substring(0, limit) + "..." : text;
   };
 
   return (
-    <header className="sticky top-0 z-10 flex h-17 items-center justify-between gap-4 border-b bg-background px-4 md:px-6 text-white">
+    <header className="sticky top-0 z-10 flex h-17 items-center justify-between gap-4 border-b bg-background px-4 md:px-6 text-white mr-0.5">
       <div className="flex items-center gap-2">
-        <div
-          className="text-3xl md:text-3xl font-semibold gradient-logo"
-        >
-          bunkr
-        </div>
+        <Link href="/" className="text-4xl md:text-4xl font-semibold gradient-logo font-klick tracking-wide">
+          Bunkr
+        </Link>
       </div>
 
-      <div className="flex items-center justify-between gap-2 md:gap-6 lowercase">
-        <div className="gap-4 flex items-center">
+      <div className="flex items-center justify-between gap-2 md:gap-6">
+        <div className="gap-3 flex items-center">
           {pathname !== "/dashboard" && (
-            <Link href="/dashboard" className="max-md:hidden text-white/85">
-              <Button variant={"outline"}>
+            <div className="max-md:hidden text-white/85">
+              <Button variant={"outline"} className="custom-button cursor-pointer" onClick={() => navigateTo("/dashboard")}>
                 <ArrowLeft className="h-4 w-4" />
-                back
+                Back
               </Button>
-            </Link>
+            </div>
           )}
 
           {!institutionsLoading && institutions && institutions.length > 0 && (
@@ -144,21 +114,19 @@ export const Navbar = () => {
                 value={selectedInstitution}
                 onValueChange={handleInstitutionChange}
               >
-                <SelectTrigger className="w-[140px] md:w-[220px]">
+                <SelectTrigger className="w-[140px] md:w-[220px] custom-input cursor-pointer">
                   <SelectValue>
                     {selectedInstitution &&
                       institutions?.find(
                         (i) => i.id.toString() === selectedInstitution
                       ) && (
-                        <div className="flex items-center">
+                        <div className="flex items-center font-medium">
                           <Building2 className="mr-2 h-4 w-4" />
                           <span className="truncate">
                             {truncateText(
-                              (
-                                institutions.find(
-                                  (i) => i.id.toString() === selectedInstitution
-                                )?.institution.name || ""
-                              ).toLowerCase(),
+                              institutions.find(
+                                (i) => i.id.toString() === selectedInstitution
+                              )?.institution.name || "",
                               window.innerWidth < 768 ? 10 : 16
                             )}
                           </span>
@@ -166,17 +134,17 @@ export const Navbar = () => {
                       )}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="custom-dropdown mt-1">
                   {institutions.map((inst) => (
                     <SelectItem key={inst.id} value={inst.id.toString()}>
-                      <div className="flex items-center">
+                      <div className="flex items-center cursor-pointer">
                         <Building2 className="mr-2 h-4 w-4 flex-shrink-0" />
-                        <span className="truncate">
+                        <span className="truncate font-medium">
                           {inst.institution.name}
                         </span>
-                        <span className="ml-2 text-xs text-muted-foreground hidden md:inline">
+                        {/* <span className="ml-2 text-xs text-muted-foreground hidden md:inline capitalize">
                           ({inst.institution_role.name})
-                        </span>
+                        </span> */}
                       </div>
                     </SelectItem>
                   ))}
@@ -187,84 +155,6 @@ export const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                {unreadNotifications.length > 0 && (
-                  <Badge
-                    variant="destructive"
-                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                  >
-                    {unreadNotifications.length > 9
-                      ? "9+"
-                      : unreadNotifications.length}
-                  </Badge>
-                )}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-76 mx-2 z-50" align="end">
-              <DropdownMenuLabel className="flex justify-between items-center">
-                <span>Notifications</span>
-                {unreadNotifications.length > 0 && (
-                  <Badge variant="secondary" className="ml-2">
-                    {unreadNotifications.length} unread
-                  </Badge>
-                )}
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-
-              <ScrollArea className="h-[400px]">
-                {notificationsLoading ? (
-                  <div className="space-y-2 p-2">
-                    {[1, 2, 3].map((i) => (
-                      <div key={i} className="flex gap-2 items-start p-2">
-                        <Skeleton className="h-8 w-8 rounded-full" />
-                        <div className="space-y-2 flex-1">
-                          <Skeleton className="h-4 w-full" />
-                          <Skeleton className="h-3 w-3/4" />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : notifications && notifications.length > 0 ? (
-                  notifications.map((notification) => {
-                    const { device } = parseNotificationData(notification.data);
-                    return (
-                      <div
-                        key={notification.id}
-                        className={`p-3 hover:bg-secondary/50 ${
-                          notification.read_at === null ? "bg-secondary/20" : ""
-                        }`}
-                      >
-                        <div className="flex gap-2 items-start">
-                          <div className="bg-primary/10 p-2 rounded-full">
-                            <Bell className="h-4 w-4 text-primary" />
-                          </div>
-                          <div className="space-y-1 flex-1">
-                            <p className="text-sm font-medium">
-                              New login detected
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {device}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {formatNotificationDate(notification.created_at)}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className="p-4 text-center text-muted-foreground">
-                    No notifications
-                  </div>
-                )}
-              </ScrollArea>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
@@ -280,7 +170,7 @@ export const Navbar = () => {
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="min-w-56 z-50" align="end">
+            <DropdownMenuContent className="min-w-56 z-50 mt-1 custom-dropdown" align="end">
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium lowercase">
@@ -292,16 +182,16 @@ export const Navbar = () => {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigateTo("/dashboard")}>
+              <DropdownMenuItem onClick={() => navigateTo("/dashboard")} className="cursor-pointer">
                 <Layers2 className="mr-2 h-4 w-4" />
                 <span>Dashboard</span>
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigateTo("/profile")}>
+              <DropdownMenuItem onClick={() => navigateTo("/profile")} className="cursor-pointer">
                 <UserRound className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}>
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
