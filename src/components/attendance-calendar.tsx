@@ -18,32 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-interface Course {
-  name: string;
-  id: string;
-}
-
-interface Session {
-  name: string;
-  id: string;
-}
-
-interface SessionData {
-  course: number;
-  attendance: number;
-}
-
-interface AttendanceEvent {
-  title: string;
-  date: Date;
-  sessionName: string;
-  sessionKey: string;
-  type: string;
-  status: string;
-  statusColor: string;
-  courseId: string;
-}
+import { SessionData, AttendanceEvent, Session, Course } from "@/types";
 
 interface AttendanceData {
   studentAttendanceData?: Record<string, Record<string, SessionData>>;
@@ -325,8 +300,8 @@ export function AttendanceCalendar({
   );
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card className="overflow-hidden border border-border/40 shadow-md backdrop-blur-sm custom-button">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <Card className="overflow-hidden border border-border/40 shadow-md backdrop-blur-sm custom-container">
         <CardHeader className="pb-2 flex flex-row items-center justify-between max-sm:justify-center space-y-0 border-b border-border/40">
           <div className="flex items-center gap-2">
             <Select
@@ -443,7 +418,7 @@ export function AttendanceCalendar({
         </CardContent>
       </Card>
 
-      <Card className="overflow-hidden border border-border/40 shadow-md backdrop-blur-sm custom-button">
+      <Card className="overflow-hidden border border-border/40 shadow-md backdrop-blur-sm custom-container">
         <CardHeader className="border-b border-border/40 pt-1.5">
           <CardTitle className="text-base flex items-center gap-2 font-medium">
             <CalendarIcon className="h-4 w-4 mr-1" />
@@ -485,14 +460,6 @@ export function AttendanceCalendar({
                       return (
                         <motion.div
                           key={`event-${event.sessionKey}-${index}`}
-                          // initial={{ opacity: 0, y: 5 }}
-                          // animate={{ opacity: 1, y: 0 }}
-                          transition={
-                            {
-                              // delay: index * 0.05,
-                              // duration: 0.2,
-                            }
-                          }
                           className={`p-4 rounded-lg border ${colorClass} hover:bg-opacity-20 transition-all`}
                         >
                           <div className="flex justify-between items-start mb-2">

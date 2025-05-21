@@ -21,16 +21,15 @@ import {
 import { AttendanceCalendar } from "@/components/attendance-calendar";
 import { CourseCard } from "@/components/course-card";
 import { AttendanceChart } from "@/components/attendance-chart";
-// import { Loading } from "@/components/loading";
-import { useProfile } from "@/app/api/users/profile";
-import { useAttendanceReport } from "@/app/api/courses/attendance";
-import { useFetchCourses } from "@/app/api/courses/courses";
+import { useProfile } from "@/hooks/users/profile";
+import { useAttendanceReport } from "@/hooks/courses/attendance";
+import { useFetchCourses } from "@/hooks/courses/courses";
 import {
   useFetchSemester,
   useFetchAcademicYear,
   useSetSemester,
   useSetAcademicYear,
-} from "@/app/api/users/settings";
+} from "@/hooks/users/settings";
 import { redirect } from "next/navigation";
 import { getToken } from "@/utils/auth";
 import CompLoading from "@/components/comp-loading";
@@ -137,7 +136,7 @@ export default function Dashboard() {
 
   const academicYears = generateAcademicYears();
 
-  // Define attendance status codes as constants for better readability
+  // Attendance status codes
   const ATTENDANCE_STATUS = {
     PRESENT: 110,
     ABSENT: 111,
@@ -145,7 +144,7 @@ export default function Dashboard() {
     OTHER_LEAVE: 112,
   } as const;
 
-  // Define return type for calculateOverallStats
+  // Return type for calculateOverallStats
   interface AttendanceStats {
     present: number;
     absent: number;
@@ -155,24 +154,23 @@ export default function Dashboard() {
     otherLeave: number;
   }
 
-  // Define session type for type safety
+  // Session type for type safety
   interface AttendanceSession {
     attendance: number;
     [key: string]: any;
   }
 
-  // Define date data type
+  // Date data type
   interface DateData {
     [sessionId: string]: AttendanceSession;
   }
 
-  // Define student attendance data type
+  // Student attendance data type
   interface StudentAttendanceData {
     [date: string]: DateData;
   }
 
   const calculateOverallStats = (): AttendanceStats => {
-    // Default return object
     const defaultStats: AttendanceStats = {
       present: 0,
       absent: 0,
@@ -182,7 +180,6 @@ export default function Dashboard() {
       otherLeave: 0,
     };
 
-    // Return default stats if no data available
     if (!attendanceData?.studentAttendanceData) {
       return defaultStats;
     }
@@ -190,13 +187,11 @@ export default function Dashboard() {
     const studentData =
       attendanceData.studentAttendanceData as StudentAttendanceData;
 
-    // Initialize counters
     let totalPresent = 0;
     let totalAbsent = 0;
     let dutyLeave = 0;
     let otherLeave = 0;
 
-    // Count attendance statuses
     Object.values(studentData).forEach((dateData) => {
       Object.values(dateData).forEach((session) => {
         const { attendance } = session;
@@ -208,11 +203,11 @@ export default function Dashboard() {
       });
     });
 
-    // Calculate effective attendance (present + duty leave)
+    // Effective attendance (present + duty leave)
     const effectivePresent = totalPresent + dutyLeave;
     const totalClasses = effectivePresent + totalAbsent + otherLeave;
 
-    // Calculate attendance percentage with rounding
+    // Percentage calculation
     const percentage =
       totalClasses > 0
         ? Math.round((effectivePresent / totalClasses) * 100)
@@ -319,33 +314,20 @@ export default function Dashboard() {
                   ))}
                 </SelectContent>
               </Select>
-
-              {/* <button
-                onClick={handleRefresh}
-                disabled={
-                  isRefreshing || isLoadingCourses || isLoadingAttendance
-                }
-                className="inline-flex h-8 ml-2 items-center justify-center rounded-full bg-primary/10 px-2 text-sm text-primary hover:bg-primary/20 transition-colors disabled:opacity-50 disabled:pointer-events-none"
-                title="Refresh data"
-              >
-                <RefreshCw
-                  className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-                />
-              </button> */}
             </p>
           </div>
         </div>
 
         {/* info cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-4 mb-6">
-          {/* Total Attendance - Takes 2 columns on larger screens */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-5 mb-6">
+          {/* Total Attendance */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
             className="sm:col-span-2 xl:col-span-2"
           >
-            <Card className="h-full custom-button">
+            <Card className="h-full custom-container">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Attendance
@@ -368,7 +350,7 @@ export default function Dashboard() {
             transition={{ duration: 0.3, delay: 0.1 }}
             className="col-span-1"
           >
-            <Card className="h-full custom-button">
+            <Card className="h-full custom-container">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Present</CardTitle>
               </CardHeader>
@@ -390,7 +372,7 @@ export default function Dashboard() {
             transition={{ duration: 0.3, delay: 0.2 }}
             className="col-span-1"
           >
-            <Card className="h-full custom-button">
+            <Card className="h-full custom-container">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Absent</CardTitle>
               </CardHeader>
@@ -412,7 +394,7 @@ export default function Dashboard() {
             transition={{ duration: 0.3, delay: 0.2 }}
             className="col-span-1"
           >
-            <Card className="h-full custom-button">
+            <Card className="h-full custom-container">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">
                   Duty Leaves
@@ -436,7 +418,7 @@ export default function Dashboard() {
             transition={{ duration: 0.3, delay: 0.2 }}
             className="col-span-1"
           >
-            <Card className="h-full custom-button">
+            <Card className="h-full custom-container">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">
                   Special Leave
@@ -460,7 +442,7 @@ export default function Dashboard() {
             transition={{ duration: 0.3, delay: 0.3 }}
             className="col-span-1"
           >
-            <Card className="h-full custom-button">
+            <Card className="h-full custom-container">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Courses
@@ -481,16 +463,18 @@ export default function Dashboard() {
         </div>
 
         {/* attendance overview graph*/}
-        <div className="grid gap-6 md:grid-cols-2 mb-6">
+        <div className="grid gap-5 md:grid-cols-2 mb-6">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <Card className="col-span-1 custom-button">
-              <CardHeader>
-                <CardTitle>Attendance Overview</CardTitle>
-                <CardDescription>
+            <Card className="col-span-1 custom-container">
+              <CardHeader className="flex flex-col gap-0.5">
+                <CardTitle className="text-[16px]">
+                  Attendance Overview
+                </CardTitle>
+                <CardDescription className="text-accent-foreground/60 text-sm">
                   {"See where you've been keeping up"}
                 </CardDescription>
               </CardHeader>
@@ -517,10 +501,14 @@ export default function Dashboard() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <Card className="col-span-1 custom-button">
-              <CardHeader>
-                <CardTitle>Instructor Details</CardTitle>
-                <CardDescription>Get to know your instructors</CardDescription>
+            <Card className="col-span-1 custom-container">
+              <CardHeader className="flex flex-col gap-0.5">
+                <CardTitle className="text-[16px]">
+                  Instructor Details
+                </CardTitle>
+                <CardDescription className="text-accent-foreground/60 text-sm">
+                  Get to know your instructors
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 {isLoadingCourses ? (
@@ -529,7 +517,7 @@ export default function Dashboard() {
                   </div>
                 ) : coursesData?.courses &&
                   Object.keys(coursesData.courses).length > 0 ? (
-                  <div className="rounded-md custom-button overflow-clip">
+                  <div className="rounded-md custom-container overflow-clip">
                     <ScrollArea className="h-[300px]">
                       <table className="w-full caption-bottom text-sm">
                         <thead className="relative">
@@ -602,14 +590,6 @@ export default function Dashboard() {
                                           {instructor.last_name}
                                         </div>
                                       </td>
-                                      {/* <td className="p-4 hidden md:table-cell [1000px]:hidden">
-                                        <div className="flex items-center">
-                                          <span className="flex h-2 w-2 rounded-full bg-green-500 mr-2 ring-1 ring-green-500 ring-offset-1"></span>
-                                          <span className="text-sm font-medium text-green-600 dark:text-green-500">
-                                            Active
-                                          </span>
-                                        </div>
-                                      </td> */}
                                     </tr>
                                   )
                                 )
@@ -657,11 +637,12 @@ export default function Dashboard() {
           </motion.div>
         </div>
 
+        {/* attendance calendar */}
         <div className="mb-6">
-          <Card className="custom-button">
-            <CardHeader>
-              <CardTitle>Attendance Calendar</CardTitle>
-              <CardDescription>
+          <Card className="custom-container">
+            <CardHeader className="flex flex-col gap-0.5">
+              <CardTitle className="text-[16px]">Attendance Calendar</CardTitle>
+              <CardDescription className="text-accent-foreground/60 text-sm">
                 Your attendance history at a glance
               </CardDescription>
             </CardHeader>
@@ -684,16 +665,17 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        <div className="mb-6 mt-8">
-          <div className="mb-5">
+        {/* courses lineup */}
+        <div className="mb-6 mt-14">
+          <div className="mb-6 flex flex-col justify-center items-center">
             <h2 className="text-xl font-bold mb-1 italic">
-              My Courses <span className="ml-1">📚</span>
+              Your Courses Lineup <span className="ml-1">⬇️</span>
             </h2>
             <p className="italic text-muted-foreground">
-              {"A quick look at everything you're taking this semester."}
+              Your current courses — organized for easy access.
             </p>
           </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {isLoadingCourses ? (
               Array(6)
                 .fill(0)

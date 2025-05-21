@@ -1,8 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -20,11 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useUpdateProfile } from "@/app/api/users/profile";
+import { useUpdateProfile } from "@/hooks/users/profile";
 import { UserProfile } from "@/types";
 
 const profileFormSchema = z.object({
@@ -123,11 +123,11 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
               name="first_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm">First name</FormLabel>
+                  <FormLabel className="text-sm">First Name</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Enter your first name"
-                      className="lowercase text-sm"
+                      className="custom-input text-sm"
                       {...field}
                       disabled={!isEditing}
                     />
@@ -144,11 +144,11 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
               name="last_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm">Last name</FormLabel>
+                  <FormLabel className="text-sm">Last Name</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Enter your last name"
-                      className="lowercase text-sm"
+                      className="custom-input text-sm"
                       {...field}
                       disabled={!isEditing}
                     />
@@ -173,14 +173,14 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
                     defaultValue={field.value}
                     disabled={!isEditing}
                   >
-                    <FormControl>
-                      <SelectTrigger className="w-full">
+                    <FormControl className="h-full">
+                      <SelectTrigger className="custom-input text-sm min-h-[44px] w-full">
                         <SelectValue placeholder="Select your gender" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="male">male</SelectItem>
-                      <SelectItem value="female">female</SelectItem>
+                    <SelectContent className="custom-dropdown">
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -202,7 +202,7 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
                       {...field}
                       value={field.value || ""}
                       disabled={!isEditing}
-                      className="filter brightness-0 invert text-sm"
+                      className="text-sm custom-input"
                     />
                   </FormControl>
                   <FormMessage />
@@ -232,6 +232,7 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
                     variant="outline"
                     onClick={() => setIsEditing(false)}
                     disabled={updateProfileMutation.isPending}
+                    className="w-full font-semibold min-h-[46px] rounded-[12px] mt-4 font-md"
                   >
                     Cancel
                   </Button>
@@ -246,6 +247,7 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
                   <Button
                     type="submit"
                     disabled={updateProfileMutation.isPending}
+                    className="w-full font-semibold min-h-[46px] rounded-[12px] mt-4 font-md"
                   >
                     {updateProfileMutation.isPending && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -262,7 +264,11 @@ export function ProfileForm({ profile }: { profile: UserProfile }) {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <Button type="button" onClick={() => setIsEditing(true)}>
+                <Button
+                  type="button"
+                  onClick={() => setIsEditing(true)}
+                  className="w-full font-semibold min-h-[46px] rounded-[12px] mt-4 font-md"
+                >
                   Edit Profile
                 </Button>
               </motion.div>

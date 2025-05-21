@@ -4,7 +4,7 @@ import {
   useInstitutions,
   useDefaultInstitutionUser,
   useUpdateDefaultInstitutionUser,
-} from "@/app/api/users/institutions";
+} from "@/hooks/users/institutions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -98,18 +98,18 @@ export function InstitutionSelector() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card>
-        <CardHeader className="mt-3">
-          <CardTitle>Institutions</CardTitle>
+      <Card className="custom-container">
+        <CardHeader className="mt-3 flex flex-col gap-0.5">
+          <CardTitle className="text-lg">Institutions</CardTitle>
           <CardDescription className="hidden md:block">
-            Select your default institution
+            Set your primary institution
           </CardDescription>
         </CardHeader>
         <CardContent className="">
           <RadioGroup
             value={selectedInstitution}
             onValueChange={setSelectedInstitution}
-            className="space-y-1"
+            className="space-y-1 flex flex-col gap-1"
           >
             <AnimatePresence>
               {institutions.map((institution, index) => (
@@ -119,7 +119,7 @@ export function InstitutionSelector() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                   // whileHover={{ scale: 1.02 }}
-                  className={`flex items-center space-x-2 rounded-md border p-2 md:p-3 ${
+                  className={`flex items-center bg-[#1F1F1F]/[0.4] cursor-pointer border-[#2B2B2B]/[0.6] border-2 rounded-[12px] space-x-2 p-2 md:p-3 ${
                     selectedInstitution === institution.id.toString()
                       ? "border-primary bg-primary/5"
                       : "border-input"
@@ -137,7 +137,7 @@ export function InstitutionSelector() {
                         </p>
                         <p className="text-xs text-muted-foreground hidden md:block">
                           Role:{" "}
-                          <span className="">
+                          <span className="capitalize">
                             {institution.institution_role.name}
                           </span>
                         </p>
@@ -166,7 +166,7 @@ export function InstitutionSelector() {
                   updateDefaultInstitutionUser.isPending ||
                   selectedInstitution === defaultInstitutionUser?.toString()
                 }
-                className="w-full md:w-auto"
+                className="w-full font-semibold min-h-[46px] rounded-[12px] mt-4 font-md"
               >
                 {updateDefaultInstitutionUser.isPending && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

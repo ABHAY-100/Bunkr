@@ -12,15 +12,13 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { removeToken } from "@/utils/auth";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/app/api/users/user";
-import { useProfile } from "@/app/api/users/profile";
+import { useUser } from "@/hooks/users/user";
 import {
   useInstitutions,
   useDefaultInstitutionUser,
   useUpdateDefaultInstitutionUser,
-} from "@/app/api/users/institutions";
+} from "@/hooks/users/institutions";
 import Image from "next/image";
-import { getProfileImage } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import {
   Select,
@@ -35,10 +33,11 @@ import Link from "next/link";
 import { Building2, Layers2, LogOut, UserRound } from "lucide-react";
 import { usePathname } from "next/navigation";
 
+import User from "@/assets/user.png";
+
 export const Navbar = () => {
   const router = useRouter();
   const { data: user } = useUser();
-  const { data: profile } = useProfile();
   const { data: institutions, isLoading: institutionsLoading } =
     useInstitutions();
   const { data: defaultInstitutionUser } = useDefaultInstitutionUser();
@@ -48,8 +47,6 @@ export const Navbar = () => {
   const [selectedInstitution, setSelectedInstitution] = useState<string>("");
 
   const pathname = usePathname();
-
-  const profileImageSrc = getProfileImage(profile?.gender ?? null);
 
   useEffect(() => {
     if (defaultInstitutionUser) {
@@ -148,9 +145,6 @@ export const Navbar = () => {
                         <span className="truncate font-medium">
                           {inst.institution.name}
                         </span>
-                        {/* <span className="ml-2 text-xs text-muted-foreground hidden md:inline capitalize">
-                          ({inst.institution_role.name})
-                        </span> */}
                       </div>
                     </SelectItem>
                   ))}
@@ -166,12 +160,7 @@ export const Navbar = () => {
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
                 <Avatar className="h-9 w-9 outline-2">
                   <AvatarFallback>
-                    <Image
-                      src={profileImageSrc || "/placeholder.svg"}
-                      alt="Avatar"
-                      width={37}
-                      height={37}
-                    />
+                    <Image src={User} alt="Avatar" width={40} height={40} />
                   </AvatarFallback>
                 </Avatar>
               </Button>

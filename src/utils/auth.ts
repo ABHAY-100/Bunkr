@@ -1,4 +1,4 @@
-export const setToken = (token: string, expiresInDays: number = 24) => {
+export const setToken = (token: string, expiresInDays: number = 31) => {
   const expiresAt = Date.now() + expiresInDays * 24 * 60 * 60 * 1000;
 
   const tokenData = {

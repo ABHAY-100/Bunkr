@@ -1,7 +1,7 @@
 "use client";
 
-import { useProfile } from "@/app/api/users/profile";
-import { useUser } from "@/app/api/users/user";
+import { useProfile } from "@/hooks/users/profile";
+import { useUser } from "@/hooks/users/user";
 import { ProfileForm } from "@/components/profile-form";
 import { InstitutionSelector } from "@/components/institution-selector";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,16 +13,16 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getProfileImage } from "@/lib/utils";
 import Image from "next/image";
 import { motion } from "framer-motion";
+
+import User from "@/assets/user.png";
 
 export default function ProfilePage() {
   const { data: profile, isLoading: profileLoading } = useProfile();
   const { data: user, isLoading: userLoading } = useUser();
 
   const isLoading = profileLoading || userLoading;
-  const profileImageSrc = getProfileImage(profile?.gender ?? null);
 
   const tabContentVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -76,21 +76,19 @@ export default function ProfilePage() {
             }}
             className="md:col-span-2 sm:col-span-1 lg:col-span-1 space-y-4 md:space-y-6"
           >
-            <Card className="relative">
+            <Card className="relative custom-container overflow-clip">
               <CardContent className="flex flex-col items-center md:items-start pt-12">
-                {/* cover image */}
                 {isLoading ? (
-                  <Skeleton className="h-[120px] md:h-[140px] w-full absolute top-0 left-0 right-0 z-[0] rounded-t-xl" />
+                  <Skeleton className="h-[120px] md:h-[140px] w-full absolute top-0 left-0 right-0 z-[0]" />
                 ) : (
-                  <div className="h-[120px] md:h-[140px] w-full bg-white/4 absolute top-0 left-0 right-0 z-[0] rounded-t-xl" />
+                  <div className="h-[120px] md:h-[140px] w-full bg-white/4 absolute top-0 left-0 right-0 z-[0]" />
                 )}
-                {/* profile image */}
                 <div className="relative w-24 h-24 mb-3 flex items-start mt-0.5">
                   {isLoading ? (
                     <Skeleton className="w-full h-full rounded-full z-10" />
                   ) : (
                     <Image
-                      src={profileImageSrc || "/placeholder.svg"}
+                      src={User}
                       alt="Profile"
                       width={118}
                       height={118}
@@ -105,11 +103,11 @@ export default function ProfilePage() {
                     <Skeleton className="h-4 w-1/2" />
                   </div>
                 ) : (
-                  <div className="text-center md:text-left w-full flex flex-col gap-1">
+                  <div className="text-center md:text-left w-full flex flex-col gap-0.5">
                     <h3 className="text-lg md:text-xl font-semibold mt-2">
                       {profile?.first_name} {profile?.last_name}
                     </h3>
-                    <p className="text-muted-foreground text-sm lowercase">
+                    <p className="text-muted-foreground text-sm lowercase font-medium">
                       @{user?.username}
                     </p>
                   </div>
@@ -130,9 +128,9 @@ export default function ProfilePage() {
             className="md:col-span-2"
           >
             <Tabs defaultValue="personal" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 max-md:mt-4">
-                <TabsTrigger value="personal">personal</TabsTrigger>
-                <TabsTrigger value="account">account</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 max-md:mt-4 rounded-[12px] bg-[#2B2B2B]">
+                <TabsTrigger value="personal">Personal</TabsTrigger>
+                <TabsTrigger value="account">Account</TabsTrigger>
               </TabsList>
 
               <TabsContent value="personal" className="mt-4">
@@ -141,11 +139,13 @@ export default function ProfilePage() {
                   animate="visible"
                   variants={tabContentVariants}
                 >
-                  <Card>
-                    <CardHeader className="p-4 md:p-6">
-                      <CardTitle>Personal Information</CardTitle>
-                      <CardDescription className="hidden md:block">
-                        Update your personal details here
+                  <Card className="custom-container">
+                    <CardHeader className="p-4 md:p-6 flex flex-col gap-0.5">
+                      <CardTitle className="text-lg">
+                        Personal Information
+                      </CardTitle>
+                      <CardDescription className="hidden md:block font-medium">
+                        Synced from Ezygo. Edit if it matters.
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="p-4 md:p-6">
@@ -173,11 +173,13 @@ export default function ProfilePage() {
                   animate="visible"
                   variants={tabContentVariants}
                 >
-                  <Card>
-                    <CardHeader className="p-4 md:p-6">
-                      <CardTitle>Account Settings</CardTitle>
-                      <CardDescription className="hidden md:block">
-                        View your account information
+                  <Card className="custom-container">
+                    <CardHeader className="p-4 md:p-6 flex flex-col gap-0.5">
+                      <CardTitle className="text-lg">
+                        Account Settings
+                      </CardTitle>
+                      <CardDescription className="hidden md:block font-medium">
+                        Also from Ezygo. Just for reference.
                       </CardDescription>
                     </CardHeader>
                     <CardContent className="p-4 md:p-6">
@@ -189,7 +191,7 @@ export default function ProfilePage() {
                         </div>
                       ) : (
                         <div className="space-y-4 md:space-y-6">
-                          <div className="grid grid-cols-1 min-[1300px]:grid-cols-2 gap-4 text-sm">
+                          <div className="grid grid-cols-1 min-[1300px]:grid-cols-2 gap-5 text-sm">
                             <motion.div
                               className="space-y-2"
                               custom={0}
@@ -198,7 +200,7 @@ export default function ProfilePage() {
                               animate="visible"
                             >
                               <h3 className="text-sm font-normal">Username</h3>
-                              <div className="p-2 pl-3 bg-secondary/50 rounded-md lowercase font-sm">
+                              <div className="px-2 pl-3 py-2 bg-secondary/50 lowercase font-sm rounded-[12px] text-sm font-medium">
                                 {user?.username}
                               </div>
                             </motion.div>
@@ -210,7 +212,7 @@ export default function ProfilePage() {
                               animate="visible"
                             >
                               <h3 className="text-sm font-medium">Email</h3>
-                              <div className="p-2 pl-3 bg-secondary/50 rounded-md lowercase font-sm">
+                              <div className="px-2 pl-3 py-2 bg-secondary/50 lowercase font-sm rounded-[12px] text-sm font-medium">
                                 {user?.email}
                               </div>
                             </motion.div>
@@ -222,7 +224,7 @@ export default function ProfilePage() {
                               animate="visible"
                             >
                               <h3 className="text-sm font-medium">Mobile</h3>
-                              <div className="p-2 pl-3 bg-secondary/50 rounded-md font-sm">
+                              <div className="px-2 pl-3 py-2 bg-secondary/50 lowercase font-sm rounded-[12px] text-sm font-medium">
                                 +{user?.mobile}
                               </div>
                             </motion.div>
@@ -236,7 +238,7 @@ export default function ProfilePage() {
                               <h3 className="text-sm font-medium">
                                 Account Created
                               </h3>
-                              <div className="p-2 pl-3 bg-secondary/50 rounded-md font-sm">
+                              <div className="px-2 pl-3 py-2 bg-secondary/50 lowercase font-sm rounded-[12px] text-sm font-medium">
                                 {user?.created_at
                                   ? new Date(
                                       user.created_at

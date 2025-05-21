@@ -6,7 +6,7 @@ import { Loading } from "@/components/loading";
 import { useState, useEffect } from "react";
 import { redirect } from "next/navigation";
 import { getToken } from "@/utils/auth";
-import { useInstitutions } from "@/app/api/users/institutions";
+import { useInstitutions } from "@/hooks/users/institutions";
 
 export default function RootLayout({
   children,

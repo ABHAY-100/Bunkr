@@ -1,17 +1,10 @@
 "use client";
 
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
 import { Course } from "@/types";
-import { useCourseDetails } from "@/app/api/courses/attendance";
+import { useCourseDetails } from "@/hooks/courses/attendance";
 import { AlertCircle } from "lucide-react";
 
 interface CourseCardProps {
@@ -27,13 +20,6 @@ export function CourseCard({ course }: CourseCardProps) {
   const total = courseDetails?.totel || 0;
   const hasAttendanceData = !isLoading && total > 0 && attendancePercentage > 0;
 
-  const yearParts = course.academic_year.split("-");
-  const startYear = yearParts[0];
-  const endYear =
-    yearParts.length > 1
-      ? yearParts[1]
-      : (parseInt(startYear) + 1).toString().slice(-2);
-
   function capitalize(str) {
     return str
       .split(" ")
@@ -42,27 +28,19 @@ export function CourseCard({ course }: CourseCardProps) {
   }
 
   return (
-    <Card
-      className={
-        cn("overflow-hidden") + "pt-6 pb-0 h-full custom-button custom-button"
-      }
-    >
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <div className="flex items-center gap-2">
-            <Badge
-              variant="secondary"
-              className="h-7 uppercase custom-dropdown rounded-md!"
-            >
-              {course.code}
-            </Badge>
-          </div>
-        </div>
-        <CardTitle className="line-clamp-1 text-lg mt-2">
+    <Card className="pt-0 pb-0 custom-container overflow-clip h-full min-h-[270px]">
+      <CardHeader className="flex justify-between items-center flex-row pt-6 bg-[#2B2B2B]/[0.4] pb-5 border-b-2 border-[#2B2B2B]/[0.6]">
+        <CardTitle className="line-clamp-1 text-lg w-full">
           {capitalize(course.name.toLowerCase())}
         </CardTitle>
+        <Badge
+          variant="secondary"
+          className="h-7 uppercase custom-button rounded-md! bg-black/20! scale-105"
+        >
+          {course.code}
+        </Badge>
       </CardHeader>
-      <CardContent className="h-full">
+      <CardContent className="h-full pb-6">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center p-4">
             <div className="animate-pulse h-4 w-24 bg-secondary rounded mb-2"></div>
@@ -70,7 +48,7 @@ export function CourseCard({ course }: CourseCardProps) {
           </div>
         ) : hasAttendanceData ? (
           <>
-            <div className="grid grid-cols-3 gap-2 mb-3">
+            <div className="grid grid-cols-3 gap-2 mt-4">
               <div className="text-center p-1 bg-[#1F1F1F]/60 rounded-md py-2.5 flex gap-1 flex-col">
                 <span className="text-xs text-muted-foreground block">
                   Present
@@ -96,7 +74,7 @@ export function CourseCard({ course }: CourseCardProps) {
             </div>
             <div className="mt-8">
               <Progress value={attendancePercentage} className="h-2" />
-              <div className="flex justify-between items-center mb-2 text-sm mt-1.5 text-muted-foreground">
+              <div className="flex justify-between items-center mb-1 text-sm mt-1.5 text-muted-foreground">
                 <span className="text-sm font-medium">Attendance</span>
                 <span className="text-sm font-medium">
                   {`${attendancePercentage}%`}
@@ -116,16 +94,6 @@ export function CourseCard({ course }: CourseCardProps) {
           </div>
         )}
       </CardContent>
-      <CardFooter className="border-t bg-white/4 px-6 py-1 rounded-b-[12px] pb-6 border-[#2B2B2B]/[0.6] max-h-14">
-        <div className="flex justify-between items-center w-full text-[12.5px] text-muted-foreground font-medium">
-          <span className="capitalize">
-            {course.academic_semester} Semester
-          </span>
-          <span>
-            {startYear} - {endYear}
-          </span>
-        </div>
-      </CardFooter>
     </Card>
   );
 }
