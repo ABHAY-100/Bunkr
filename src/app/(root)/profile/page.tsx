@@ -47,6 +47,14 @@ export default function ProfilePage() {
     }),
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex h-[90vh] items-center justify-center bg-background text-xl font-medium text-muted-foreground text-center italic mx-12">
+        &quot;Waiting on Ezygo to stop ghosting us 👻&quot;
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-[90vh] bg-background">
       <motion.main

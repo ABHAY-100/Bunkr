@@ -32,7 +32,7 @@ import {
 } from "@/hooks/users/settings";
 import { redirect } from "next/navigation";
 import { getToken } from "@/utils/auth";
-import CompLoading from "@/components/comp-loading";
+import { Loading as CompLoading } from "@/components/loading";
 
 export default function Dashboard() {
   const { data: profile } = useProfile();
@@ -224,6 +224,19 @@ export default function Dashboard() {
   };
 
   const stats = calculateOverallStats();
+
+  if (
+    isLoadingSemester ||
+    isLoadingAcademicYear ||
+    isLoadingAttendance ||
+    isLoadingCourses
+  ) {
+    return (
+      <p className="flex h-[90vh] items-center justify-center bg-background text-xl font-medium text-muted-foreground text-center italic mx-12">
+        &quot;Waiting on Ezygo to stop ghosting us 👻&quot;
+      </p>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-background font-manrope">
