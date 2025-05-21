@@ -253,7 +253,7 @@ export function PasswordResetForm({
                 key={mobile}
                 className="flex items-center space-x-2 custom-input justify-between pl-4 pr-2"
               >
-                <Label htmlFor={mobile}>+{mobile}</Label>
+                <Label htmlFor={mobile}>{mobile}</Label>
                 <RadioGroupItem value="sms" id={mobile} />
               </div>
             ))}
@@ -263,16 +263,16 @@ export function PasswordResetForm({
               type="button"
               variant="outline"
               className="flex-1 font-semibold min-h-[46px] mt-4 rounded-[12px] font-sm"
-              onClick={() => setStep("username")}
+              onClick={onCancel}
             >
-              Back
+              Cancel
             </Button>
             <Button
               type="submit"
               className="flex-1 font-semibold min-h-[46px] mt-4 rounded-[12px] font-sm"
               disabled={isLoading || !selectedOption}
             >
-              {isLoading ? "Sending..." : "Send code"}
+              {isLoading ? "Sending..." : "Send Code"}
             </Button>
           </div>
         </form>
@@ -350,9 +350,9 @@ export function PasswordResetForm({
               type="button"
               variant="outline"
               className="flex-1 font-semibold min-h-[46px] mt-4 rounded-[12px] font-sm"
-              onClick={() => setStep("option")}
+              onClick={onCancel}
             >
-              Back
+              Cancel
             </Button>
             <Button
               type="submit"

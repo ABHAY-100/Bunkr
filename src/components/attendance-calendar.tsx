@@ -276,7 +276,7 @@ export function AttendanceCalendar({
         const isSelected = isSameDay(date, selectedDate);
 
         let className =
-          "h-10 w-10 mx-auto rounded-full flex items-center justify-center text-sm cursor-pointer transition-all duration-200 hover:scale-110 ";
+          "h-10 w-10 mx-auto rounded-full flex items-center justify-center text-sm cursor-pointer transition-all duration-200 hover:scale-104 ";
 
         if (isSelected) {
           className +=
@@ -326,24 +326,28 @@ export function AttendanceCalendar({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card className="overflow-hidden border border-border/40 shadow-md backdrop-blur-sm">
+      <Card className="overflow-hidden border border-border/40 shadow-md backdrop-blur-sm custom-button">
         <CardHeader className="pb-2 flex flex-row items-center justify-between max-sm:justify-center space-y-0 border-b border-border/40">
           <div className="flex items-center gap-2">
             <Select
               value={currentMonth.toString()}
               onValueChange={(value) => setCurrentMonth(parseInt(value, 10))}
             >
-              <SelectTrigger className="w-[130px] h-9 bg-background/60 border-border/60 text-sm capitalize">
+              <SelectTrigger className="w-[130px] h-9 bg-background/60 border-border/60 text-sm capitalize custom-dropdown">
                 <SelectValue>
                   {monthNames[currentMonth].toLowerCase()}
                 </SelectValue>
               </SelectTrigger>
-              <SelectContent className="bg-background/90 border-border/60 backdrop-blur-md">
+              <SelectContent className="bg-background/90 border-border/60 backdrop-blur-md custom-dropdown max-h-70">
                 {monthNames.map((month, index) => (
                   <SelectItem
                     key={month}
                     value={index.toString()}
-                    className="capitalize"
+                    className={
+                      currentMonth === index
+                        ? "bg-white/5 mt-0.5"
+                        : "capitalize"
+                    }
                   >
                     {month.toLowerCase()}
                   </SelectItem>
@@ -355,12 +359,18 @@ export function AttendanceCalendar({
               value={currentYear.toString()}
               onValueChange={(value) => setCurrentYear(parseInt(value, 10))}
             >
-              <SelectTrigger className="w-[90px] h-9 bg-background/60 border-border/60 text-sm">
+              <SelectTrigger className="w-[90px] h-9 bg-background/60 border-border/60 text-sm custom-dropdown">
                 <SelectValue>{currentYear}</SelectValue>
               </SelectTrigger>
-              <SelectContent className="bg-background/90 border-border/60 max-h-60 backdrop-blur-md">
+              <SelectContent className="bg-background/90 border-border/60 max-h-70 backdrop-blur-md custom-dropdown">
                 {yearOptions.map((year) => (
-                  <SelectItem key={year} value={year.toString()}>
+                  <SelectItem
+                    key={year}
+                    value={year.toString()}
+                    className={
+                      currentYear === year ? "bg-white/5 mt-0.5" : "mt-0.5"
+                    }
+                  >
                     {year}
                   </SelectItem>
                 ))}
@@ -372,7 +382,7 @@ export function AttendanceCalendar({
               variant="ghost"
               size="icon"
               onClick={handlePreviousMonth}
-              className="h-9 w-9 rounded-full hover:bg-accent"
+              className="h-9 w-9 rounded-lg hover:bg-accent/50 flex justify-center items-center"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -380,7 +390,7 @@ export function AttendanceCalendar({
               variant="ghost"
               size="icon"
               onClick={handleNextMonth}
-              className="h-9 w-9 rounded-full hover:bg-accent"
+              className="h-9 w-9 rounded-lg hover:bg-accent/50 flex justify-center items-center"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -388,7 +398,7 @@ export function AttendanceCalendar({
               variant="outline"
               size="sm"
               onClick={goToToday}
-              className="h-9 text-xs hover:bg-accent ml-1"
+              className="h-9 text-xs hover:bg-accent/15! ml-1 custom-button bg-black/20!"
             >
               Today
             </Button>
@@ -433,18 +443,16 @@ export function AttendanceCalendar({
         </CardContent>
       </Card>
 
-      <Card className="overflow-hidden border border-border/40 shadow-md backdrop-blur-sm">
+      <Card className="overflow-hidden border border-border/40 shadow-md backdrop-blur-sm custom-button">
         <CardHeader className="border-b border-border/40 pt-1.5">
-          <CardTitle className="text-base font-normal flex items-center gap-2">
-            <CalendarIcon className="h-4 w-4" />
-            {selectedDate
-              .toLocaleDateString("en-US", {
-                weekday: "long",
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })
-              .toLowerCase()}
+          <CardTitle className="text-base flex items-center gap-2 font-medium">
+            <CalendarIcon className="h-4 w-4 mr-1" />
+            {selectedDate.toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            })}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -543,7 +551,7 @@ export function AttendanceCalendar({
                   <Button
                     variant="outline"
                     size="sm"
-                    className="mt-6"
+                    className="mt-6 h-9 text-xs hover:bg-accent/15! ml-1 custom-button bg-black/20!"
                     onClick={goToToday}
                   >
                     Go to Today

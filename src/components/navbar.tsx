@@ -32,7 +32,7 @@ import {
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { ArrowLeft, Building2, Layers2, LogOut, UserRound } from "lucide-react";
+import { Building2, Layers2, LogOut, UserRound } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 export const Navbar = () => {
@@ -109,8 +109,7 @@ export const Navbar = () => {
                 className="custom-button cursor-pointer"
                 onClick={() => navigateTo("/dashboard")}
               >
-                <ArrowLeft className="h-4 w-4" />
-                Back
+                Dashboard
               </Button>
             </div>
           )}
@@ -178,7 +177,7 @@ export const Navbar = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-              className="min-w-56 z-50 mt-1 custom-dropdown pr-1"
+              className="min-w-56 z-50 mt-1 custom-dropdown pr-1 mr-[-4px]"
               align="end"
             >
               <DropdownMenuLabel>

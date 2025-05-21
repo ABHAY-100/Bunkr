@@ -101,12 +101,13 @@ export function AttendanceChart({ attendanceData }: AttendanceChartProps) {
           <YAxis />
           <Tooltip
             contentStyle={{
-              backgroundColor: "rgba(9,9,11,255)",
-              border: "1px solid rgba(255, 255, 255, 0.2)",
+              backgroundColor: "rgba(31,31,31, 0.9)",
+              border: "2px solid #2B2B2B",
               borderRadius: "8px",
               color: "#fff",
               fontSize: "14px",
               boxShadow: "0 4px 12px rgba(0, 0, 0, 0.25)",
+              backdropFilter: "blur(10px)",
             }}
             itemStyle={{ color: "#fff" }}
             labelStyle={{ fontWeight: "semibold", marginBottom: "5px" }}

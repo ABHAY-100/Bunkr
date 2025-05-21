@@ -18,7 +18,6 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui/select";
-import { RefreshCw } from "lucide-react";
 import { AttendanceCalendar } from "@/components/attendance-calendar";
 import { CourseCard } from "@/components/course-card";
 import { AttendanceChart } from "@/components/attendance-chart";
@@ -49,8 +48,6 @@ export default function Dashboard() {
     "even" | "odd" | null
   >(null);
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
-
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -125,23 +122,9 @@ export default function Dashboard() {
     );
   };
 
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-
-    Promise.all([refetchCourses(), refetchAttendance()])
-      .catch((error) => {
-        console.error("Error refreshing data:", error);
-        if (semesterData) setSelectedSemester(semesterData);
-        if (academicYearData) setSelectedYear(academicYearData);
-      })
-      .finally(() => {
-        setIsRefreshing(false);
-      });
-  };
-
   const generateAcademicYears = () => {
     const currentYear = new Date().getFullYear();
-    const startYear = 2018;
+    const startYear = 2003;
     const years: string[] = [];
 
     for (let year = startYear; year <= currentYear; year++) {
@@ -248,27 +231,27 @@ export default function Dashboard() {
   const stats = calculateOverallStats();
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background font-manrope">
       <main className="flex-1 container mx-auto p-4 md:p-6">
         {/* selector statements */}
         <div className="mb-6 py-2 flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <h1 className="text-2xl font-bold mb-2 italic w-full">
-              welcome back,{" "}
+            <h1 className="text-2xl font-bold mb-2 w-full">
+              Welcome back,{" "}
               <span className="gradient-name w-full pr-2">
                 {profile?.first_name} {profile?.last_name}
               </span>
             </h1>
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center mb-4 justify-between">
-              <p className="text-muted-foreground italic">
+              <p className="text-muted-foreground font-normal italic">
                 {
                   "Stay on top of your classes, track your attendance, and manage your day like a pro!"
                 }
               </p>
             </div>
           </div>
-          <div className="flex gap-4 items-center">
-            <p className="text-muted-foreground flex flex-wrap items-center gap-2 max-sm:text-md">
+          <div className="flex gap-4 items-center font-normal">
+            <p className="flex flex-wrap items-center gap-2.5 max-sm:text-md text-muted-foreground">
               <span>You&apos;re checking out the</span>
               <Select
                 value={selectedSemester || undefined}
@@ -277,7 +260,7 @@ export default function Dashboard() {
                 }
                 disabled={isLoadingSemester || setSemesterMutation.isPending}
               >
-                <SelectTrigger className="w-fit h-6 px-2 text-[14px] font-medium rounded-xl pl-3 uppercase">
+                <SelectTrigger className="w-fit h-6 px-2 text-[14px] font-medium rounded-xl pl-3 uppercase custom-dropdown">
                   {isLoadingSemester ? (
                     <span className="text-muted-foreground">...</span>
                   ) : selectedSemester ? (
@@ -288,9 +271,21 @@ export default function Dashboard() {
                     </span>
                   )}
                 </SelectTrigger>
-                <SelectContent className="capitalize">
-                  <SelectItem value="even">EVEN</SelectItem>
-                  <SelectItem value="odd">ODD</SelectItem>
+                <SelectContent className="custom-dropdown">
+                  <SelectItem
+                    value="odd"
+                    className={selectedSemester === "odd" ? "bg-white/5" : ""}
+                  >
+                    ODD
+                  </SelectItem>
+                  <SelectItem
+                    value="even"
+                    className={
+                      selectedSemester === "even" ? "bg-white/5 mt-1" : "mt-0.5"
+                    }
+                  >
+                    EVEN
+                  </SelectItem>
                 </SelectContent>
               </Select>
               <span>semester reports for academic year</span>
@@ -301,7 +296,7 @@ export default function Dashboard() {
                   isLoadingAcademicYear || setAcademicYearMutation.isPending
                 }
               >
-                <SelectTrigger className="w-fit h-6 px-2 text-[14px] font-medium rounded-xl pl-3">
+                <SelectTrigger className="w-fit h-6 px-2 text-[14px] font-medium rounded-xl pl-3 custom-dropdown">
                   {isLoadingAcademicYear ? (
                     <span className="text-muted-foreground">...</span>
                   ) : selectedYear ? (
@@ -310,16 +305,22 @@ export default function Dashboard() {
                     <span className="text-muted-foreground">year</span>
                   )}
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="custom-dropdown max-h-70">
                   {academicYears.map((year) => (
-                    <SelectItem key={year} value={year}>
+                    <SelectItem
+                      key={year}
+                      value={year}
+                      className={
+                        selectedYear === year ? "bg-white/5 mt-0.5" : "mt-0.5"
+                      }
+                    >
                       {year}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
 
-              <button
+              {/* <button
                 onClick={handleRefresh}
                 disabled={
                   isRefreshing || isLoadingCourses || isLoadingAttendance
@@ -330,8 +331,7 @@ export default function Dashboard() {
                 <RefreshCw
                   className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
                 />
-                {/* <span>refresh</span> */}
-              </button>
+              </button> */}
             </p>
           </div>
         </div>
@@ -345,7 +345,7 @@ export default function Dashboard() {
             transition={{ duration: 0.3 }}
             className="sm:col-span-2 xl:col-span-2"
           >
-            <Card className="h-full">
+            <Card className="h-full custom-button">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Attendance
@@ -368,7 +368,7 @@ export default function Dashboard() {
             transition={{ duration: 0.3, delay: 0.1 }}
             className="col-span-1"
           >
-            <Card className="h-full">
+            <Card className="h-full custom-button">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Present</CardTitle>
               </CardHeader>
@@ -390,7 +390,7 @@ export default function Dashboard() {
             transition={{ duration: 0.3, delay: 0.2 }}
             className="col-span-1"
           >
-            <Card className="h-full">
+            <Card className="h-full custom-button">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Absent</CardTitle>
               </CardHeader>
@@ -412,7 +412,7 @@ export default function Dashboard() {
             transition={{ duration: 0.3, delay: 0.2 }}
             className="col-span-1"
           >
-            <Card className="h-full">
+            <Card className="h-full custom-button">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">
                   Duty Leaves
@@ -436,7 +436,7 @@ export default function Dashboard() {
             transition={{ duration: 0.3, delay: 0.2 }}
             className="col-span-1"
           >
-            <Card className="h-full">
+            <Card className="h-full custom-button">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">
                   Special Leave
@@ -460,7 +460,7 @@ export default function Dashboard() {
             transition={{ duration: 0.3, delay: 0.3 }}
             className="col-span-1"
           >
-            <Card className="h-full">
+            <Card className="h-full custom-button">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Courses
@@ -487,7 +487,7 @@ export default function Dashboard() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <Card className="col-span-1">
+            <Card className="col-span-1 custom-button">
               <CardHeader>
                 <CardTitle>Attendance Overview</CardTitle>
                 <CardDescription>
@@ -517,7 +517,7 @@ export default function Dashboard() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <Card className="col-span-1">
+            <Card className="col-span-1 custom-button">
               <CardHeader>
                 <CardTitle>Instructor Details</CardTitle>
                 <CardDescription>Get to know your instructors</CardDescription>
@@ -529,15 +529,15 @@ export default function Dashboard() {
                   </div>
                 ) : coursesData?.courses &&
                   Object.keys(coursesData.courses).length > 0 ? (
-                  <div className="rounded-md border">
+                  <div className="rounded-md custom-button overflow-clip">
                     <ScrollArea className="h-[300px]">
                       <table className="w-full caption-bottom text-sm">
                         <thead className="relative">
-                          <tr className="border-b bg-muted/50">
-                            <th className="h-10 px-4 text-left font-medium text-muted-foreground rounded-tl-sm">
+                          <tr className="border-b-2 border-[#2B2B2B]/[0.6]">
+                            <th className="h-10 px-4 text-left font-medium text-muted-foreground bg-[rgb(31,31,32)]">
                               Course
                             </th>
-                            <th className="h-10 px-4 text-left font-medium text-muted-foreground">
+                            <th className="h-10 px-4 text-left font-medium text-muted-foreground bg-[rgb(31,31,32)]">
                               Instructor
                             </th>
                           </tr>
@@ -555,7 +555,7 @@ export default function Dashboard() {
                                   (instructor: any, index: number) => (
                                     <tr
                                       key={`${courseId}-${instructor.id}`}
-                                      className="group transition-colors"
+                                      className="group transition-colors border-[#2B2B2B]/[0.8]"
                                       data-course-id={courseId}
                                       onMouseEnter={() => {
                                         document
@@ -563,7 +563,7 @@ export default function Dashboard() {
                                             `tr[data-course-id="${courseId}"]`
                                           )
                                           .forEach((row) => {
-                                            row.classList.add("bg-muted/50");
+                                            row.classList.add("bg-muted/25");
                                           });
                                       }}
                                       onMouseLeave={() => {
@@ -572,7 +572,7 @@ export default function Dashboard() {
                                             `tr[data-course-id="${courseId}"]`
                                           )
                                           .forEach((row) => {
-                                            row.classList.remove("bg-muted/50");
+                                            row.classList.remove("bg-muted/25");
                                           });
                                       }}
                                     >
@@ -584,12 +584,12 @@ export default function Dashboard() {
                                           <div className="font-medium">
                                             {course.code}
                                           </div>
-                                          <div className="text-sm text-muted-foreground">
-                                            {course.name}
+                                          <div className="text-sm text-muted-foreground capitalize">
+                                            {course.name.toLowerCase()}
                                           </div>
                                           {instructors.length > 1 && (
                                             <div className="mt-2">
-                                              <span className="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold bg-blue-50/10 text-white/60 border-white/5">
+                                              <span className="inline-flex items-center rounded-full border px-2 min-h-5 pt-[0.05px] justify-center text-xs font-semibold bg-blue-50/3 text-white/60 border-[#2B2B2B]/[0.8]">
                                                 {instructors.length} instructors
                                               </span>
                                             </div>
@@ -658,7 +658,7 @@ export default function Dashboard() {
         </div>
 
         <div className="mb-6">
-          <Card>
+          <Card className="custom-button">
             <CardHeader>
               <CardTitle>Attendance Calendar</CardTitle>
               <CardDescription>
@@ -718,7 +718,7 @@ export default function Dashboard() {
                 )
               )
             ) : (
-              <div className="col-span-full text-center py-8 bg-accent/50 rounded-xl border border-accent-foreground/12">
+              <div className="col-span-full text-center py-8 bg-accent/50 rounded-xl border-2 border-accent-foreground/12">
                 <p className="text-muted-foreground">
                   No courses found for this semester
                 </p>
