@@ -127,7 +127,7 @@ export function AttendanceCalendar({
   const handlePreviousMonth = () => {
     setCurrentMonth((prevMonth) => {
       if (prevMonth === 0) {
-        setCurrentYear((prevYear) => prevYear - 0.5);
+        setCurrentYear((prevYear) => prevYear - 1);
         return 11;
       }
       return prevMonth - 1;
@@ -137,7 +137,7 @@ export function AttendanceCalendar({
   const handleNextMonth = () => {
     setCurrentMonth((prevMonth) => {
       if (prevMonth === 11) {
-        setCurrentYear((prevYear) => prevYear + 0.5);
+        setCurrentYear((prevYear) => prevYear + 1);
         return 0;
       }
       return prevMonth + 1;
