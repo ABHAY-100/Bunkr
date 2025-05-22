@@ -328,7 +328,7 @@ export function AttendanceCalendar({
           <div className="flex items-center gap-2 max-md:flex-wrap max-md:justify-center">
             {/* Filter Dropdown */}
             <Select value={filter} onValueChange={setFilter}>
-              <SelectTrigger className="w-[120px] h-9 bg-background/60 border-border/60 text-sm capitalize custom-dropdown">
+              <SelectTrigger className="w-[130px] h-9 bg-background/60 border-border/60 text-sm capitalize custom-dropdown">
                 <SelectValue>
                   {filter === "all"
                     ? "All"
