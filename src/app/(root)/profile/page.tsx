@@ -56,7 +56,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-[90vh] bg-background">
+    <div className="min-h-[90vh] bg-background pb-5.5">
       <motion.main
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

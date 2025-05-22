@@ -133,3 +133,10 @@
     @apply bg-[#1F1F1F]/[0.4] border-[#2B2B2B]/[0.6] border-2 rounded-[12px] text-sm font-medium backdrop-blur-2xl;
   }
 }
+
+@media (1024px < width < 1280px) {
+  .calendar-trouble {
+    @apply flex flex-col items-center justify-center;
+    @apply gap-3;
+  }
+}

@@ -448,7 +448,7 @@ export default function Dashboard() {
             </Card>
           </motion.div>
 
-          {/* Total Courses */}
+          {/* Total  */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -680,11 +680,11 @@ export default function Dashboard() {
 
         {/* courses lineup */}
         <div className="mb-6 mt-14">
-          <div className="mb-6 flex flex-col justify-center items-center">
-            <h2 className="text-xl font-bold mb-1 italic">
+          <div className="mb-6 flex flex-col justify-center items-center mx-3">
+            <h2 className="text-lg font-bold mb-0.5 italic">
               Your Courses Lineup <span className="ml-1">⬇️</span>
             </h2>
-            <p className="italic text-muted-foreground">
+            <p className="italic text-muted-foreground text-sm text-center">
               Your current courses — organized for easy access.
             </p>
           </div>

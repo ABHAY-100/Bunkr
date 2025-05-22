@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,7 @@ export function AttendanceCalendar({
   );
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [events, setEvents] = useState<AttendanceEvent[]>([]);
+  const [filter, setFilter] = useState<string>("all");
 
   useEffect(() => {
     if (!attendanceData?.studentAttendanceData) return;
@@ -111,6 +112,18 @@ export function AttendanceCalendar({
     setEvents(newEvents);
   }, [attendanceData]);
 
+  const filteredEvents = useMemo(() => {
+    if (filter === "all") return events;
+    if (filter === "present")
+      return events.filter((e) => e.status === "Present");
+    if (filter === "absent") return events.filter((e) => e.status === "Absent");
+    if (filter === "dutyLeave")
+      return events.filter((e) => e.status === "Duty Leave");
+    if (filter === "otherLeave")
+      return events.filter((e) => e.status === "Other Leave");
+    return events;
+  }, [events, filter]);
+
   const handlePreviousMonth = () => {
     setCurrentMonth((prevMonth) => {
       if (prevMonth === 0) {
@@ -162,30 +175,62 @@ export function AttendanceCalendar({
     );
   }, []);
 
-  const getDaysInMonth = (year: number, month: number): number => {
+  const getDaysInMonth = useCallback((year: number, month: number): number => {
     return new Date(year, month + 1, 0).getDate();
-  };
+  }, []);
 
-  const getFirstDayOfMonth = (year: number, month: number): number => {
-    return new Date(year, month, 1).getDay();
-  };
+  const getFirstDayOfMonth = useCallback(
+    (year: number, month: number): number => {
+      return new Date(year, month, 1).getDay();
+    },
+    []
+  );
 
-  const isSameDay = (date1: Date, date2: Date): boolean => {
+  const isSameDay = useCallback((date1: Date, date2: Date): boolean => {
     return (
       date1.getFullYear() === date2.getFullYear() &&
       date1.getMonth() === date2.getMonth() &&
       date1.getDate() === date2.getDate()
     );
-  };
+  }, []);
 
-  const isToday = (date: Date): boolean => {
+  const isToday = useCallback((date: Date): boolean => {
     const today = new Date();
     return isSameDay(date, today);
-  };
+  }, []);
 
-  const getDateEvents = (date: Date): AttendanceEvent[] => {
-    return events.filter((event) => isSameDay(event.date, date));
-  };
+  const getEventStatus = useCallback(
+    (date: Date): string | null => {
+      const dateEvents = filteredEvents.filter((event) =>
+        isSameDay(event.date, date)
+      );
+      if (dateEvents.length === 0) return null;
+
+      const hasAbsent = dateEvents.some((event) => event.status === "Absent");
+      const hasPresent = dateEvents.some((event) => event.status === "Present");
+      const hasDutyLeave = dateEvents.some(
+        (event) => event.status === "Duty Leave"
+      );
+      const hasOtherLeave = dateEvents.some(
+        (event) => event.status === "Other Leave"
+      );
+
+      if (hasAbsent) return "absent";
+      if (hasOtherLeave) return "otherLeave";
+      if (hasDutyLeave) return "dutyLeave";
+      if (hasPresent) return "present";
+
+      return "normal";
+    },
+    [filteredEvents, isSameDay]
+  );
+
+  const selectedDateEvents = useMemo(() => {
+    const getDateEvents = (date: Date): AttendanceEvent[] => {
+      return filteredEvents.filter((event) => isSameDay(event.date, date));
+    };
+    return getDateEvents(selectedDate) || [];
+  }, [selectedDate, filteredEvents, isSameDay]);
 
   const formatSessionName = (sessionName: string): string => {
     const romanToOrdinal: Record<string, string> = {
@@ -197,42 +242,13 @@ export function AttendanceCalendar({
       VI: "6th hour",
       VII: "7th hour",
     };
-
     if (romanToOrdinal[sessionName]) {
       return romanToOrdinal[sessionName];
     }
-
     return sessionName;
   };
 
-  const getEventStatus = (date: Date): string | null => {
-    const dateEvents = getDateEvents(date);
-    if (dateEvents.length === 0) return null;
-
-    const hasAbsent = dateEvents.some((event) => event.status === "Absent");
-    const hasPresent = dateEvents.some((event) => event.status === "Present");
-    const hasDutyLeave = dateEvents.some(
-      (event) => event.status === "Duty Leave"
-    );
-    const hasOtherLeave = dateEvents.some(
-      (event) => event.status === "Other Leave"
-    );
-
-    if (hasAbsent) return "absent";
-    if (hasOtherLeave) return "otherLeave";
-    if (hasDutyLeave) return "dutyLeave";
-    if (hasPresent) return "present";
-
-    return "normal";
-  };
-
-  const selectedDateEvents = useMemo(
-    () => getDateEvents(selectedDate),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selectedDate, events]
-  );
-
-  const generateCalendarCells = () => {
+  const calendarCells = useMemo(() => {
     const daysInMonth = getDaysInMonth(currentYear, currentMonth);
     const firstDayOfMonth = getFirstDayOfMonth(currentYear, currentMonth);
 
@@ -247,7 +263,9 @@ export function AttendanceCalendar({
       .map((_, index) => {
         const date = new Date(currentYear, currentMonth, index + 1);
         const status = getEventStatus(date);
-        const hasEvents = getDateEvents(date).length > 0;
+        const hasEvents =
+          filteredEvents.filter((event) => isSameDay(event.date, date)).length >
+          0;
         const isSelected = isSameDay(date, selectedDate);
 
         let className =
@@ -291,27 +309,47 @@ export function AttendanceCalendar({
       });
 
     return [...leadingEmptyCells, ...dayCells];
-  };
-
-  const calendarCells = useMemo(
-    () => generateCalendarCells(),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [currentYear, currentMonth, selectedDate, events]
-  );
+  }, [
+    currentYear,
+    currentMonth,
+    selectedDate,
+    filteredEvents,
+    getDaysInMonth,
+    getFirstDayOfMonth,
+    getEventStatus,
+    isSameDay,
+    isToday,
+  ]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
       <Card className="overflow-hidden border border-border/40 shadow-md backdrop-blur-sm custom-container">
-        <CardHeader className="pb-2 flex flex-row items-center justify-between max-sm:justify-center space-y-0 border-b border-border/40">
-          <div className="flex items-center gap-2">
+        <CardHeader className="pb-2 flex flex-row items-center justify-between max-sm:justify-center space-y-0 border-b border-border/40 calendar-trouble">
+          <div className="flex items-center gap-2 max-md:flex-wrap max-md:justify-center">
+            {/* Filter Dropdown */}
+            <Select value={filter} onValueChange={setFilter}>
+              <SelectTrigger className="w-[120px] h-9 bg-background/60 border-border/60 text-sm capitalize custom-dropdown">
+                <SelectValue>
+                  {filter === "all"
+                    ? "All"
+                    : filter.charAt(0).toUpperCase() + filter.slice(1)}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="bg-background/90 border-border/60 backdrop-blur-md custom-dropdown max-h-70">
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="present">Present</SelectItem>
+                <SelectItem value="absent">Absent</SelectItem>
+                <SelectItem value="dutyLeave">Duty Leave</SelectItem>
+                <SelectItem value="otherLeave">Other Leave</SelectItem>
+              </SelectContent>
+            </Select>
+
             <Select
               value={currentMonth.toString()}
               onValueChange={(value) => setCurrentMonth(parseInt(value, 10))}
             >
               <SelectTrigger className="w-[130px] h-9 bg-background/60 border-border/60 text-sm capitalize custom-dropdown">
-                <SelectValue>
-                  {monthNames[currentMonth].toLowerCase()}
-                </SelectValue>
+                <SelectValue>{monthNames[currentMonth]}</SelectValue>
               </SelectTrigger>
               <SelectContent className="bg-background/90 border-border/60 backdrop-blur-md custom-dropdown max-h-70">
                 {monthNames.map((month, index) => (
@@ -324,7 +362,7 @@ export function AttendanceCalendar({
                         : "capitalize"
                     }
                   >
-                    {month.toLowerCase()}
+                    {month}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -357,7 +395,7 @@ export function AttendanceCalendar({
               variant="ghost"
               size="icon"
               onClick={handlePreviousMonth}
-              className="h-9 w-9 rounded-lg hover:bg-accent/50 flex justify-center items-center"
+              className="h-9 w-9 rounded-lg bg-accent/50 flex justify-center items-center"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -365,18 +403,18 @@ export function AttendanceCalendar({
               variant="ghost"
               size="icon"
               onClick={handleNextMonth}
-              className="h-9 w-9 rounded-lg hover:bg-accent/50 flex justify-center items-center"
+              className="h-9 w-9 rounded-lg bg-accent/50 flex justify-center items-center"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
-            <Button
+            {/* <Button
               variant="outline"
               size="sm"
               onClick={goToToday}
               className="h-9 text-xs hover:bg-accent/15! ml-1 custom-button bg-black/20!"
             >
               Today
-            </Button>
+            </Button> */}
           </div>
         </CardHeader>
         <CardContent className="p-4">
@@ -463,8 +501,8 @@ export function AttendanceCalendar({
                           className={`p-4 rounded-lg border ${colorClass} hover:bg-opacity-20 transition-all`}
                         >
                           <div className="flex justify-between items-start mb-2">
-                            <div className="font-medium text-sm">
-                              {event.title}
+                            <div className="font-medium text-sm capitalize">
+                              {event.title.toLowerCase()}
                             </div>
                             <Badge
                               className={`
