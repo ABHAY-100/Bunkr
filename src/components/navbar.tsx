@@ -30,8 +30,9 @@ import {
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { Building2, Layers2, LogOut, UserRound } from "lucide-react";
+import { Building2, Layers2, LogOut, UserRound, Percent } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useAttendanceSettings } from "@/providers/attendance-settings";
 
 import User from "@/assets/user.png";
 
@@ -45,6 +46,7 @@ export const Navbar = () => {
   const queryClient = useQueryClient();
 
   const [selectedInstitution, setSelectedInstitution] = useState<string>("");
+  const { targetPercentage, setTargetPercentage } = useAttendanceSettings();
 
   const pathname = usePathname();
 
@@ -110,6 +112,38 @@ export const Navbar = () => {
               </Button>
             </div>
           )}
+
+          {/* Attendance Target Percentage Selector */}
+          <div className="flex max-md:hidden">
+            <Select
+              value={targetPercentage.toString()}
+              onValueChange={(value) => {
+                setTargetPercentage(Number(value));
+                toast("Target updated", {
+                  description: `Attendance target percentage set to ${value}%.`,
+                });
+              }}
+            >
+              <SelectTrigger className="w-[110px] custom-input cursor-pointer">
+                <SelectValue>
+                  <div className="flex items-center font-medium">
+                    <Percent className="mr-2 h-4 w-4" />
+                    <span>{targetPercentage}%</span>
+                  </div>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent className="custom-dropdown mt-1">
+                {[75, 80, 85, 90, 95].map((percentage) => (
+                  <SelectItem key={percentage} value={percentage.toString()}>
+                    <div className="flex items-center cursor-pointer">
+                      <Percent className="mr-2 h-4 w-4 flex-shrink-0" />
+                      <span className="font-medium">{percentage}%</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           {!institutionsLoading && institutions && institutions.length > 0 && (
             <div className="flex max-md:hidden">
@@ -194,6 +228,31 @@ export const Navbar = () => {
                 <UserRound className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
+
+              {/* Target Percentage Menu Items - Only visible on mobile */}
+              <DropdownMenuSeparator className="md:hidden" />
+              <DropdownMenuLabel className="md:hidden">
+                Target Percentage
+              </DropdownMenuLabel>
+              {[65, 70, 75, 80, 85, 90, 95].map((percentage) => (
+                <DropdownMenuItem
+                  key={percentage}
+                  onClick={() => {
+                    setTargetPercentage(percentage);
+                    toast("Target updated", {
+                      description: `Attendance target percentage set to ${percentage}%.`,
+                    });
+                  }}
+                  className="cursor-pointer md:hidden"
+                >
+                  <Percent className="mr-2 h-4 w-4" />
+                  <span>{percentage}%</span>
+                  {targetPercentage === percentage && (
+                    <span className="ml-2 h-2 w-2 rounded-full bg-green-500"></span>
+                  )}
+                </DropdownMenuItem>
+              ))}
+
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={handleLogout}

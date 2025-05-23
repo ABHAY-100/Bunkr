@@ -3,6 +3,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { PropsWithChildren } from "react";
+import { AttendanceSettingsProvider } from "./attendance-settings";
 
 export default function ReactQueryProvider({ children }: PropsWithChildren) {
   const [queryClient] = useState(
@@ -20,6 +21,10 @@ export default function ReactQueryProvider({ children }: PropsWithChildren) {
   );
 
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <AttendanceSettingsProvider>
+        {children}
+      </AttendanceSettingsProvider>
+    </QueryClientProvider>
   );
 }
