@@ -48,24 +48,20 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const token = getToken();
+    // Check for token immediately and during loading phase
+    const token = getToken();
+    if (token) {
+      router.push("/dashboard");
+      return;
+    }
 
-      if (token) {
-        router.push("/dashboard");
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [router]); // redirect to dashboard if token exist
-
-  useEffect(() => {
+    // If no token, show loading animation for 1 second then display form
     const timer = setTimeout(() => {
       setIsLoadingPage(false);
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, []); // a 1s mandatory loading animation regardless of auth
+  }, [router]);
 
   const loginMethodProps = {
     username: {
@@ -94,7 +90,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
       const response = await axios.post("/login", formData);
 
       setToken(response.data.access_token);
-      // router.push("/dashboard");
+      router.push("/dashboard"); // Immediately redirect after login
     } catch (error) {
       const err = error as AxiosError<ErrorResponse>;
 

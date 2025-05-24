@@ -90,7 +90,7 @@ export function CourseCard({ course }: CourseCardProps) {
               </div>
             </div>
             <div className="bg-accent/40 rounded-md py-2 flex justify-center items-center mt-4">
-              <p className="text-sm text-muted-foreground text-center font-medium">
+              <p className="text-sm text-muted-foreground text-center font-medium mx-2">
                 {attendanceMetrics.canBunk > 0 && (
                   <>
                     You can bunk up to <span className="font-medium text-green-500">{attendanceMetrics.canBunk}</span> periods
@@ -111,7 +111,7 @@ export function CourseCard({ course }: CourseCardProps) {
                       </>
                     ) : (
                       <>
-                        {"It's risky to skip classes now"}
+                        {"Skipping now’s risky. All on you"}
                       </>
                     )}
                   </>
