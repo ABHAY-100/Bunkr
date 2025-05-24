@@ -114,7 +114,7 @@ export const Navbar = () => {
           )}
 
           {/* Attendance Target Percentage Selector */}
-          <div className="flex max-md:hidden">
+          <div className="flex">
             <Select
               value={targetPercentage.toString()}
               onValueChange={(value) => {
