@@ -28,7 +28,7 @@ export function AttendanceChart({ attendanceData }: AttendanceChartProps) {
       return [];
     }
 
-    console.log("Attendance Data:", attendanceData);
+    // console.log("Attendance Data:", attendanceData);
 
     const courseAttendance: Record<
       string,
