@@ -12,9 +12,10 @@ export default function ReactQueryProvider({ children }: PropsWithChildren) {
         defaultOptions: {
           queries: {
             staleTime: 3 * 60 * 1000,
-            gcTime: 5 * 60 * 1000,
+            gcTime: 10 * 60 * 1000,
             retry: 2,
             refetchOnWindowFocus: false,
+            refetchInterval: 3 * 60 * 1000,
           },
         },
       })

@@ -229,30 +229,6 @@ export const Navbar = () => {
                 <span>Profile</span>
               </DropdownMenuItem>
 
-              {/* Target Percentage Menu Items - Only visible on mobile */}
-              <DropdownMenuSeparator className="md:hidden" />
-              <DropdownMenuLabel className="md:hidden">
-                Target Percentage
-              </DropdownMenuLabel>
-              {[65, 70, 75, 80, 85, 90, 95].map((percentage) => (
-                <DropdownMenuItem
-                  key={percentage}
-                  onClick={() => {
-                    setTargetPercentage(percentage);
-                    toast("Target updated", {
-                      description: `Attendance target percentage set to ${percentage}%.`,
-                    });
-                  }}
-                  className="cursor-pointer md:hidden"
-                >
-                  <Percent className="mr-2 h-4 w-4" />
-                  <span>{percentage}%</span>
-                  {targetPercentage === percentage && (
-                    <span className="ml-2 h-2 w-2 rounded-full bg-green-500"></span>
-                  )}
-                </DropdownMenuItem>
-              ))}
-
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={handleLogout}
