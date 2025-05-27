@@ -27,7 +27,7 @@ export function AttendanceSettingsProvider({
   const [targetPercentage, setTargetPercentage] = useState<number>(75);
 
   useEffect(() => {
-    const savedTarget = localStorage.getItem("targetAttendancePercentage");
+    const savedTarget = localStorage.getItem("target_attendance_percentage");
     if (savedTarget) {
       setTargetPercentage(Number(savedTarget));
     }
@@ -35,7 +35,7 @@ export function AttendanceSettingsProvider({
 
   const handleSetTargetPercentage = (percentage: number) => {
     setTargetPercentage(percentage);
-    localStorage.setItem("targetAttendancePercentage", percentage.toString());
+    localStorage.setItem("target_attendance_percentage", percentage.toString());
   };
 
   return (
