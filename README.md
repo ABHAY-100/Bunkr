@@ -52,7 +52,7 @@ src/
 
 Create a `.env` file in the root directory and add:
 ```
-NEXT_PUBLIC_BACKEND_URL=https://production.api.ezygo.app/api/v1/Xcr45_salt
+NEXT_PUBLIC_BACKEND_URL="https://production.api.ezygo.app/api/v1/Xcr45_salt"
 ```
 > ⚠️ **Warning:** This is a reverse-engineered API. Use at your own risk.
 
