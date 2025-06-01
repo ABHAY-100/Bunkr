@@ -1,5 +1,5 @@
 "use client";
-
+import Link from "next/link";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Calendar as CalendarIcon,
+  ArrowUpRight,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +20,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { SessionData, AttendanceEvent, Session, Course } from "@/types";
+import { useUser } from "@/hooks/users/user";
+import axios from "axios";
+import { getToken } from "@/utils/auth";
+import { toast } from "sonner";
+import { useTrackingData } from "@/hooks/tracker/useTrackingData";
 
 interface AttendanceData {
   studentAttendanceData?: Record<string, Record<string, SessionData>>;
@@ -42,6 +48,55 @@ export function AttendanceCalendar({
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [events, setEvents] = useState<AttendanceEvent[]>([]);
   const [filter, setFilter] = useState<string>("all");
+
+  const accessToken = getToken();
+  const { data: user } = useUser();
+
+  const {
+    data: trackingData,
+    isLoading,
+    refetch,
+  } = useTrackingData(user, accessToken); //hook to get tracking data
+
+  //const [trackAttendance, setTrackAttendance] = useState<boolean>(false)
+  //function to write tracking data to supabase
+  const handleWriteTracking = async (
+    userId: number,
+    username: string,
+    sessionTitle: string,
+    date: string,
+    status: string,
+    sessionName: string
+  ) => {
+    console.log(accessToken);
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_SUPABASE_API_URL}/add-to-tracking`,
+      {
+        id: userId,
+        username,
+        course: sessionTitle,
+        date,
+        status,
+        session: sessionName,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    console.log("Tracking response:", response.data); ///////////////////////////////////////////
+    if (response.data.success) {
+      toast.success("Added to tracking successfully!");
+    }
+    if (response.data.error) {
+      toast.error("Failed to add to tracking");
+    }
+    refetch();
+    // setTrackAttendance(true);
+  };
 
   useEffect(() => {
     if (!attendanceData?.studentAttendanceData) return;
@@ -229,6 +284,7 @@ export function AttendanceCalendar({
     const getDateEvents = (date: Date): AttendanceEvent[] => {
       return filteredEvents.filter((event) => isSameDay(event.date, date));
     };
+
     return getDateEvents(selectedDate) || [];
   }, [selectedDate, filteredEvents, isSameDay]);
 
@@ -532,12 +588,51 @@ export function AttendanceCalendar({
                             </Badge>
                           </div>
 
-                          <div className="text-xs text-muted-foreground flex items-center gap-2 mt-2">
+                          <div className="text-xs text-muted-foreground flex items-center justify-between mt-2">
                             <span>
                               {event.sessionName
                                 ? formatSessionName(event.sessionName)
                                 : `Session ${event.sessionKey}`}
                             </span>
+
+                            {event.status === "Absent" && (
+                              <>
+                                {trackingData?.some(
+                                  (data) =>
+                                    data.course === event.title &&
+                                    data.session === event.sessionName
+                                ) ? (
+                                  <Link
+                                    className="flex items-center justify-center bg-red-500/20 gap-2  py-1 text-red-400 px-4  rounded-md"
+                                    href={"/tracking"}
+                                  >
+                                    View Details <ArrowUpRight size={15}/>
+                                  </Link>
+                                ) : (
+                                  <Button
+                                    className=" gap-1 m-0 rounded-md h-6 space-x-0 space-y-0 p-0 text-xs text-red-400 hover:opacity-[50] hover:cursor-pointer bg-red-500/20"
+                                    onClick={() =>
+                                      handleWriteTracking(
+                                        user?.id,
+                                        user?.username,
+                                        event.title,
+                                        event.date.toISOString().split("T")[0],
+                                        event.status,
+                                        event.sessionName
+                                      )
+                                    }
+                                  >
+                                    {isLoading ? (
+                                      "..."
+                                    ) : (
+                                      <>
+                                        <p>Add to Tracking</p> <ArrowUpRight />
+                                      </>
+                                    )}
+                                  </Button>
+                                )}
+                              </>
+                            )}
                           </div>
                         </motion.div>
                       );

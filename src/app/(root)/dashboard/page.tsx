@@ -47,7 +47,6 @@ export default function Dashboard() {
     "even" | "odd" | null
   >(null);
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
-
   useEffect(() => {
     const interval = setInterval(async () => {
       const token = await getToken();
