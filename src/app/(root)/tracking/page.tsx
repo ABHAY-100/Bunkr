@@ -6,7 +6,9 @@ import { useUser } from "@/hooks/users/user";
 import { getToken } from "@/utils/auth";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { Box } from "lucide-react";
+import { Box, Trash2 } from "lucide-react";
+import axios from "axios";
+import { toast } from "sonner";
 const Tracking = () => {
   const { data: user } = useUser();
   const accessToken = getToken();
@@ -27,6 +29,23 @@ const Tracking = () => {
     }
     return sessionName;
   };
+
+  const handleDeleteTrackData = async (username:string , session:string ,course :string, date:string) => {
+    const res = await axios.post(process.env.NEXT_PUBLIC_SUPABASE_API_URL + '/delete-tracking-data' , {
+      username , session , course , date
+    } , {
+      headers : {
+        "Content-Type":"application/json",
+        "Authorization" : `Bearer ${accessToken}`
+      }
+    })
+    if(res.data.success){
+      toast.success("Delete successfull")
+    }
+    if(!res.data.success){
+      toast.error("Error deleting the message")
+    }
+  }
 
   if (isLoading) {
     return <Loading />;
@@ -95,8 +114,22 @@ const Tracking = () => {
                 </div>
 
                 <div className="text-xs text-muted-foreground flex items-center justify-between mt-2">
+                  <div className="flex items-center justify-center gap-1 ">
+                    <span>{data.date.toString()}</span>
+                    <strong className="font-bold">.</strong>
                   <span>{formatSessionName(data.session)}</span>
-                  <p>Not updated yet</p>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 p-2 ">
+                    {data.status === "Absent" ? (
+                      <p>Not updated yet</p>
+                    ) : (
+                      <p>Updated</p>
+                    )}
+                    <button onClick={()=>handleDeleteTrackData(data.username , data.session , data.course , data.date.toLocaleDateString())}>
+                    <Trash2 size={18} className="hover:cursor-pointer" />
+
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             );
