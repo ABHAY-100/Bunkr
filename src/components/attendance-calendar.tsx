@@ -97,6 +97,7 @@ export function AttendanceCalendar({
             backgroundColor: "rgba(34, 197, 94, 0.1)", // green-500/10
             color: "rgb(74, 222, 128)", // green-400
             border: "1px solid rgba(34, 197, 94, 0.2)", // green-500/20
+            backdropFilter: "blur(5px)",
           },
         });
       }
@@ -106,6 +107,7 @@ export function AttendanceCalendar({
             backgroundColor: "rgba(239, 68, 68, 0.1)", // red-500/10
             color: "rgb(248, 113, 113)", // red-400
             border: "1px solid rgba(239, 68, 68, 0.2)", // red-500/20
+            backdropFilter: "blur(5px)",
           },
         });
       }
@@ -116,6 +118,7 @@ export function AttendanceCalendar({
           backgroundColor: "rgba(239, 68, 68, 0.1)", // red-500/10
           color: "rgb(248, 113, 113)", // red-400
           border: "1px solid rgba(239, 68, 68, 0.2)", // red-500/20
+          backdropFilter: "blur(5px)",
         },
       });
     } finally {

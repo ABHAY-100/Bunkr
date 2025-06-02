@@ -52,10 +52,10 @@ const Tracking = () => {
   }
 
   return (
-    <div className="flex flex-1 flex-col flex-wrap gap-4 h-full m-6">
+    <div className="flex flex-1 flex-col flex-wrap gap-4 h-full m-6 text-center min-h-[80vh]">
       {trackingData && trackingData.length > 0 ? (
         <>
-          <div className="mb-2 pb-4">
+          <div className="mb-2 pb-4 mt-10">
             <p className="text-2xl font-semibold text-foreground py-3">
               Tracked Attendance
             </p>
@@ -79,7 +79,7 @@ const Tracking = () => {
             return (
               <motion.div
                 key={index}
-                className={`p-4 rounded-lg border hover:bg-opacity-20 ${colorClass}  transition-all`}
+                className={`p-4 rounded-lg border hover:bg-opacity-20 ${colorClass}  transition-all max-w-[800px] w-full mx-auto`}
               >
                 <div className="flex justify-between items-start mb-2">
                   <div className="font-medium text-sm capitalize">
@@ -136,7 +136,7 @@ const Tracking = () => {
           })}
         </>
       ) : (
-        <div className="flex flex-col items-center justify-center h-[340px] text-center px-4">
+        <div className="flex flex-col items-center justify-centertext-center px-4">
           <div className="rounded-full bg-accent/50 p-4 mb-4">
             <Box />
           </div>
