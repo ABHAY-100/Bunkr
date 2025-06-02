@@ -1,5 +1,5 @@
 "use client";
-
+import { useState } from "react";
 import { Loading } from "@/components/loading";
 import { useTrackingData } from "@/hooks/tracker/useTrackingData";
 import { useUser } from "@/hooks/users/user";
@@ -12,7 +12,12 @@ import { toast } from "sonner";
 const Tracking = () => {
   const { data: user } = useUser();
   const accessToken = getToken();
-  const { data: trackingData, isLoading } = useTrackingData(user, accessToken);
+  const [deleteId, setDeleteId] = useState<string>("");
+  const {
+    data: trackingData,
+    isLoading,
+    refetch,
+  } = useTrackingData(user, accessToken);
   console.log("track data", trackingData);
   const formatSessionName = (sessionName: string): string => {
     const romanToOrdinal: Record<string, string> = {
@@ -30,22 +35,38 @@ const Tracking = () => {
     return sessionName;
   };
 
-  const handleDeleteTrackData = async (username:string , session:string ,course :string, date:string) => {
-    const res = await axios.post(process.env.NEXT_PUBLIC_SUPABASE_API_URL + '/delete-tracking-data' , {
-      username , session , course , date
-    } , {
-      headers : {
-        "Content-Type":"application/json",
-        "Authorization" : `Bearer ${accessToken}`
+  const handleDeleteTrackData = async (
+    username: string,
+    session: string,
+    course: string,
+    date: string
+  ) => {
+    const deletingId = `${username}-${session}-${course}-${date}`;
+    setDeleteId(deletingId);
+    const res = await axios.post(
+      process.env.NEXT_PUBLIC_SUPABASE_API_URL + "/delete-tracking-data",
+      {
+        username,
+        session,
+        course,
+        date,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
       }
-    })
-    if(res.data.success){
-      toast.success("Delete successfull")
+    );
+    if (res.data.success) {
+      toast.success("Delete successfull");
     }
-    if(!res.data.success){
-      toast.error("Error deleting the message")
+    if (!res.data.success) {
+      toast.error("Error deleting the message");
     }
-  }
+    refetch();
+    setDeleteId("");
+  };
 
   if (isLoading) {
     return <Loading />;
@@ -117,7 +138,7 @@ const Tracking = () => {
                   <div className="flex items-center justify-center gap-1 ">
                     <span>{data.date.toString()}</span>
                     <strong className="font-bold">.</strong>
-                  <span>{formatSessionName(data.session)}</span>
+                    <span>{formatSessionName(data.session)}</span>
                   </div>
                   <div className="flex items-center justify-between gap-2 p-2 ">
                     {data.status === "Absent" ? (
@@ -125,10 +146,25 @@ const Tracking = () => {
                     ) : (
                       <p>Updated</p>
                     )}
-                    <button onClick={()=>handleDeleteTrackData(data.username , data.session , data.course , data.date.toLocaleDateString())}>
-                    <Trash2 size={18} className="hover:cursor-pointer" />
-
-                    </button>
+                    {deleteId ===
+                    `${data.username}-${data.session}-${
+                      data.course
+                    }-${data.date.toString()}` ? (
+                      <span>Deleting...</span>
+                    ) : (
+                      <button
+                        onClick={() =>
+                          handleDeleteTrackData(
+                            data.username,
+                            data.session,
+                            data.course,
+                            data.date.toString()
+                          )
+                        }
+                      >
+                        <Trash2 size={18} className="hover:cursor-pointer" />
+                      </button>
+                    )}
                   </div>
                 </div>
               </motion.div>
