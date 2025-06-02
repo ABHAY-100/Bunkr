@@ -48,17 +48,15 @@ export function AttendanceCalendar({
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [events, setEvents] = useState<AttendanceEvent[]>([]);
   const [filter, setFilter] = useState<string>("all");
+  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
+    {}
+  );
 
   const accessToken = getToken();
   const { data: user } = useUser();
 
-  const {
-    data: trackingData,
-    isLoading,
-    refetch,
-  } = useTrackingData(user, accessToken); //hook to get tracking data
+  const { data: trackingData, refetch } = useTrackingData(user, accessToken); //hook to get tracking data
 
-  //const [trackAttendance, setTrackAttendance] = useState<boolean>(false)
   //function to write tracking data to supabase
   const handleWriteTracking = async (
     userId: number,
@@ -68,34 +66,62 @@ export function AttendanceCalendar({
     status: string,
     sessionName: string
   ) => {
-    console.log(accessToken);
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_SUPABASE_API_URL}/add-to-tracking`,
-      {
-        id: userId,
-        username,
-        course: sessionTitle,
-        date,
-        status,
-        session: sessionName,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
+    // Create a unique key for this button
+    const buttonKey = `${sessionTitle}-${date}-${sessionName}`;
 
-    console.log("Tracking response:", response.data); ///////////////////////////////////////////
-    if (response.data.success) {
-      toast.success("Added to tracking successfully!");
+    // Set loading state for this specific button
+    setLoadingStates((prev) => ({ ...prev, [buttonKey]: true }));
+
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_SUPABASE_API_URL}/add-to-tracking`,
+        {
+          id: userId,
+          username,
+          course: sessionTitle,
+          date,
+          status,
+          session: sessionName,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        toast.success("Added to tracking successfully!", {
+          style: {
+            backgroundColor: "rgba(34, 197, 94, 0.1)", // green-500/10
+            color: "rgb(74, 222, 128)", // green-400
+            border: "1px solid rgba(34, 197, 94, 0.2)", // green-500/20
+          },
+        });
+      }
+      if (response.data.error) {
+        toast.error("Failed to add to tracking", {
+          style: {
+            backgroundColor: "rgba(239, 68, 68, 0.1)", // red-500/10
+            color: "rgb(248, 113, 113)", // red-400
+            border: "1px solid rgba(239, 68, 68, 0.2)", // red-500/20
+          },
+        });
+      }
+      await refetch();
+    } catch {
+      toast.error("Failed to add to tracking", {
+        style: {
+          backgroundColor: "rgba(239, 68, 68, 0.1)", // red-500/10
+          color: "rgb(248, 113, 113)", // red-400
+          border: "1px solid rgba(239, 68, 68, 0.2)", // red-500/20
+        },
+      });
+    } finally {
+      // Reset loading state for this specific button
+      setLoadingStates((prev) => ({ ...prev, [buttonKey]: false }));
     }
-    if (response.data.error) {
-      toast.error("Failed to add to tracking");
-    }
-    refetch();
-    // setTrackAttendance(true);
   };
 
   useEffect(() => {
@@ -182,7 +208,7 @@ export function AttendanceCalendar({
   const handlePreviousMonth = () => {
     setCurrentMonth((prevMonth) => {
       if (prevMonth === 0) {
-        setCurrentYear((prevYear) => prevYear - 1);
+        setCurrentYear((prevYear) => prevYear - 0.5);
         return 11;
       }
       return prevMonth - 1;
@@ -192,7 +218,7 @@ export function AttendanceCalendar({
   const handleNextMonth = () => {
     setCurrentMonth((prevMonth) => {
       if (prevMonth === 11) {
-        setCurrentYear((prevYear) => prevYear + 1);
+        setCurrentYear((prevYear) => prevYear + 0.5);
         return 0;
       }
       return prevMonth + 1;
@@ -382,7 +408,6 @@ export function AttendanceCalendar({
       <Card className="overflow-hidden border border-border/40 shadow-md backdrop-blur-sm custom-container">
         <CardHeader className="pb-2 flex flex-row items-center justify-between max-sm:justify-center space-y-0 border-b border-border/40 calendar-trouble">
           <div className="flex items-center gap-2 max-md:flex-wrap max-md:justify-center">
-            {/* Filter Dropdown */}
             <Select value={filter} onValueChange={setFilter}>
               <SelectTrigger className="w-[130px] h-9 bg-background/60 border-border/60 text-sm capitalize custom-dropdown">
                 <SelectValue>
@@ -463,14 +488,6 @@ export function AttendanceCalendar({
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
-            {/* <Button
-              variant="outline"
-              size="sm"
-              onClick={goToToday}
-              className="h-9 text-xs hover:bg-accent/15! ml-1 custom-button bg-black/20!"
-            >
-              Today
-            </Button> */}
           </div>
         </CardHeader>
         <CardContent className="p-4">
@@ -603,14 +620,17 @@ export function AttendanceCalendar({
                                     data.session === event.sessionName
                                 ) ? (
                                   <Link
-                                    className="flex items-center justify-center bg-red-500/20 gap-2  py-1 text-red-400 px-4  rounded-md"
+                                    className="flex items-center justify-center bg-red-500/20 gap-2 py-1 text-red-400 hover:bg-red-500/30 rounded-md hover:opacity-90 duration-300"
                                     href={"/tracking"}
                                   >
-                                    View Details <ArrowUpRight size={15}/>
+                                    <div className="w-full flex items-center justify-center pl-2 pr-1">
+                                      <p>View Details</p>{" "}
+                                      <ArrowUpRight size={15} />
+                                    </div>
                                   </Link>
                                 ) : (
                                   <Button
-                                    className=" gap-1 m-0 rounded-md h-6 space-x-0 space-y-0 p-0 text-xs text-red-400 hover:opacity-[50] hover:cursor-pointer bg-red-500/20"
+                                    className="gap-1 m-0 rounded-md h-6 hover:bg-red-500/30 space-x-0 space-y-0 p-0 text-xs text-red-400 hover:cursor-pointer bg-red-500/20 hover:opacity-90 duration-300"
                                     onClick={() =>
                                       handleWriteTracking(
                                         user?.id,
@@ -621,13 +641,27 @@ export function AttendanceCalendar({
                                         event.sessionName
                                       )
                                     }
+                                    disabled={
+                                      loadingStates[
+                                        `${event.title}-${
+                                          event.date.toISOString().split("T")[0]
+                                        }-${event.sessionName}`
+                                      ]
+                                    }
                                   >
-                                    {isLoading ? (
-                                      "..."
+                                    {loadingStates[
+                                      `${event.title}-${
+                                        event.date.toISOString().split("T")[0]
+                                      }-${event.sessionName}`
+                                    ] ? (
+                                      <div className="w-full flex items-center justify-center px-2">
+                                        <span>Loading...</span>
+                                      </div>
                                     ) : (
-                                      <>
-                                        <p>Add to Tracking</p> <ArrowUpRight />
-                                      </>
+                                      <div className="w-full flex items-center justify-center pl-2 pr-1">
+                                        <p>Add to Tracking</p>
+                                        <ArrowUpRight />
+                                      </div>
                                     )}
                                   </Button>
                                 )}

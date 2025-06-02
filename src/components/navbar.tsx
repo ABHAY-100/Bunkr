@@ -30,7 +30,14 @@ import {
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { Building2, Layers2, LogOut, UserRound, Percent } from "lucide-react";
+import {
+  Building2,
+  Layers2,
+  LogOut,
+  UserRound,
+  Percent,
+  SquareAsterisk,
+} from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useAttendanceSettings } from "@/providers/attendance-settings";
 
@@ -99,16 +106,28 @@ export const Navbar = () => {
         </Link>
       </div>
 
-      <div className="flex items-center justify-between gap-2 md:gap-6">
+      <div className="flex items-center justify-between gap-4 md:gap-6">
         <div className="gap-3 flex items-center">
           {pathname !== "/dashboard" && (
-            <div className="max-md:hidden text-white/85">
+            <div className="max-lg:hidden text-white/85">
               <Button
                 variant={"outline"}
                 className="custom-button cursor-pointer"
                 onClick={() => navigateTo("/dashboard")}
               >
                 Dashboard
+              </Button>
+            </div>
+          )}
+
+          {pathname !== "/tracking" && (
+            <div className="max-lg:hidden text-white/85">
+              <Button
+                variant={"outline"}
+                className="custom-button cursor-pointer"
+                onClick={() => navigateTo("/tracking")}
+              >
+                Tracking
               </Button>
             </div>
           )}
@@ -220,6 +239,13 @@ export const Navbar = () => {
               >
                 <Layers2 className="mr-2 h-4 w-4" />
                 <span>Dashboard</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => navigateTo("/tracking")}
+                className="cursor-pointer"
+              >
+                <SquareAsterisk className="mr-2 h-4 w-4" />
+                <span>Tracking</span>
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => navigateTo("/profile")}

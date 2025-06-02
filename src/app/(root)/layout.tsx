@@ -50,7 +50,7 @@ export default function RootLayout({
     <>
       <div className="fixed w-full top-0 left-0 right-0 z-10">
         <Navbar />
-        <Toaster/>
+        <Toaster />
       </div>
       <div className="mt-20">{children}</div>
       <div>
