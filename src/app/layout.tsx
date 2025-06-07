@@ -52,7 +52,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#141414" />
       </head>
       <body
-        className={`antialiased ${klick.variable} ${manrope.variable} ${dmMono.variable}`}
+        className={`antialiased ${klick.variable} ${manrope.variable} ${dmMono.variable} overflow-x-hidden`}
       >
         <ReactQueryProvider>{children}</ReactQueryProvider>
         <Analytics />

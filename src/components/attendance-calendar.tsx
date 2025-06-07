@@ -94,9 +94,9 @@ export function AttendanceCalendar({
       if (response.data.success) {
         toast.success("Added to tracking successfully!", {
           style: {
-            backgroundColor: "rgba(34, 197, 94, 0.1)", // green-500/10
-            color: "rgb(74, 222, 128)", // green-400
-            border: "1px solid rgba(34, 197, 94, 0.2)", // green-500/20
+            backgroundColor: "rgba(34, 197, 94, 0.1)",
+            color: "rgb(74, 222, 128)",
+            border: "1px solid rgba(34, 197, 94, 0.2)",
             backdropFilter: "blur(5px)",
           },
         });
@@ -104,9 +104,9 @@ export function AttendanceCalendar({
       if (response.data.error) {
         toast.error("Failed to add to tracking", {
           style: {
-            backgroundColor: "rgba(239, 68, 68, 0.1)", // red-500/10
-            color: "rgb(248, 113, 113)", // red-400
-            border: "1px solid rgba(239, 68, 68, 0.2)", // red-500/20
+            backgroundColor: "rgba(239, 68, 68, 0.1)",
+            color: "rgb(248, 113, 113)",
+            border: "1px solid rgba(239, 68, 68, 0.2)",
             backdropFilter: "blur(5px)",
           },
         });
@@ -140,6 +140,7 @@ export function AttendanceCalendar({
 
         Object.entries(sessions).forEach(([sessionKey, sessionData]) => {
           if (!sessionData.course) return;
+          console.log(sessionData);
 
           const courseId = sessionData.course.toString();
           const courseName =
@@ -658,7 +659,7 @@ export function AttendanceCalendar({
                                       }-${event.sessionName}`
                                     ] ? (
                                       <div className="w-full flex items-center justify-center px-2">
-                                        <span>Loading...</span>
+                                        <span>Adding...</span>
                                       </div>
                                     ) : (
                                       <div className="w-full flex items-center justify-center pl-2 pr-1">
