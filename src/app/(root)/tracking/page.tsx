@@ -377,15 +377,14 @@ const Tracking = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="flex flex-col items-center h-[100%] my-auto"
+            className="flex flex-col items-center h-[100%] mt-80"
           >
             <div className="rounded-full p-2 mb-4 w-fit h-fit text-amber-500 bg-amber-500/6">
               <CircleAlert className="w-6 h-6" />
             </div>
             <h3 className="text-lg font-medium mb-1.5">No Records Found</h3>
             <p className="text-sm text-muted-foreground max-w-[250px]">
-              You don&apos;t have any attendance records to display at the
-              moment.
+              You haven&apos;t added any attendance records to tracking yet
             </p>
           </m.div>
         )}
