@@ -25,6 +25,7 @@ import axios from "axios";
 import { getToken } from "@/utils/auth";
 import { toast } from "sonner";
 import { useTrackingData } from "@/hooks/tracker/useTrackingData";
+import { useTrackingCount } from "@/hooks/tracker/useTrackingCount";
 
 interface AttendanceData {
   studentAttendanceData?: Record<string, Record<string, SessionData>>;
@@ -54,8 +55,23 @@ export function AttendanceCalendar({
 
   const accessToken = getToken();
   const { data: user } = useUser();
-
-  const { data: trackingData, refetch } = useTrackingData(user, accessToken); //hook to get tracking data
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const {data : count ,refetch : refetchCount} = useTrackingCount(user , accessToken)
+  const { data: trackingData, refetch:refetchTrackData } = useTrackingData(user, accessToken); //hook to get tracking data
+  useEffect(() => {
+    const dateSelected = sessionStorage.getItem("selected_date");
+    if (dateSelected) {
+      const parsedDate = new Date(dateSelected);
+      setSelectedDate(parsedDate);
+      setCurrentMonth(parsedDate.getMonth());
+      setCurrentYear(parsedDate.getFullYear());
+    } else {
+      const today = new Date();
+      setSelectedDate(today);
+      setCurrentMonth(today.getMonth());
+      setCurrentYear(today.getFullYear());
+    }
+  }, []);
 
   //function to write tracking data to supabase
   const handleWriteTracking = async (
@@ -100,9 +116,11 @@ export function AttendanceCalendar({
             backdropFilter: "blur(5px)",
           },
         });
+        await refetchTrackData();
+      await refetchCount()
       }
       if (response.data.error) {
-        toast.error("Failed to add to tracking", {
+        toast.error(response.data.error.toString(), {
           style: {
             backgroundColor: "rgba(239, 68, 68, 0.1)",
             color: "rgb(248, 113, 113)",
@@ -111,16 +129,32 @@ export function AttendanceCalendar({
           },
         });
       }
-      await refetch();
-    } catch {
-      toast.error("Failed to add to tracking", {
-        style: {
-          backgroundColor: "rgba(239, 68, 68, 0.1)", // red-500/10
-          color: "rgb(248, 113, 113)", // red-400
-          border: "1px solid rgba(239, 68, 68, 0.2)", // red-500/20
-          backdropFilter: "blur(5px)",
-        },
-      });
+      
+    } catch (error) {
+      // Axios errors have a response property
+      if (axios.isAxiosError(error) && error.response) {
+        // Try to get the error message from server response
+        const serverMessage =
+          error.response.data?.error || "Unknown server error";
+        toast.error(serverMessage, {
+          style: {
+            backgroundColor: "rgba(239, 68, 68, 0.1)", // red-500/10
+            color: "rgb(248, 113, 113)", // red-400
+            border: "1px solid rgba(239, 68, 68, 0.2)", // red-500/20
+            backdropFilter: "blur(5px)",
+          },
+        });
+      } else {
+        // Other errors (network, etc.)
+        toast.error(error.message, {
+          style: {
+            backgroundColor: "rgba(239, 68, 68, 0.1)", // red-500/10
+            color: "rgb(248, 113, 113)", // red-400
+            border: "1px solid rgba(239, 68, 68, 0.2)", // red-500/20
+            backdropFilter: "blur(5px)",
+          },
+        });
+      }
     } finally {
       // Reset loading state for this specific button
       setLoadingStates((prev) => ({ ...prev, [buttonKey]: false }));
@@ -140,7 +174,6 @@ export function AttendanceCalendar({
 
         Object.entries(sessions).forEach(([sessionKey, sessionData]) => {
           if (!sessionData.course) return;
-          console.log(sessionData);
 
           const courseId = sessionData.course.toString();
           const courseName =
@@ -387,7 +420,13 @@ export function AttendanceCalendar({
           <div
             key={`day-${index}`}
             className="flex items-center justify-center"
-            onClick={() => setSelectedDate(date)}
+            onClick={() => {
+              const dateString = date.toISOString();
+              sessionStorage.setItem("selected_date", dateString);
+              setSelectedDate(date);
+              setCurrentMonth(date.getMonth());
+              setCurrentYear(date.getFullYear());
+            }}
           >
             <div className={className}>{index + 1}</div>
           </div>

@@ -18,7 +18,6 @@ export function useTrackingData(user: User, accessToken: string) {
           },
         }
       );
-      console.log("td" , res.data.data);
       if(!res.data){
         return []
       }

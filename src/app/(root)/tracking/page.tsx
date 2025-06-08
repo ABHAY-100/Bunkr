@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTrackingData } from "@/hooks/tracker/useTrackingData";
+import { useTrackingCount } from "@/hooks/tracker/useTrackingCount";
 import { useUser } from "@/hooks/users/user";
 import { getToken } from "@/utils/auth";
 import { Badge } from "@/components/ui/badge";
@@ -16,11 +17,16 @@ const Tracking = () => {
   const [deleteId, setDeleteId] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 4;
+  const {
+    data: remaining,
+    error,
+    refetch: refetchCount,
+  } = useTrackingCount(user, accessToken);
 
   const {
     data: trackingData,
     isLoading,
-    refetch,
+    refetch: refetchTrackingData,
   } = useTrackingData(user, accessToken);
 
   const totalPages = trackingData
@@ -105,7 +111,8 @@ const Tracking = () => {
         },
       });
     }
-    refetch();
+    await refetchTrackingData();
+    await refetchCount();
     setDeleteId("");
   };
 
@@ -195,6 +202,20 @@ const Tracking = () => {
                 These are absences you&apos;ve marked for duty leave. <br />{" "}
                 Track their update status here. 📋
               </p>
+              {remaining > 0 ? (
+                <p className="text-sm text-muted-foreground max-md:text-xs">
+                  You can add <strong>{remaining}</strong> more attendance{" "}
+                  {remaining === 1 ? "record" : "records"}.
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground max-md:text-xs">
+                  You&apos;ve reached the limit of <strong>10</strong> attendance records.
+                </p>
+              )}
+
+              {error && (
+                <p>An error occured while displaying count of entries</p>
+              )}
             </div>
 
             <m.div
