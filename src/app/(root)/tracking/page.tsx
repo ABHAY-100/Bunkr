@@ -16,7 +16,7 @@ const Tracking = () => {
   const accessToken = getToken();
   const [deleteId, setDeleteId] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(0);
-  const itemsPerPage = 4;
+  const itemsPerPage = 5;
   const {
     data: remaining,
     error,
@@ -203,12 +203,12 @@ const Tracking = () => {
                 Track their update status here. 📋
               </p>
               {remaining > 0 ? (
-                <Badge className="text-sm text-center max-md:text-xs bg-white/10 text-white/70 border-white/15 py-1 px-3">
+                <Badge className={`text-sm text-center max-md:text-xs  py-1 px-3 ${remaining < 4 ? "bg-yellow-500/12 text-yellow-400/75 border-yellow-500/15" : "bg-green-500/12 text-green-400/75 border-green-500/15"}`}>
                   You can add <strong>{remaining}</strong> more attendance{" "}
                   {remaining === 1 ? "record" : "records"}
                 </Badge>
               ) : (
-                <Badge className="text-sm text-center max-md:text-xs bg-white/5 text-white/70 border-white/15 py-1 px-3">
+                <Badge className="text-sm text-center max-md:text-xs bg-red-500/12 text-red-400/75 border-red-500/15 py-1 px-3">
                   You&apos;ve reached the limit of <strong>10</strong> attendance records
                 </Badge>
               )}
