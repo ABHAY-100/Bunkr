@@ -56,8 +56,14 @@ export function AttendanceCalendar({
   const accessToken = getToken();
   const { data: user } = useUser();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {data : count ,refetch : refetchCount} = useTrackingCount(user , accessToken)
-  const { data: trackingData, refetch:refetchTrackData } = useTrackingData(user, accessToken); //hook to get tracking data
+  const { data: count, refetch: refetchCount } = useTrackingCount(
+    user,
+    accessToken
+  );
+  const { data: trackingData, refetch: refetchTrackData } = useTrackingData(
+    user,
+    accessToken
+  ); //hook to get tracking data
   useEffect(() => {
     const dateSelected = sessionStorage.getItem("selected_date");
     if (dateSelected) {
@@ -108,7 +114,7 @@ export function AttendanceCalendar({
       );
 
       if (response.data.success) {
-        toast.success("Added to tracking successfully!", {
+        toast.success("Added to tracking", {
           style: {
             backgroundColor: "rgba(34, 197, 94, 0.1)",
             color: "rgb(74, 222, 128)",
@@ -117,7 +123,7 @@ export function AttendanceCalendar({
           },
         });
         await refetchTrackData();
-      await refetchCount()
+        await refetchCount();
       }
       if (response.data.error) {
         toast.error(response.data.error.toString(), {
@@ -129,7 +135,6 @@ export function AttendanceCalendar({
           },
         });
       }
-      
     } catch (error) {
       // Axios errors have a response property
       if (axios.isAxiosError(error) && error.response) {

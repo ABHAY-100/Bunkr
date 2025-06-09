@@ -198,19 +198,19 @@ const Tracking = () => {
               <p className="text-2xl font-semibold text-foreground py-2 max-md:text-xl">
                 Attendance Tracker
               </p>
-              <p className="text-sm text-muted-foreground max-md:text-xs">
+              <p className="text-sm text-muted-foreground max-md:text-xs mb-4">
                 These are absences you&apos;ve marked for duty leave. <br />{" "}
                 Track their update status here. 📋
               </p>
               {remaining > 0 ? (
-                <p className="text-sm text-muted-foreground max-md:text-xs">
+                <Badge className="text-sm text-center max-md:text-xs bg-white/10 text-white/70 border-white/15 py-1 px-3">
                   You can add <strong>{remaining}</strong> more attendance{" "}
-                  {remaining === 1 ? "record" : "records"}.
-                </p>
+                  {remaining === 1 ? "record" : "records"}
+                </Badge>
               ) : (
-                <p className="text-sm text-muted-foreground max-md:text-xs">
-                  You&apos;ve reached the limit of <strong>10</strong> attendance records.
-                </p>
+                <Badge className="text-sm text-center max-md:text-xs bg-white/5 text-white/70 border-white/15 py-1 px-3">
+                  You&apos;ve reached the limit of <strong>10</strong> attendance records
+                </Badge>
               )}
 
               {error && (
