@@ -182,6 +182,7 @@ export default function Dashboard() {
     if (!attendanceData?.studentAttendanceData) {
       return defaultStats;
     }
+    console.log(attendanceData);
 
     const studentData =
       attendanceData.studentAttendanceData as StudentAttendanceData;
@@ -194,6 +195,7 @@ export default function Dashboard() {
     Object.values(studentData).forEach((dateData) => {
       Object.values(dateData).forEach((session) => {
         const { attendance } = session;
+        // console.log(session);
 
         if (attendance === ATTENDANCE_STATUS.PRESENT) totalPresent++;
         else if (attendance === ATTENDANCE_STATUS.ABSENT) totalAbsent++;

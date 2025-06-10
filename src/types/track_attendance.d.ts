@@ -1,8 +1,8 @@
 export interface TrackAttendance {
-  id: number | string;
   username: string;
   course: string;
   date: Date;
-  status: string;
-  session : string
+  session : string;
+  year: string;
+  semester: string;
 };

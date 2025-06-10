@@ -25,6 +25,7 @@ import axios from "axios";
 import { getToken } from "@/utils/auth";
 import { toast } from "sonner";
 import { useTrackingData } from "@/hooks/tracker/useTrackingData";
+import { useFetchSemester, useFetchAcademicYear } from "@/hooks/users/settings";
 import { useTrackingCount } from "@/hooks/tracker/useTrackingCount";
 
 interface AttendanceData {
@@ -52,6 +53,9 @@ export function AttendanceCalendar({
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
     {}
   );
+
+  const { data: semester  } = useFetchSemester();
+  const { data: year} = useFetchAcademicYear();
 
   const accessToken = getToken();
   const { data: user } = useUser();
@@ -104,6 +108,8 @@ export function AttendanceCalendar({
           date,
           status,
           session: sessionName,
+          semester,
+          year,
         },
         {
           headers: {

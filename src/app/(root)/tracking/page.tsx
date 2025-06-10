@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTrackingData } from "@/hooks/tracker/useTrackingData";
 import { useTrackingCount } from "@/hooks/tracker/useTrackingCount";
 import { useUser } from "@/hooks/users/user";
@@ -10,6 +10,8 @@ import { Trash2, CircleAlert, ChevronLeft, ChevronRight } from "lucide-react";
 import axios from "axios";
 import { toast } from "sonner";
 import { LazyMotion, domAnimation, m, AnimatePresence } from "framer-motion";
+import { useAttendanceReport } from "@/hooks/courses/attendance";
+import { useFetchSemester, useFetchAcademicYear } from "@/hooks/users/settings";
 
 const Tracking = () => {
   const { data: user } = useUser();
@@ -17,6 +19,10 @@ const Tracking = () => {
   const [deleteId, setDeleteId] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 5;
+
+  const { data: semester } = useFetchSemester();
+  const { data: year } = useFetchAcademicYear();
+
   const {
     data: remaining,
     error,
@@ -29,14 +35,27 @@ const Tracking = () => {
     refetch: refetchTrackingData,
   } = useTrackingData(user, accessToken);
 
+  const [filteredAttendanceEvents, setFilteredAttendanceEvents] = useState<
+    any[]
+  >([]);
+
+  const { data: attendanceData } = useAttendanceReport();
+
   const totalPages = trackingData
-    ? Math.ceil(trackingData.length / itemsPerPage)
+    ? Math.ceil(
+        trackingData.filter(
+          (item) => item.semester === semester && item.year === year
+        ).length / itemsPerPage
+      )
     : 0;
 
   const getCurrentPageItems = () => {
     if (!trackingData) return [];
+    const currentTermItems = trackingData.filter(
+      (item) => item.semester === semester && item.year === year
+    );
     const startIndex = currentPage * itemsPerPage;
-    return trackingData.slice(startIndex, startIndex + itemsPerPage);
+    return currentTermItems.slice(startIndex, startIndex + itemsPerPage);
   };
 
   const goToPrevPage = () => {
@@ -115,6 +134,94 @@ const Tracking = () => {
     await refetchCount();
     setDeleteId("");
   };
+
+  useEffect(() => {
+    if (!attendanceData?.studentAttendanceData || !trackingData) return;
+
+    const newFilteredEvents: any[] = [];
+
+    Object.entries(attendanceData.studentAttendanceData).forEach(
+      ([dateStr, sessions]) => {
+        const dateYear = parseInt(dateStr.substring(0, 4), 10);
+        const month = parseInt(dateStr.substring(4, 6), 10) - 1;
+        const day = parseInt(dateStr.substring(6, 8), 10);
+
+        Object.entries(sessions).forEach(([sessionKey, sessionData]) => {
+          if (!sessionData.course) return;
+
+          const courseId = sessionData.course.toString();
+          const courseName =
+            attendanceData.courses?.[courseId]?.name || "Unknown Course";
+          const sessionInfo = attendanceData.sessions?.[sessionKey] || {
+            name: `Session ${sessionKey}`,
+          };
+          const sessionName = sessionInfo.name;
+          const formattedDate = `${dateYear}-${String(month + 1).padStart(
+            2,
+            "0"
+          )}-${String(day).padStart(2, "0")}`;
+
+          const matchingTrackingItem = trackingData.find(
+            (item) =>
+              item.course === courseName &&
+              item.session === sessionName &&
+              (typeof item.date === "string"
+                ? item.date
+                : item.date.toISOString().split("T")[0]) === formattedDate
+          );
+
+          if (matchingTrackingItem) {
+            let attendanceStatus = "normal";
+            let attendanceLabel = "Absent";
+            let statusColor = "red";
+
+            switch (sessionData.attendance) {
+              case 110:
+                attendanceStatus = "normal";
+                attendanceLabel = "Present";
+                statusColor = "blue";
+                break;
+              case 111:
+                attendanceStatus = "important";
+                attendanceLabel = "Absent";
+                statusColor = "red";
+                break;
+              case 225:
+                attendanceStatus = "normal";
+                attendanceLabel = "Duty Leave";
+                statusColor = "yellow";
+                break;
+              case 112:
+                attendanceStatus = "important";
+                attendanceLabel = "Other Leave";
+                statusColor = "teal";
+                break;
+            }
+
+            newFilteredEvents.push({
+              title: courseName,
+              date: formattedDate,
+              sessionName,
+              sessionKey,
+              type: attendanceStatus,
+              status: attendanceLabel,
+              statusColor,
+              courseId,
+              username: matchingTrackingItem.username,
+              trackingId: `${matchingTrackingItem.username}-${matchingTrackingItem.session}-${matchingTrackingItem.course}-${matchingTrackingItem.date}`,
+              semester: matchingTrackingItem.semester,
+              year: matchingTrackingItem.year,
+              matchesCurrent:
+                matchingTrackingItem.semester === semester &&
+                matchingTrackingItem.year === year,
+            });
+          }
+        });
+      }
+    );
+
+    setFilteredAttendanceEvents(newFilteredEvents);
+  }, [attendanceData, trackingData, semester, year]);
 
   if (isLoading) {
     return (
@@ -200,16 +307,23 @@ const Tracking = () => {
               </p>
               <p className="text-sm text-muted-foreground max-md:text-xs mb-4">
                 These are absences you&apos;ve marked for duty leave. <br />{" "}
-                Track their update status here. 📋
+                Track their update status here 📋
               </p>
               {remaining > 0 ? (
-                <Badge className={`text-sm text-center max-md:text-xs  py-1 px-3 ${remaining < 4 ? "bg-yellow-500/12 text-yellow-400/75 border-yellow-500/15" : "bg-green-500/12 text-green-400/75 border-green-500/15"}`}>
+                <Badge
+                  className={`text-sm text-center max-md:text-xs  py-1 px-3 ${
+                    remaining < 4
+                      ? "bg-yellow-500/12 text-yellow-400/75 border-yellow-500/15"
+                      : "bg-green-500/12 text-green-400/75 border-green-500/15"
+                  }`}
+                >
                   You can add <strong>{remaining}</strong> more attendance{" "}
                   {remaining === 1 ? "record" : "records"}
                 </Badge>
               ) : (
                 <Badge className="text-sm text-center max-md:text-xs bg-red-500/12 text-red-400/75 border-red-500/15 py-1 px-3">
-                  You&apos;ve reached the limit of <strong>10</strong> attendance records
+                  You&apos;ve reached the limit of <strong>10</strong>{" "}
+                  attendance records
                 </Badge>
               )}
 
@@ -239,21 +353,27 @@ const Tracking = () => {
                   transition={pageTransition}
                   className="flex flex-col gap-4"
                 >
-                  {getCurrentPageItems().map((data, index) => {
-                    const trackingId = `${data.username}-${data.session}-${data.course}-${data.date}`;
-                    const colors: Record<string, string> = {
-                      Present:
-                        "bg-blue-500/10 border-blue-500/30 text-blue-400",
-                      Absent:
-                        "bg-red-500/10 border-red-500/30 text-red-400 backdrop-blur-sm",
-                      "Duty Leave":
-                        "bg-yellow-500/10 border-yellow-500/30 text-yellow-400",
-                      "Other Leave":
-                        "bg-teal-500/10 border-teal-500/30 text-teal-400",
-                    };
+                  {getCurrentPageItems().map((trackingItem, index) => {
+                    const trackingId = `${trackingItem.username}-${trackingItem.session}-${trackingItem.course}-${trackingItem.date}`;
 
-                    const colorClass =
-                      colors[data.status] || "bg-accent/50 border-border";
+                    const matchingEvent = filteredAttendanceEvents.find(
+                      (event) => event.trackingId === trackingId
+                    );
+
+                    let status = "Absent";
+                    let colorClass =
+                      "bg-red-500/10 border-red-500/30 text-red-400";
+
+                    if (matchingEvent) {
+                      status = matchingEvent.status;
+                      colorClass = `bg-${matchingEvent.statusColor}-500/10 border-${matchingEvent.statusColor}-500/30 text-${matchingEvent.statusColor}-400`;
+                    }
+
+                    const isCurrentTerm =
+                      trackingItem.semester === semester &&
+                      trackingItem.year === year;
+
+                    if (!isCurrentTerm) return null;
 
                     return (
                       <m.div
@@ -273,48 +393,56 @@ const Tracking = () => {
                       >
                         <div className="flex justify-between items-start mb-2">
                           <div className="font-medium text-sm capitalize">
-                            {data.course.length > 26 &&
+                            {trackingItem.course.length > 26 &&
                             typeof window !== "undefined" &&
                             window.innerWidth < 600
-                              ? data.course.slice(0, 26).toLowerCase() + "..."
-                              : data.course.toLowerCase()}
+                              ? trackingItem.course.slice(0, 26).toLowerCase() +
+                                "..."
+                              : trackingItem.course.toLowerCase()}
                           </div>
-                          <Badge
-                            className={`
-                            ${
-                              data.status === "Present"
-                                ? "bg-blue-500/20 text-blue-400"
-                                : ""
-                            }
-                            ${
-                              data.status === "Absent"
-                                ? "bg-red-500/20 text-red-400"
-                                : ""
-                            }
-                            ${
-                              data.status === "Duty Leave"
-                                ? "bg-yellow-500/20 text-yellow-400"
-                                : ""
-                            }
-                            ${
-                              data.status === "Other Leave"
-                                ? "bg-teal-500/20 text-teal-400"
-                                : ""
-                            }
-                          `}
-                          >
-                            {data.status}
-                          </Badge>
+                          <div className="flex items-center gap-2">
+                            {!isCurrentTerm && (
+                              <Badge className="bg-orange-500/20 text-orange-400 text-xs">
+                                Different Term
+                              </Badge>
+                            )}
+                            <Badge
+                              className={`
+                                ${
+                                  status === "Present"
+                                    ? "bg-blue-500/20 text-blue-400"
+                                    : ""
+                                }
+                                ${
+                                  status === "Absent"
+                                    ? "bg-red-500/20 text-red-400"
+                                    : ""
+                                }
+                                ${
+                                  status === "Duty Leave"
+                                    ? "bg-yellow-500/20 text-yellow-400"
+                                    : ""
+                                }
+                                ${
+                                  status === "Other Leave"
+                                    ? "bg-teal-500/20 text-teal-400"
+                                    : ""
+                                }
+                              `}
+                            >
+                              {status}
+                            </Badge>
+                          </div>
                         </div>
 
                         <div className="text-xs text-muted-foreground flex items-center justify-between mt-2">
                           <div className="flex items-center justify-center gap-1 ">
                             <span className="font-medium">
-                              {data.date.toString()}
+                              {trackingItem.date.toString()}
                             </span>
                             •
                             <span className="font-medium capitalize">
-                              {formatSessionName(data.session)}
+                              {formatSessionName(trackingItem.session)}
                             </span>
                           </div>
                           <m.button
@@ -322,23 +450,20 @@ const Tracking = () => {
                             whileTap={{ scale: 0.95 }}
                             onClick={() =>
                               handleDeleteTrackData(
-                                data.username,
-                                data.session,
-                                data.course,
-                                data.date.toString()
+                                trackingItem.username,
+                                trackingItem.session,
+                                trackingItem.course,
+                                trackingItem.date.toString()
                               )
                             }
                             className="flex cursor-pointer items-center justify-between gap-2 px-2.5 py-1.5 bg-yellow-400/6 rounded-lg font-medium text-yellow-600 opacity-80 hover:opacity-100 transition-all duration-300"
                           >
-                            {deleteId ===
-                            `${data.username}-${data.session}-${
-                              data.course
-                            }-${data.date.toString()}` ? (
+                            {deleteId === trackingId ? (
                               <span>Deleting...</span>
                             ) : (
                               <>
                                 <div className="max-md:hidden">
-                                  {data.status === "Absent" ? (
+                                  {status === "Absent" ? (
                                     <p>Not updated yet</p>
                                   ) : (
                                     <p>Updated</p>
