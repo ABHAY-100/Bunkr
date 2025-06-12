@@ -685,16 +685,18 @@ export function AttendanceCalendar({
                                 ) : (
                                   <Button
                                     className="gap-1 m-0 rounded-md h-6 hover:bg-red-500/30 space-x-0 space-y-0 p-0 text-xs text-red-400 hover:cursor-pointer bg-red-500/20 hover:opacity-90 duration-300"
-                                    onClick={() =>
-                                      handleWriteTracking(
-                                        user?.id,
-                                        user?.username,
-                                        event.title,
-                                        event.date.toISOString().split("T")[0],
-                                        event.status,
-                                        event.sessionName
-                                      )
-                                    }
+                                    onClick={() => {
+                                      if (user?.id) {
+                                        handleWriteTracking(
+                                          user.id,
+                                          user.username,
+                                          event.title,
+                                          event.date.toISOString().split("T")[0],
+                                          event.status,
+                                          event.sessionName
+                                        );
+                                      }
+                                    }}
                                     disabled={
                                       loadingStates[
                                         `${event.title}-${

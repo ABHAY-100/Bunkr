@@ -309,10 +309,10 @@ const Tracking = () => {
                 These are absences you&apos;ve marked for duty leave. <br />{" "}
                 Track their update status here 📋
               </p>
-              {remaining > 0 ? (
+              {(remaining ?? 0) > 0 ? (
                 <Badge
                   className={`text-sm text-center max-md:text-xs  py-1 px-3 ${
-                    remaining < 4
+                    (remaining ?? 0) < 4
                       ? "bg-yellow-500/12 text-yellow-400/75 border-yellow-500/15"
                       : "bg-green-500/12 text-green-400/75 border-green-500/15"
                   }`}
