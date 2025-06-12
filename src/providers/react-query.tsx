@@ -15,7 +15,7 @@ export default function ReactQueryProvider({ children }: PropsWithChildren) {
             gcTime: 10 * 60 * 1000,
             retry: 2,
             refetchOnWindowFocus: false,
-            refetchInterval: 3 * 60 * 1000,
+            refetchInterval: 15 * 60 * 1000,
           },
         },
       })

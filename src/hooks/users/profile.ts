@@ -1,6 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 import axiosInstance from "@/lib/axios";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { UserProfile } from "@/types";
+import { getToken } from "@/utils/auth";
 
 interface UpdateProfileData {
   id: number;
@@ -12,6 +14,15 @@ export const useProfile = () => {
     queryKey: ["profile"],
     queryFn: async () => {
       const res = await axiosInstance.get("/myprofile");
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_SUPABASE_API_URL}/fetch-user-data`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
       if (!res) throw new Error("Failed to fetch user profile data");
       return res.data;
     },
