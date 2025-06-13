@@ -14,7 +14,7 @@ Bunkr is a student-focused attendance tracker that gives you the insights you ac
 - **Better Data Presentation** 📈 - Clean, user-friendly interface that actually makes your attendance data understandable
 - **Ezygo Integration** 🔄 - Use your existing ezygo credentials - no new accounts needed
 - **Real-time Updates** ⚡ - Get instant updates on your attendance status and skip calculations
-- **Track Status Changes** 📝 – Get notified when your attendance is updated (e.g., from Absent to Duty Leave)
+- **Track Status Changes** 📝 – Get notified when your attendance is updated
 - **Mobile Friendly** 📱 - Access your attendance data on any device, anywhere
 
 <br />
@@ -54,10 +54,11 @@ src/
 
 Create a `.env` file in the root directory and add:
 ```
-NEXT_PUBLIC_BACKEND_URL="https://production.api.ezygo.app/api/v1/Xcr45_salt"
+NEXT_PUBLIC_BACKEND_URL=
+NEXT_PUBLIC_SUPABASE_URL=
+
 ```
-> **Note:** v2 also uses a private Supabase API that is not included. <br />
-> **Warning:** This is a reverse-engineered API. Use at your own risk.
+> 🚨 **Note:** For v2, the Supabase API is private and not included
 
 <br />
 
