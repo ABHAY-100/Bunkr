@@ -42,20 +42,13 @@ const Tracking = () => {
   const { data: attendanceData } = useAttendanceReport();
 
   const totalPages = trackingData
-    ? Math.ceil(
-        trackingData.filter(
-          (item) => item.semester === semester && item.year === year
-        ).length / itemsPerPage
-      )
+    ? Math.ceil(trackingData.length / itemsPerPage)
     : 0;
 
   const getCurrentPageItems = () => {
     if (!trackingData) return [];
-    const currentTermItems = trackingData.filter(
-      (item) => item.semester === semester && item.year === year
-    );
     const startIndex = currentPage * itemsPerPage;
-    return currentTermItems.slice(startIndex, startIndex + itemsPerPage);
+    return trackingData.slice(startIndex, startIndex + itemsPerPage);
   };
 
   const goToPrevPage = () => {
@@ -370,11 +363,9 @@ const Tracking = () => {
                       colorClass = `bg-${matchingEvent.statusColor}-500/10 border-${matchingEvent.statusColor}-500/30 text-${matchingEvent.statusColor}-400`;
                     }
 
-                    const isCurrentTerm =
-                      trackingItem.semester === semester &&
-                      trackingItem.year === year;
-
-                    if (!isCurrentTerm) return null;
+                    // const isCurrentTerm =
+                    //   trackingItem.semester === semester &&
+                    //   trackingItem.year === year;
 
                     return (
                       <m.div
@@ -402,11 +393,11 @@ const Tracking = () => {
                               : trackingItem.course.toLowerCase()}
                           </div>
                           <div className="flex items-center gap-2">
-                            {!isCurrentTerm && (
+                            {trackingItem.semester !== semester || trackingItem.year !== year ? (
                               <Badge className="bg-orange-500/20 text-orange-400 text-xs">
                                 Different Term
                               </Badge>
-                            )}
+                            ) : null}
                             <Badge
                               className={`
                                 ${

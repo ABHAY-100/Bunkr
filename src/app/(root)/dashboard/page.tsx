@@ -62,7 +62,7 @@ export default function Dashboard() {
   >(null);
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  
+
   const [pendingChange, setPendingChange] = useState<
     | { type: "semester"; value: "even" | "odd" }
     | { type: "academicYear"; value: string }
@@ -201,7 +201,7 @@ export default function Dashboard() {
 
   const generateAcademicYears = () => {
     const currentYear = new Date().getFullYear();
-    const startYear = 2003;
+    const startYear = 2018;
     const years: string[] = [];
 
     for (let year = startYear; year <= currentYear; year++) {
@@ -820,10 +820,16 @@ export default function Dashboard() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel onClick={handleCancelChange}>
+              <AlertDialogCancel
+                onClick={handleCancelChange}
+                className="custom-button"
+              >
                 Cancel
               </AlertDialogCancel>
-              <AlertDialogAction onClick={handleConfirmChange}>
+              <AlertDialogAction
+                onClick={handleConfirmChange}
+                className="custom-button bg-accent-foreground! border-accent-foreground!"
+              >
                 Confirm
               </AlertDialogAction>
             </AlertDialogFooter>
