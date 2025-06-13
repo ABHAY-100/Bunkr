@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import ReactQueryProvider from "@/providers/react-query";
 import { Manrope, DM_Mono } from "next/font/google";
 import localFont from "next/font/local";
@@ -56,6 +57,7 @@ export default function RootLayout({
       >
         <ReactQueryProvider>{children}</ReactQueryProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
