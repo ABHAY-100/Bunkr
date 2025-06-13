@@ -58,7 +58,6 @@ NEXT_PUBLIC_BACKEND_URL=
 NEXT_PUBLIC_SUPABASE_URL=
 
 ```
-> 🚨 **Note:** For v2, the Supabase API is private and not included
 
 <br />
 
