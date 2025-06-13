@@ -56,7 +56,6 @@ Create a `.env` file in the root directory and add:
 ```
 NEXT_PUBLIC_BACKEND_URL=
 NEXT_PUBLIC_SUPABASE_URL=
-
 ```
 
 <br />
