@@ -326,7 +326,7 @@ export function AttendanceCalendar({
   const isToday = useCallback((date: Date): boolean => {
     const today = new Date();
     return isSameDay(date, today);
-  }, []);
+  }, [isSameDay]);
 
   const getEventStatus = useCallback(
     (date: Date): string | null => {
