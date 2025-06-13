@@ -62,10 +62,12 @@ export default function Dashboard() {
   >(null);
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [pendingChange, setPendingChange] = useState<{
-    type: "semester" | "academicYear";
-    value: string;
-  } | null>(null);
+  
+  const [pendingChange, setPendingChange] = useState<
+    | { type: "semester"; value: "even" | "odd" }
+    | { type: "academicYear"; value: string }
+    | null
+  >(null);
   useEffect(() => {
     const interval = setInterval(async () => {
       const token = await getToken();
@@ -120,10 +122,10 @@ export default function Dashboard() {
 
     try {
       if (pendingChange.type === "semester") {
-        setSelectedSemester(pendingChange.value as "even" | "odd");
+        setSelectedSemester(pendingChange.value);
 
         await setSemesterMutation.mutateAsync(
-          { default_semester: pendingChange.value },
+          { default_semester: pendingChange.value }, // Now TypeScript knows this is "even" | "odd"
           {
             onSuccess: () => {
               refetchCourses();
