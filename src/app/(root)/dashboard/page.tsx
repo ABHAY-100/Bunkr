@@ -33,9 +33,23 @@ import {
 import { redirect } from "next/navigation";
 import { getToken } from "@/utils/auth";
 import { Loading as CompLoading } from "@/components/loading";
+import { useUser } from "@/hooks/users/user";
+import axios from "axios";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function Dashboard() {
   const { data: profile } = useProfile();
+  const { data: user } = useUser();
   const { data: semesterData, isLoading: isLoadingSemester } =
     useFetchSemester();
   const { data: academicYearData, isLoading: isLoadingAcademicYear } =
@@ -47,6 +61,11 @@ export default function Dashboard() {
     "even" | "odd" | null
   >(null);
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [pendingChange, setPendingChange] = useState<{
+    type: "semester" | "academicYear";
+    value: string;
+  } | null>(null);
   useEffect(() => {
     const interval = setInterval(async () => {
       const token = await getToken();
@@ -83,41 +102,99 @@ export default function Dashboard() {
   } = useFetchCourses();
 
   const handleSemesterChange = (value: "even" | "odd") => {
-    setSelectedSemester(value);
-    setSemesterMutation.mutate(
-      { default_semester: value },
-      {
-        onSuccess: () => {
-          refetchCourses();
-          refetchAttendance();
-        },
-        onError: (error) => {
-          console.error("Error changing semester:", error);
-          if (semesterData) {
-            setSelectedSemester(semesterData);
-          }
-        },
-      }
-    );
+    if (value === selectedSemester) return;
+
+    setPendingChange({ type: "semester", value });
+    setShowConfirmDialog(true);
   };
 
   const handleAcademicYearChange = (value: string) => {
-    setSelectedYear(value);
-    setAcademicYearMutation.mutate(
-      { default_academic_year: value },
-      {
-        onSuccess: () => {
-          refetchCourses();
-          refetchAttendance();
-        },
-        onError: (error) => {
-          console.error("Error changing academic year:", error);
-          if (academicYearData) {
-            setSelectedYear(academicYearData);
+    if (value === selectedYear) return;
+
+    setPendingChange({ type: "academicYear", value });
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmChange = async () => {
+    if (!pendingChange || !user?.username) return;
+
+    try {
+      if (pendingChange.type === "semester") {
+        setSelectedSemester(pendingChange.value as "even" | "odd");
+
+        await setSemesterMutation.mutateAsync(
+          { default_semester: pendingChange.value },
+          {
+            onSuccess: () => {
+              refetchCourses();
+              refetchAttendance();
+            },
+            onError: (error) => {
+              console.error("Error changing semester:", error);
+              if (semesterData) {
+                setSelectedSemester(semesterData);
+              }
+            },
           }
-        },
+        );
+      } else {
+        setSelectedYear(pendingChange.value);
+
+        await setAcademicYearMutation.mutateAsync(
+          { default_academic_year: pendingChange.value },
+          {
+            onSuccess: () => {
+              refetchCourses();
+              refetchAttendance();
+            },
+            onError: (error) => {
+              console.error("Error changing academic year:", error);
+              if (academicYearData) {
+                setSelectedYear(academicYearData);
+              }
+            },
+          }
+        );
       }
-    );
+
+      // Track the change
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_SUPABASE_API_URL}/delete-records-of-users`,
+        { username: user.username },
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+
+      toast.success(`${response.data.message}`, {
+        style: {
+          backgroundColor: "rgba(34, 197, 94, 0.1)",
+          color: "rgb(74, 222, 128)",
+          border: "1px solid rgba(34, 197, 94, 0.2)",
+          backdropFilter: "blur(5px)",
+        },
+      });
+    } catch (error) {
+      console.error("Error during change confirmation:", error);
+      toast.error("Failed to update settings", {
+        style: {
+          backgroundColor: "rgba(239, 68, 68, 0.1)",
+          color: "rgb(248, 113, 113)",
+          border: "1px solid rgba(239, 68, 68, 0.2)",
+          backdropFilter: "blur(5px)",
+        },
+      });
+    } finally {
+      setShowConfirmDialog(false);
+      setPendingChange(null);
+    }
+  };
+
+  const handleCancelChange = () => {
+    setShowConfirmDialog(false);
+    setPendingChange(null);
   };
 
   const generateAcademicYears = () => {
@@ -722,6 +799,34 @@ export default function Dashboard() {
             )}
           </div>
         </div>
+
+        {/* Confirmation Dialog */}
+        <AlertDialog
+          open={showConfirmDialog}
+          onOpenChange={setShowConfirmDialog}
+        >
+          <AlertDialogContent className="custom-container">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirm Change</AlertDialogTitle>
+              <AlertDialogDescription>
+                Changing the{" "}
+                {pendingChange?.type === "semester"
+                  ? "semester"
+                  : "academic year"}{" "}
+                will <strong>delete all data in the tracking table</strong>.
+                This action is irreversible. Are you sure you want to continue?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={handleCancelChange}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={handleConfirmChange}>
+                Confirm
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
     </div>
   );
