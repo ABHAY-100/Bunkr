@@ -256,7 +256,10 @@ export function AttendanceCalendar({
   const handlePreviousMonth = () => {
     setCurrentMonth((prevMonth) => {
       if (prevMonth === 0) {
-        setCurrentYear((prevYear) => prevYear - 0.5);
+        const newYear = currentYear - 1;
+        if (newYear >= 2018) {
+          setCurrentYear(newYear);
+        }
         return 11;
       }
       return prevMonth - 1;
@@ -266,7 +269,10 @@ export function AttendanceCalendar({
   const handleNextMonth = () => {
     setCurrentMonth((prevMonth) => {
       if (prevMonth === 11) {
-        setCurrentYear((prevYear) => prevYear + 0.5);
+        const newYear = currentYear + 1;
+        if (newYear <= new Date().getFullYear()) {
+          setCurrentYear(newYear);
+        }
         return 0;
       }
       return prevMonth + 1;
@@ -505,7 +511,12 @@ export function AttendanceCalendar({
 
             <Select
               value={currentYear.toString()}
-              onValueChange={(value) => setCurrentYear(parseInt(value, 10))}
+              onValueChange={(value) => {
+                const newYear = parseInt(value, 10);
+                if (newYear >= 2018 && newYear <= new Date().getFullYear()) {
+                  setCurrentYear(newYear);
+                }
+              }}
             >
               <SelectTrigger className="w-[90px] h-9 bg-background/60 border-border/60 text-sm custom-dropdown">
                 <SelectValue>{currentYear}</SelectValue>
