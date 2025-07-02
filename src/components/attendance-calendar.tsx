@@ -54,8 +54,8 @@ export function AttendanceCalendar({
     {}
   );
 
-  const { data: semester  } = useFetchSemester();
-  const { data: year} = useFetchAcademicYear();
+  const { data: semester } = useFetchSemester();
+  const { data: year } = useFetchAcademicYear();
 
   const accessToken = getToken();
   const { data: user } = useUser();
@@ -329,10 +329,13 @@ export function AttendanceCalendar({
     );
   }, []);
 
-  const isToday = useCallback((date: Date): boolean => {
-    const today = new Date();
-    return isSameDay(date, today);
-  }, [isSameDay]);
+  const isToday = useCallback(
+    (date: Date): boolean => {
+      const today = new Date();
+      return isSameDay(date, today);
+    },
+    [isSameDay]
+  );
 
   const getEventStatus = useCallback(
     (date: Date): string | null => {
@@ -702,7 +705,13 @@ export function AttendanceCalendar({
                                           user.id,
                                           user.username,
                                           event.title,
-                                          event.date.toISOString().split("T")[0],
+                                          //change date to local date string
+                                          event.date.toLocaleDateString(
+                                            "en-IN",
+                                            {
+                                              timeZone: "Asia/Kolkata",
+                                            }
+                                          ),
                                           event.status,
                                           event.sessionName
                                         );
