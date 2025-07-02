@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { LazyMotion, domAnimation, m, AnimatePresence } from "framer-motion";
 import { useAttendanceReport } from "@/hooks/courses/attendance";
 import { useFetchSemester, useFetchAcademicYear } from "@/hooks/users/settings";
+import { Loading } from "@/components/loading";
 
 const Tracking = () => {
   const { data: user } = useUser();
@@ -20,20 +21,34 @@ const Tracking = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 5;
 
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const { data: semester } = useFetchSemester();
   const { data: year } = useFetchAcademicYear();
+
+  const [enabled, setEnabled] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setEnabled(true);
+    }
+  }, [user]);
 
   const {
     data: remaining,
     error,
     refetch: refetchCount,
-  } = useTrackingCount(user, accessToken);
+  } = useTrackingCount(enabled ? user : null, enabled ? accessToken : null);
 
   const {
     data: trackingData,
     isLoading,
     refetch: refetchTrackingData,
-  } = useTrackingData(user, accessToken);
+  } = useTrackingData(enabled ? user : null, enabled ? accessToken : null);
+
+  if (!trackingData) {
+    console.error("Tracking data is not available");
+  }
 
   const [filteredAttendanceEvents, setFilteredAttendanceEvents] = useState<
     any[]
@@ -224,6 +239,45 @@ const Tracking = () => {
     );
   }
 
+  const deleteAllTrackingData = async () => {
+    try {
+      setIsProcessing(true);
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_SUPABASE_API_URL}/delete-records-of-users`,
+        { username: user?.username },
+        {
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+
+      await refetchTrackingData();
+      await refetchCount();
+      setCurrentPage(0);
+
+      toast.success(`${response.data.message}`, {
+        style: {
+          backgroundColor: "rgba(34, 197, 94, 0.1)",
+          color: "rgb(74, 222, 128)",
+          border: "1px solid rgba(34, 197, 94, 0.2)",
+          backdropFilter: "blur(5px)",
+        },
+      });
+    } catch {
+      toast.error("Failed to delete all tracking data", {
+        style: {
+          backgroundColor: "rgba(239, 68, 68, 0.1)",
+          color: "rgb(248, 113, 113)",
+          border: "1px solid rgba(239, 68, 68, 0.2)",
+          backdropFilter: "blur(5px)",
+        },
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const cardVariants = {
     hidden: {
       opacity: 0,
@@ -290,6 +344,7 @@ const Tracking = () => {
   };
 
   return (
+    isProcessing ? <div className="h-screen"><Loading /></div> :
     <LazyMotion features={domAnimation}>
       <div className="flex flex-1 flex-col flex-wrap gap-4 h-full m-6 text-center min-h-[100vh] relative">
         {trackingData && trackingData.length > 0 ? (
@@ -303,17 +358,25 @@ const Tracking = () => {
                 Track their update status here 📋
               </p>
               {(remaining ?? 0) > 0 ? (
-                
-                <Badge
-                  className={`text-sm text-center max-md:text-xs  py-1 px-3 ${
-                    (remaining ?? 0) < 4
-                      ? "bg-yellow-500/12 text-yellow-400/75 border-yellow-500/15"
-                      : "bg-green-500/12 text-green-400/75 border-green-500/15"
-                  }`}
-                >
-                  You can add <strong>{remaining}</strong> more attendance{" "}
-                  {remaining === 1 ? "record" : "records"}
-                </Badge>
+                <div className="flex flex-col gap-2 items-center justify-center">
+                  <Badge
+                    className={`text-sm text-center max-md:text-xs  py-1 px-3 ${
+                      (remaining ?? 0) < 4
+                        ? "bg-yellow-500/12 text-yellow-400/75 border-yellow-500/15"
+                        : "bg-green-500/12 text-green-400/75 border-green-500/15"
+                    }`}
+                  >
+                    You can add <strong>{remaining}</strong> more attendance{" "}
+                    {remaining === 1 ? "record" : "records"}
+                  </Badge>
+                  <button
+                    onClick={deleteAllTrackingData}
+                    className="text-sm cursor-pointer justify-between items-center gap-2 text-center max-md:text-xs bg-red-500/12 text-red-400/75 hover:bg-red-500/18 duration-300 border-1 border-red-500/15 py-1 px-3 pr-2.5 flex flex-row rounded-md"
+                  >
+                    Clear all tracking data
+                    <Trash2 size={14} />
+                  </button>
+                </div>
               ) : (
                 <Badge className="text-sm text-center max-md:text-xs bg-red-500/12 text-red-400/75 border-red-500/15 py-1 px-3">
                   You&apos;ve reached the limit of <strong>10</strong>{" "}
@@ -393,9 +456,10 @@ const Tracking = () => {
                               : trackingItem.course.toLowerCase()}
                           </div>
                           <div className="flex items-center gap-2">
-                            {trackingItem.semester !== semester || trackingItem.year !== year ? (
-                              <Badge className="bg-orange-500/20 text-orange-400 text-xs">
-                                Different Term
+                            {trackingItem.semester !== semester ||
+                            trackingItem.year !== year ? (
+                              <Badge className="bg-orange-500/20 text-orange-400 text-sm">
+                                ≠
                               </Badge>
                             ) : null}
                             <Badge

@@ -2,7 +2,7 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { User } from "@/types";
 
-export function useTrackingCount(user: User | undefined, accessToken: string) {
+export function useTrackingCount(user: User | null | undefined, accessToken: string) {
   return useQuery<number>({
     queryKey: ["count", user?.username ],
     queryFn: async () => {

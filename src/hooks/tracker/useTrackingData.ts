@@ -3,7 +3,7 @@ import axios from "axios";
 import { useQuery } from "@tanstack/react-query";
 import { TrackAttendance, User } from "@/types";
 
-export function useTrackingData(user: User | undefined, accessToken: string) {
+export function useTrackingData(user: User | null | undefined, accessToken: string) {
   return useQuery<TrackAttendance[]>({
     queryKey: ["track_data"],
     queryFn: async () => {
@@ -18,8 +18,8 @@ export function useTrackingData(user: User | undefined, accessToken: string) {
           },
         }
       );
-      if(!res.data){
-        return []
+      if (!res.data || !res.data.data) {
+        return [];
       }
       return res.data.data;
     },

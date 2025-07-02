@@ -34,8 +34,8 @@ import { redirect } from "next/navigation";
 import { getToken } from "@/utils/auth";
 import { Loading as CompLoading } from "@/components/loading";
 import { useUser } from "@/hooks/users/user";
-import axios from "axios";
-import { toast } from "sonner";
+// import axios from "axios";
+// import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -125,7 +125,7 @@ export default function Dashboard() {
         setSelectedSemester(pendingChange.value);
 
         await setSemesterMutation.mutateAsync(
-          { default_semester: pendingChange.value }, // Now TypeScript knows this is "even" | "odd"
+          { default_semester: pendingChange.value },
           {
             onSuccess: () => {
               refetchCourses();
@@ -160,34 +160,34 @@ export default function Dashboard() {
       }
 
       // Track the change
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_SUPABASE_API_URL}/delete-records-of-users`,
-        { username: user.username },
-        {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        }
-      );
+      // const response = await axios.post(
+      //   `${process.env.NEXT_PUBLIC_SUPABASE_API_URL}/delete-records-of-users`,
+      //   { username: user.username },
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${getToken()}`,
+      //     },
+      //   }
+      // );
 
-      toast.success(`${response.data.message}`, {
-        style: {
-          backgroundColor: "rgba(34, 197, 94, 0.1)",
-          color: "rgb(74, 222, 128)",
-          border: "1px solid rgba(34, 197, 94, 0.2)",
-          backdropFilter: "blur(5px)",
-        },
-      });
+      // toast.success(`${response.data.message}`, {
+      //   style: {
+      //     backgroundColor: "rgba(34, 197, 94, 0.1)",
+      //     color: "rgb(74, 222, 128)",
+      //     border: "1px solid rgba(34, 197, 94, 0.2)",
+      //     backdropFilter: "blur(5px)",
+      //   },
+      // });
     } catch (error) {
       console.error("Error during change confirmation:", error);
-      toast.error("Failed to update settings", {
-        style: {
-          backgroundColor: "rgba(239, 68, 68, 0.1)",
-          color: "rgb(248, 113, 113)",
-          border: "1px solid rgba(239, 68, 68, 0.2)",
-          backdropFilter: "blur(5px)",
-        },
-      });
+      // toast.error("Failed to update settings", {
+      //   style: {
+      //     backgroundColor: "rgba(239, 68, 68, 0.1)",
+      //     color: "rgb(248, 113, 113)",
+      //     border: "1px solid rgba(239, 68, 68, 0.2)",
+      //     backdropFilter: "blur(5px)",
+      //   },
+      // });
     } finally {
       setShowConfirmDialog(false);
       setPendingChange(null);
@@ -811,12 +811,11 @@ export default function Dashboard() {
             <AlertDialogHeader>
               <AlertDialogTitle>Confirm Change</AlertDialogTitle>
               <AlertDialogDescription>
-                Changing the{" "}
+                You are about to change the{" "}
                 {pendingChange?.type === "semester"
                   ? "semester"
-                  : "academic year"}{" "}
-                will <strong>delete all data in the tracking table</strong>.
-                This action is irreversible. Are you sure you want to continue?
+                  : "academic year"}{". "}
+                Are you sure you want to continue?
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
