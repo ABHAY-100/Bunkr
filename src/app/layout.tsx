@@ -7,7 +7,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Bunkr",
+  title: "Bunkr Web",
   description: "Bunkr — Your Attendance Wingman",
   keywords:
     "Bunkr attendance calculator, skip class calculator for college, Bunkr Ezygo alternative, optimize college attendance percentage, Bunkr smart skip strategy, minimum attendance calculator for students, Bunkr class absence planner, how many classes can I skip Bunkr, attendance percentage tracker app, Bunkr vs Ezygo comparison, automate student attendance tracking, Bunkr attendance predictor, avoid attendance shortage Bunkr, college attendance skip allowance, Bunkr attendance optimizer, student absence management app, calculate class skip limit Bunkr, Bunkr attendance analytics dashboard, best app to skip college classes, Bunkr digital roll call system, attendance risk calculator for students",
