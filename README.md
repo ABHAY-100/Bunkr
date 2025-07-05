@@ -115,7 +115,7 @@ We welcome contributions! Here's how you can help:
 - [Abhay Balakrishnan](https://github.com/ABHAY-100)
 - [Asil Mehaboob](https://github.com/AsilMehaboob)
 - [Sreyas B Anand](https://github.com/sreyas-b-anand)
-- [ElvinAlapatt](https://github.com/ElvinAlapatt)
+- [Elvin Alapatt](https://github.com/ElvinAlapatt)
 
 <br />
 
