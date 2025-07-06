@@ -138,8 +138,18 @@ export const Navbar = () => {
               value={targetPercentage.toString()}
               onValueChange={(value) => {
                 setTargetPercentage(Number(value));
-                toast("Target updated", {
-                  description: `Attendance target percentage set to ${value}%.`,
+                toast("Attendance Target Updated", {
+                  description: (
+                  <span style={{ color: "#ffffffa6" }}>
+                    Your attendance target is now set to {value}%.
+                  </span>
+                  ),
+                  style: {
+                  backgroundColor: "rgba(34,197,94,0.08)",
+                  color: "#22c55e",
+                  border: "1px solid #22c55e33",
+                  backdropFilter: "blur(4px)",
+                  }
                 });
               }}
             >
