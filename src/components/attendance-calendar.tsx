@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -53,6 +53,8 @@ export function AttendanceCalendar({
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
     {}
   );
+
+  const clickedButtons = useRef<Set<string>>(new Set());
 
   const { data: semester } = useFetchSemester();
   const { data: year } = useFetchAcademicYear();
@@ -169,6 +171,7 @@ export function AttendanceCalendar({
     } finally {
       // Reset loading state for this specific button
       setLoadingStates((prev) => ({ ...prev, [buttonKey]: false }));
+      clickedButtons.current?.delete(buttonKey);
     }
   };
 
@@ -700,12 +703,20 @@ export function AttendanceCalendar({
                                   <Button
                                     className="gap-1 m-0 rounded-md h-6 hover:bg-red-500/30 space-x-0 space-y-0 p-0 text-xs text-red-400 hover:cursor-pointer bg-red-500/20 hover:opacity-90 duration-300"
                                     onClick={() => {
+                                      const buttonKey = `${event.title}-${
+                                        event.date.toISOString().split("T")[0]
+                                      }-${event.sessionName}`;
+                                      if (
+                                        clickedButtons.current?.has(buttonKey)
+                                      )
+                                        return;
+
+                                      clickedButtons.current?.add(buttonKey);
                                       if (user?.id) {
                                         handleWriteTracking(
                                           user.id,
                                           user.username,
                                           event.title,
-                                          //change date to local date string
                                           event.date.toLocaleDateString(
                                             "en-IN",
                                             {

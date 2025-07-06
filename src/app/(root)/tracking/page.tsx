@@ -40,6 +40,7 @@ const Tracking = () => {
     refetch: refetchCount,
   } = useTrackingCount(enabled ? user : null, enabled ? accessToken : null);
 
+  
   const {
     data: trackingData,
     isLoading,
@@ -378,10 +379,19 @@ const Tracking = () => {
                   </button>
                 </div>
               ) : (
+                <div className="flex flex-col gap-2 items-center justify-center">
                 <Badge className="text-sm text-center max-md:text-xs bg-red-500/12 text-red-400/75 border-red-500/15 py-1 px-3">
-                  You&apos;ve reached the limit of <strong>10</strong>{" "}
+                  You&apos;ve reached the limit of <strong>20</strong>{" "}
                   attendance records
                 </Badge>
+                <button
+                    onClick={deleteAllTrackingData}
+                    className="text-sm cursor-pointer justify-between items-center gap-2 text-center max-md:text-xs bg-red-500/12 text-red-400/75 hover:bg-red-500/18 duration-300 border-1 border-red-500/15 py-1 px-3 pr-2.5 flex flex-row rounded-md"
+                  >
+                    Clear all tracking data
+                    <Trash2 size={14} />
+                  </button>
+                </div>
               )}
 
               {error && (
@@ -505,6 +515,7 @@ const Tracking = () => {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() =>
+                              
                               handleDeleteTrackData(
                                 trackingItem.username,
                                 trackingItem.session,
