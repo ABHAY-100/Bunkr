@@ -731,14 +731,14 @@ export function AttendanceCalendar({
                                     disabled={
                                       loadingStates[
                                         `${event.title}-${
-                                          event.date.toISOString().split("T")[0]
+                                          event.date.toLocaleDateString('en-IN', {timeZone: 'Asia/Kolkata'})
                                         }-${event.sessionName}`
                                       ]
                                     }
                                   >
                                     {loadingStates[
                                       `${event.title}-${
-                                        event.date.toISOString().split("T")[0]
+                                        event.date.toLocaleDateString('en-IN', {timeZone: 'Asia/Kolkata'})
                                       }-${event.sessionName}`
                                     ] ? (
                                       <div className="w-full flex items-center justify-center px-2">
