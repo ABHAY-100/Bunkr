@@ -4,7 +4,7 @@
 
 Bunkr is a student-focused attendance tracker that gives you the insights you actually need. Built as a better alternative to Ezygo, it presents your attendance data with a clean, intuitive interface that makes sense to students. No more confusing numbers - just clear, actionable insights!
 
-<!-- Also available as a Flutter app: [Bunkr Mobile](https://github.com/ABHAY-100/bunkr-app) -->
+*Also available as a Flutter app: [BUNKR](https://github.com/AsilMehaboob/BUNKR)*
 
 <br />
 
