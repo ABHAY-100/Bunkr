@@ -60,6 +60,24 @@ NEXT_PUBLIC_SUPABASE_URL=
 
 <br />
 
+## 🧮 Bunk Algorithm
+
+```ts
+1. If total <= 0 or present <= 0 → return zeros
+
+2. current% = (present / total) * 100
+
+3. If current% == target → isExact = true
+
+4. If current% < target:
+   required = ceil((target * total - 100 * present) / (100 - target))
+
+5. If current% > target:
+   bunkable = floor((100 * present - target * total) / target)
+```
+
+<br />
+
 ## 🚀 Getting Started
 
 ### Prerequisites
