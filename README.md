@@ -63,7 +63,7 @@ NEXT_PUBLIC_SUPABASE_URL=
 ## 🧮 Bunk Algorithm
 
 ```ts
-1. If total <= 0 or present <= 0 → return zeros
+1. If total <= 0 or present <= 0 → return zero
 
 2. current% = (present / total) * 100
 
@@ -75,6 +75,8 @@ NEXT_PUBLIC_SUPABASE_URL=
 5. If current% > target:
    bunkable = floor((100 * present - target * total) / target)
 ```
+
+*Full implementation available here: [bunk.ts](https://github.com/ABHAY-100/bunkr-web/blob/main/src/utils/bunk.ts)*
 
 <br />
 
