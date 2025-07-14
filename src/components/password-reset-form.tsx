@@ -54,6 +54,7 @@ export function PasswordResetForm({
   const router = useRouter();
   const [step, setStep] = useState<"username" | "option" | "otp">("username");
   const [username, setUsername] = useState("");
+  const [actualUsername, setActualUsername] = useState("");
   const [resetOptions, setResetOptions] = useState<ResetOptions | null>(null);
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [otp, setOtp] = useState("");
@@ -74,11 +75,23 @@ export function PasswordResetForm({
     setError(null);
 
     try {
-      const response = await axios.post("/password/reset/options", {
-        username,
+      const lookupResponse = await axios.post("/login/lookup", {
+        username: username,
       });
-      setResetOptions(response.data);
-      setStep("option");
+
+      if (lookupResponse.data.users && lookupResponse.data.users.length > 0) {
+        const usernameToUse = lookupResponse.data.users[0];
+        setActualUsername(usernameToUse);
+
+        const response = await axios.post("/password/reset/options", {
+          username: usernameToUse,
+        });
+        setResetOptions(response.data);
+        setStep("option");
+      } else {
+        setError("Ezygo: No user found with this username/email/phone.");
+        return;
+      }
     } catch (error: any) {
       setError(
         `Ezygo: ${error.response?.data?.message}` ||
@@ -96,7 +109,7 @@ export function PasswordResetForm({
 
     try {
       await axios.post("/password/reset/request", {
-        username,
+        username: actualUsername,
         option: selectedOption,
       });
       setStep("otp");
@@ -118,7 +131,7 @@ export function PasswordResetForm({
     try {
       const response = await axios.post("/password/reset", {
         otp,
-        username,
+        username: actualUsername,
         password,
         password_confirmation: passwordConfirmation,
       });
