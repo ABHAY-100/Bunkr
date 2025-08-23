@@ -174,9 +174,7 @@ const Tracking = () => {
             (item) =>
               item.course === courseName &&
               item.session === sessionName &&
-              (typeof item.date === "string"
-                ? item.date
-                : item.date.toISOString().split("T")[0]) === formattedDate
+              item.date === formattedDate
           );
 
           if (matchingTrackingItem) {
@@ -504,7 +502,7 @@ const Tracking = () => {
                         <div className="text-xs text-muted-foreground flex items-center justify-between mt-2">
                           <div className="flex items-center justify-center gap-1 ">
                             <span className="font-medium">
-                              {trackingItem.date.toString()}
+                              {trackingItem.date}
                             </span>
                             •
                             <span className="font-medium capitalize">
@@ -520,7 +518,7 @@ const Tracking = () => {
                                 trackingItem.username,
                                 trackingItem.session,
                                 trackingItem.course,
-                                trackingItem.date.toString()
+                                trackingItem.date
                               )
                             }
                             className="flex cursor-pointer items-center justify-between gap-2 px-2.5 py-1.5 bg-yellow-400/6 rounded-lg font-medium text-yellow-600 opacity-80 hover:opacity-100 transition-all duration-300"
