@@ -688,7 +688,12 @@ export function AttendanceCalendar({
                                 {trackingData?.some(
                                   (data) =>
                                     data.course === event.title &&
-                                    data.session === event.sessionName
+                                    data.session === event.sessionName &&
+                                    data.date === event.date.toLocaleDateString("en-IN", {
+                                      timeZone: "Asia/Kolkata",
+                                    }) &&
+                                    data.semester === semester &&
+                                    data.year === year
                                 ) ? (
                                   <Link
                                     className="flex items-center justify-center bg-red-500/20 gap-2 py-1 text-red-400 hover:bg-red-500/30 rounded-md hover:opacity-90 duration-300"
