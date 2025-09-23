@@ -627,9 +627,9 @@ export default function Dashboard() {
                           {Object.entries(coursesData.courses).map(
                             ([courseId, course]: [string, any]) => {
                               const instructors =
-                                course.institution_users.filter(
+                                course.institution_users?.filter(
                                   (user: any) => user.pivot.courserole_id === 1
-                                );
+                                ) || [];
 
                               return instructors.length > 0 ? (
                                 instructors.map(
