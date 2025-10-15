@@ -108,6 +108,16 @@ export const Navbar = () => {
 
       <div className="flex items-center justify-between gap-4 md:gap-6">
         <div className="gap-3 flex items-center">
+          <div className="max-lg:hidden text-white/85">
+            <Button
+              variant={"outline"}
+              className="custom-button cursor-pointer max-md:hidden"
+              onClick={() => window.open("https://github.com/ABHAY-100/Bunkr")}
+            >
+              Star on GitHub &nbsp; ⭐
+            </Button>
+          </div>
+
           {pathname !== "/dashboard" && (
             <div className="max-lg:hidden text-white/85">
               <Button
@@ -140,16 +150,16 @@ export const Navbar = () => {
                 setTargetPercentage(Number(value));
                 toast("Attendance Target Updated", {
                   description: (
-                  <span style={{ color: "#ffffffa6" }}>
-                    Your attendance target is now set to {value}%.
-                  </span>
+                    <span style={{ color: "#ffffffa6" }}>
+                      Your attendance target is now set to {value}%.
+                    </span>
                   ),
                   style: {
-                  backgroundColor: "rgba(34,197,94,0.08)",
-                  color: "#22c55e",
-                  border: "1px solid #22c55e33",
-                  backdropFilter: "blur(4px)",
-                  }
+                    backgroundColor: "rgba(34,197,94,0.08)",
+                    color: "#22c55e",
+                    border: "1px solid #22c55e33",
+                    backdropFilter: "blur(4px)",
+                  },
                 });
               }}
             >
@@ -220,7 +230,7 @@ export const Navbar = () => {
         <div className="flex items-center gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+              <Button variant="ghost" className="relative h-9 w-9 rounded-full cursor-pointer">
                 <Avatar className="h-9 w-9 outline-2">
                   <AvatarFallback>
                     <Image src={User} alt="Avatar" width={40} height={40} />
