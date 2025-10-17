@@ -149,6 +149,24 @@ const Tracking = () => {
 
     const newFilteredEvents: any[] = [];
 
+    const normalizeToYMD = (dateStr: string): string => {
+      if (!dateStr) return "";
+      // Already in YYYY-MM-DD
+      if (dateStr.includes("-")) {
+        return dateStr;
+      }
+      // Likely locale string like DD/MM/YYYY
+      if (dateStr.includes("/")) {
+        const [dd, mm, yyyy] = dateStr.split("/");
+        if (dd && mm && yyyy) {
+          const d = dd.padStart(2, "0");
+          const m = mm.padStart(2, "0");
+          return `${yyyy}-${m}-${d}`;
+        }
+      }
+      return dateStr;
+    };
+
     Object.entries(attendanceData.studentAttendanceData).forEach(
       ([dateStr, sessions]) => {
         const dateYear = parseInt(dateStr.substring(0, 4), 10);
@@ -159,8 +177,9 @@ const Tracking = () => {
           if (!sessionData.course) return;
 
           const courseId = sessionData.course.toString();
-          const courseName =
-            attendanceData.courses?.[courseId]?.name || "Unknown Course";
+          const courseInfo = attendanceData.courses?.[courseId];
+          const courseName = courseInfo?.name || "Unknown Course";
+          const courseCode = (courseInfo?.code || "").toString();
           const sessionInfo = attendanceData.sessions?.[sessionKey] || {
             name: `Session ${sessionKey}`,
           };
@@ -170,12 +189,21 @@ const Tracking = () => {
             "0"
           )}-${String(day).padStart(2, "0")}`;
 
-          const matchingTrackingItem = trackingData.find(
-            (item) =>
-              item.course === courseName &&
-              item.session === sessionName &&
-              item.date === formattedDate
-          );
+          const nameLower = courseName.toLowerCase();
+          const codeLower = courseCode.toLowerCase();
+          const sessionLower = sessionName.toLowerCase();
+
+          const matchingTrackingItem = trackingData.find((item) => {
+            const itemCourseLower = (item.course || "").toLowerCase().trim();
+            const itemSessionLower = (item.session || "").toLowerCase().trim();
+            const itemDateYmd = normalizeToYMD(item.date);
+            const courseMatches =
+              itemCourseLower === nameLower ||
+              (codeLower && itemCourseLower === codeLower);
+            const sessionMatches = itemSessionLower === sessionLower;
+            const dateMatches = itemDateYmd === formattedDate;
+            return courseMatches && sessionMatches && dateMatches;
+          });
 
           if (matchingTrackingItem) {
             let attendanceStatus = "normal";
@@ -200,7 +228,7 @@ const Tracking = () => {
                 break;
               case 112:
                 attendanceStatus = "important";
-                attendanceLabel = "Other Leave";
+                attendanceLabel = "Leave";
                 statusColor = "teal";
                 break;
             }
@@ -429,9 +457,19 @@ const Tracking = () => {
                     let colorClass =
                       "bg-red-500/10 border-red-500/30 text-red-400";
 
+                    const statusColorToClass: Record<string, string> = {
+                      red: "bg-red-500/10 border-red-500/30 text-red-400",
+                      blue: "bg-blue-500/10 border-blue-500/30 text-blue-400",
+                      yellow:
+                        "bg-yellow-500/10 border-yellow-500/30 text-yellow-400",
+                      teal: "bg-teal-500/10 border-teal-500/30 text-teal-400",
+                    };
+
                     if (matchingEvent) {
                       status = matchingEvent.status;
-                      colorClass = `bg-${matchingEvent.statusColor}-500/10 border-${matchingEvent.statusColor}-500/30 text-${matchingEvent.statusColor}-400`;
+                      colorClass =
+                        statusColorToClass[matchingEvent.statusColor] ??
+                        colorClass;
                     }
 
                     // const isCurrentTerm =
@@ -488,7 +526,7 @@ const Tracking = () => {
                                     : ""
                                 }
                                 ${
-                                  status === "Other Leave"
+                                  status === "Other Leave" || status === "Leave"
                                     ? "bg-teal-500/20 text-teal-400"
                                     : ""
                                 }
