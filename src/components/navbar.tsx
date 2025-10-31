@@ -37,6 +37,7 @@ import {
   UserRound,
   Percent,
   SquareAsterisk,
+  Sticker
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useAttendanceSettings } from "@/providers/attendance-settings";
@@ -273,6 +274,13 @@ export const Navbar = () => {
               >
                 <UserRound className="mr-2 h-4 w-4" />
                 <span>Profile</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => window.open("https://forms.gle/3JQvraVMqpkg2tp56")}
+                className="cursor-pointer"
+              >
+                <Sticker className="mr-2 h-4 w-4" />
+                <span>Feedback</span>
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />
