@@ -20,9 +20,9 @@ export function CourseCard({ course }: CourseCardProps) {
   );
 
   const attendancePercentage = courseDetails?.persantage ?? 0;
-  const total = courseDetails?.totel || 0;
-  const present = courseDetails?.present || 0;
-  const hasAttendanceData = !isLoading && total > 0 && attendancePercentage > 0;
+  const total = courseDetails?.totel ?? 0;
+  const present = courseDetails?.present ?? 0;
+  const hasAttendanceData = !isLoading && !!courseDetails && total > 0;
 
   const { targetPercentage } = useAttendanceSettings();
   const [showBunkCalc, setShowBunkCalc] = useState(true);
